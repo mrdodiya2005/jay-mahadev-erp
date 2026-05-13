@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jay Mahadev - Live Cloud ERP</title>
+    <!-- Firebase SDK (Compat Version for better browser support) -->
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
+    <style>
+        :root { --primary: #0f172a; --secondary: #3b82f6; --bg: #f3f4f6; --text: #1f2937; --card: #ffffff; }
+        body { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background-color: var(--bg); margin: 0; padding: 0; color: var(--text); }
+        .navbar { background-color: var(--primary); color: white; padding: 16px 20px; text-align: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .navbar h2 { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: 1px; }
+        .back-btn { position: absolute; left: 15px; top: 15px; background: none; border: none; color: white; font-size: 18px; cursor: pointer; display: none; }
+        .container { max-width: 650px; margin: 20px auto; padding: 0 15px; }
+        .party-card { background: var(--card); padding: 18px; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px rgba(0,0,0,0.05); cursor: pointer; border-left: 5px solid var(--secondary); transition: 0.3s; }
+        .party-bal { font-size: 18px; font-weight: 700; color: #dc2626; }
+        .btn { padding: 12px 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; text-align: center; display: inline-block; box-sizing: border-box; transition: 0.2s; }
+        .btn-primary { background: var(--secondary); color: white; width: 100%; margin-top: 10px; }
+        .btn-success { background: #059669; color: white; }
+        .btn-outline { background: transparent; border: 2px solid var(--secondary); color: var(--secondary); }
+        input { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; box-sizing: border-box; font-size: 15px; margin-bottom: 10px; }
+        #dashboardScreen, #partyDetailScreen, #invoiceScreen { display: none; }
+        .active-screen { display: block !important; }
+        .invoice-wrapper { background: white; padding: 40px; border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); color: #1f2937; border-top: 8px solid var(--primary); }
+        .inv-header { display: flex; justify-content: space-between; border-bottom: 2px solid #f3f4f6; padding-bottom: 25px; margin-bottom: 30px; }
+        .inv-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; border: 1px solid #e2e8f0; }
+        .inv-table th { background-color: var(--primary); color: white; padding: 14px; }
+        .inv-table td { padding: 14px; text-align: center; border-bottom: 1px solid #e2e8f0; }
+        .inv-summary { width: 45%; float: right; background: #f8fafc; padding: 20px; border-radius: 12px; }
+        .auth-sign { text-align: right; margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 15px; }
+        @media print { .no-print { display: none !important; } .container { max-width: 100%; margin: 0; } .invoice-wrapper { box-shadow: none; border: none; } }
+    </style>
+</head>
+<body>
+
+<div class="navbar">
+    <button class="back-btn" id="backBtn" onclick="goHome()">&#8592;</button>
+    <h2 id="navTitle">JAY MAHADEV</h2>
+</div>
+
+<div class="container">
+    <!-- DASHBOARD -->
+    <div id="dashboardScreen" class="active-screen">
+        <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+            <input type="text" id="newPartyName" placeholder="Enter party name..." style="margin-bottom: 0;">
+            <button class="btn btn-primary" style="margin:0; width: 130px;" onclick="addNewParty()">+ Add Party</button>
+        </div>
+        <div id="partyListContainer"></div>
+    </div>
+
+    <!-- PARTY DETAIL -->
+    <div id="partyDetailScreen">
+        <div style="background: white; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+            <h2 id="pdName" style="margin: 0 0 5px 0;">Name</h2>
+            <p style="margin: 0;">Due Balance: <span id="pdOldBal" style="font-weight:700; color:#dc2626;">₹ 0</span></p>
+        </div>
+        <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+            <button class="btn btn-primary" style="margin:0;" onclick="openEntry('qty')">+ Add Quantity</button>
+            <button class="btn btn-success" style="margin:0; width: 100%;" onclick="openEntry('jama')">+ Add Payment</button>
+        </div>
+        <div id="entryForm" style="display:none; background: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #ddd;">
+            <h4 id="entryTitle" style="margin-top:0;">Add Entry</h4>
+            <input type="date" id="entryDate">
+            <input type="number" id="entryValue" placeholder="Enter value...">
+            <button class="btn btn-primary" onclick="saveData()">Save</button>
+            <button class="btn btn-outline" style="margin-top: 10px; width: 100%;" onclick="document.getElementById('entryForm').style.display='none'">Cancel</button>
+        </div>
+        <button class="btn btn-outline" style="width: 100%; margin-bottom: 20px;" onclick="showInvoice()">🧾 Generate Invoice</button>
+        <div id="recordsList" style="background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);"></div>
+    </div>
+
+    <!-- INVOICE -->
+    <div id="invoiceScreen">
+        <div class="no-print" style="margin-bottom: 20px; display: flex; gap: 12px;">
+            <button class="btn btn-success" style="flex: 2;" onclick="window.print()">🖨️ Print / Save PDF</button>
+            <button class="btn btn-primary" style="flex: 1; background: #dc2626;" onclick="closeCycle()">✅ Close Cycle</button>
+        </div>
+        <div class="invoice-wrapper">
+            <div class="inv-header">
+                <div><h1 style="margin:0;">JAY MAHADEV</h1><p style="margin:5px 0;">Re-Point Die Manufacturer</p></div>
+                <div style="text-align: right;"><h2>INVOICE</h2><p id="invDate" style="font-weight:bold;"></p></div>
+            </div>
+            <div style="background: #f8fafc; padding: 15px; margin-bottom: 20px; border-left: 4px solid var(--secondary);">
+                <p style="font-size: 12px; font-weight: bold; margin: 0; color: #64748b;">BILLED TO:</p>
+                <h3 id="invPartyName" style="margin: 5px 0 0 0;">Party Name</h3>
+            </div>
+            <table class="inv-table">
+                <thead><tr><th>No.</th><th>Date</th><th>Quantity</th></tr></thead>
+                <tbody id="invBody"></tbody>
+            </table>
+            <div class="inv-summary">
+                <table style="width: 100%;">
+                    <tr><td>Total Quantity:</td><td id="resQty" style="text-align: right; font-weight: bold;">0</td></tr>
+                    <tr><td>Old Balance:</td><td id="resOld" style="text-align: right;">0</td></tr>
+                    <tr><td style="color: #059669;">Less Payment:</td><td id="resJama" style="text-align: right; color: #059669; font-weight: bold;">0</td></tr>
+                    <tr style="font-weight: bold; font-size: 18px; color: var(--primary);"><td>Final Due:</td><td id="resFinal" style="text-align: right;">0</td></tr>
+                </table>
+            </div>
+            <div style="clear: both;"></div>
+            <div class="auth-sign">
+                <p style="font-weight: 800; font-size: 16px; margin: 0;">SANJAYBHAI DODIYA</p>
+                <p style="font-size: 11px; margin: 0;">(Authorized Signatory)</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- FIREBASE CONFIGURATION ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyAFsTJ3b4vPDC5ZdDEe-6dd8EbUcGK7Sb8",
+        authDomain: "dai-bill.firebaseapp.com",
+        databaseURL: "https://dai-bill-default-rtdb.firebaseio.com",
+        projectId: "dai-bill",
+        storageBucket: "dai-bill.firebasestorage.app",
+        messagingSenderId: "222835726511",
+        appId: "1:222835726511:web:3bc69cc170d5019393dc5a",
+        measurementId: "G-1ZBMKX6R2P"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    let appData = {};
+    let activeParty = null;
+    let mode = '';
+
+    // Live Sync
+    db.ref('jayMahadevData').on('value', (snap) => {
+        appData = snap.val() || {};
+        loadDashboard();
+        if(activeParty) openParty(activeParty);
+    });
+
+    function save() { db.ref('jayMahadevData').set(appData); }
+
+    function loadDashboard() {
+        const container = document.getElementById('partyListContainer');
+        container.innerHTML = '';
+        Object.keys(appData).sort().forEach(p => {
+            const card = document.createElement('div');
+            card.className = 'party-card';
+            card.onclick = () => openParty(p);
+            card.innerHTML = `<div><h3>${p}</h3></div><div class="party-bal">₹ ${appData[p].balance}</div>`;
+            container.appendChild(card);
+        });
+    }
+
+    function addNewParty() {
+        const n = document.getElementById('newPartyName').value.trim().toUpperCase();
+        if(!n || appData[n]) return;
+        appData[n] = { balance: 0, deliveries: [], payments: [] };
+        save();
+        document.getElementById('newPartyName').value = '';
+    }
+
+    function openParty(p) {
+        activeParty = p;
+        document.getElementById('pdName').innerText = p;
+        document.getElementById('pdOldBal').innerText = "₹ " + appData[p].balance;
+        const list = document.getElementById('recordsList');
+        list.innerHTML = '<h4 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px;">Active Records</h4>';
+        
+        if(appData[p].deliveries.length === 0 && appData[p].payments.length === 0) {
+            list.innerHTML += '<p style="color:#94a3b8; font-size:13px;">No active entries for this cycle.</p>';
+        }
+
+        appData[p].deliveries.forEach(d => list.innerHTML += `<p style="font-size:14px; margin:8px 0;">📅 ${d.date}: <b>${d.nang}</b> Units</p>`);
+        appData[p].payments.forEach(pay => list.innerHTML += `<p style="font-size:14px; margin:8px 0; color:#059669;">💰 ${pay.date}: Received ₹${pay.amount}</p>`);
+        
+        switchScreen('partyDetailScreen', p);
+    }
+
+    function openEntry(m) {
+        mode = m;
+        document.getElementById('entryForm').style.display = 'block';
+        document.getElementById('entryTitle').innerText = (m === 'qty') ? 'Add Quantity' : 'Add Received Payment';
+        document.getElementById('entryDate').valueAsDate = new Date();
+        document.getElementById('entryValue').focus();
+    }
+
+    function saveData() {
+        const d = document.getElementById('entryDate').value.split('-').reverse().join('/');
+        const v = parseFloat(document.getElementById('entryValue').value);
+        if(!v) return;
+        if(mode === 'qty') appData[activeParty].deliveries.push({date: d, nang: v});
+        else appData[activeParty].payments.push({date: d, amount: v});
+        save();
+        document.getElementById('entryForm').style.display = 'none';
+        document.getElementById('entryValue').value = '';
+    }
+
+    function showInvoice() {
+        const data = appData[activeParty];
+        document.getElementById('invPartyName').innerText = activeParty;
+        document.getElementById('invDate').innerText = "Date: " + new Date().toLocaleDateString();
+        const body = document.getElementById('invBody');
+        body.innerHTML = '';
+        let totalQ = 0;
+        data.deliveries.forEach((d, i) => {
+            body.innerHTML += `<tr><td>${i+1}</td><td>${d.date}</td><td>${d.nang}</td></tr>`;
+            totalQ += d.nang;
+        });
+        
+        let curAmt = Math.round(totalQ * 0.30);
+        let totalJ = 0;
+        data.payments.forEach(p => totalJ += p.amount);
+        
+        document.getElementById('resQty').innerText = totalQ;
+        document.getElementById('resOld').innerText = "₹ " + data.balance;
+        document.getElementById('resJama').innerText = "- ₹ " + totalJ;
+        document.getElementById('resFinal').innerText = "₹ " + (data.balance + curAmt - totalJ);
+        switchScreen('invoiceScreen', 'Invoice Preview');
+    }
+
+    function closeCycle() {
+        if(!confirm("Are you sure you want to CLOSE this cycle? Current dues will become the new starting balance.")) return;
+        const final = parseInt(document.getElementById('resFinal').innerText.replace('₹ ', ''));
+        appData[activeParty].balance = final;
+        appData[activeParty].deliveries = [];
+        appData[activeParty].payments = [];
+        save();
+        goHome();
+    }
+
+    function switchScreen(s, t) {
+        document.querySelectorAll('.container > div').forEach(div => div.classList.remove('active-screen'));
+        document.getElementById(s).classList.add('active-screen');
+        document.getElementById('navTitle').innerText = (s === 'dashboardScreen') ? 'JAY MAHADEV' : t;
+        document.getElementById('backBtn').style.display = (s === 'dashboardScreen') ? 'none' : 'block';
+    }
+
+    function goHome() { activeParty = null; switchScreen('dashboardScreen', 'JAY MAHADEV'); }
+</script>
+</body>
+</html>
