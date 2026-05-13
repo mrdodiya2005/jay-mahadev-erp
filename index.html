@@ -3,104 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jay Mahadev - Premium Cloud ERP</title>
+    <title>Jay Mahadev - Final Cloud ERP</title>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
     <style>
-        :root { --primary: #0f172a; --secondary: #3b82f6; --accent: #1e40af; --bg: #f3f4f6; --text: #1f2937; --card: #ffffff; }
-        body { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background-color: var(--bg); margin: 0; padding: 0; color: var(--text); }
-        .navbar { background-color: var(--primary); color: white; padding: 16px 20px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100;}
-        .navbar h2 { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: 1px;}
-        .back-btn { position: absolute; left: 15px; top: 15px; background: none; border: none; color: white; font-size: 18px; cursor: pointer; display: none; }
-        .container { max-width: 650px; margin: 20px auto; padding: 0 15px; }
-        .card { background: var(--card); padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        .party-card { background: var(--card); padding: 18px; border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-left: 5px solid var(--secondary); transition: 0.3s; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .party-bal { font-size: 18px; font-weight: 700; color: #dc2626; }
-        .btn { padding: 12px 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: 0.2s; width: 100%; box-sizing: border-box; }
-        .btn-primary { background: var(--secondary); color: white; }
-        .btn-success { background: #059669; color: white; }
-        .btn-outline { background: transparent; border: 2px solid var(--secondary); color: var(--secondary); }
-        input { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; margin-bottom: 10px; box-sizing: border-box; }
-        #dashboardScreen, #partyDetailScreen, #invoiceScreen { display: none; }
-        .active-screen { display: block !important; }
-        .inv-box { background: white; padding: 30px; border-top: 10px solid var(--primary); color: #000; }
-        .inv-table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-        .inv-table th, .inv-table td { border: 1px solid #e2e8f0; padding: 12px; text-align: center; }
-        @media print { .no-print { display: none !important; } .container { max-width: 100%; margin:0; } .inv-box { box-shadow: none; border: none; } }
+        :root { --primary: #0f172a; --secondary: #3b82f6; --bg: #f3f4f6; --text: #1f2937; --card: #ffffff; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--bg); margin: 0; padding: 0; }
+        .navbar { background-color: var(--primary); color: white; padding: 15px; text-align: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .container { max-width: 600px; margin: 20px auto; padding: 0 15px; }
+        .card { background: var(--card); padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        .party-item { display: flex; justify-content: space-between; align-items: center; cursor: pointer; border-left: 5px solid var(--secondary); padding: 15px; background: white; border-radius: 8px; margin-bottom: 10px; transition: 0.2s; }
+        .party-item:hover { background: #f1f5f9; }
+        .bal-red { color: #dc2626; font-weight: bold; font-size: 18px; }
+        .btn { padding: 12px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 10px; font-size: 14px; }
+        .btn-blue { background: var(--secondary); color: white; }
+        .btn-green { background: #059669; color: white; }
+        input { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; }
+        #dashboard, #details, #invoice { display: none; }
+        .active { display: block !important; }
+        .back-btn { position: absolute; left: 15px; top: 15px; color: white; background: none; border: none; font-size: 18px; cursor: pointer; }
     </style>
 </head>
 <body>
 
 <div class="navbar">
-    <button class="back-btn" id="backBtn" onclick="goHome()">←</button>
+    <button class="back-btn" id="backBtn" onclick="goHome()" style="display:none;">← Back</button>
     <h2 id="navTitle">JAY MAHADEV</h2>
 </div>
 
 <div class="container">
-    <div id="dashboardScreen" class="active-screen">
+    <div id="dashboard" class="active">
         <div class="card">
-            <input type="text" id="partySearch" placeholder="🔍 Search or Enter New Party Name..." onkeyup="filterParties()">
-            <button class="btn btn-primary" onclick="addNewParty()">+ Create Party</button>
+            <input type="text" id="pNameInput" placeholder="Enter New Party Name...">
+            <button class="btn btn-blue" onclick="createParty()">+ Add New Party</button>
         </div>
-        <div id="partyListContainer"></div>
+        <div id="pListContainer"></div>
     </div>
 
-    <div id="partyDetailScreen">
-        <div class="card" style="text-align: center; border-bottom: 4px solid var(--secondary);">
-            <h2 id="pdName" style="margin:0; color: var(--primary);">Party Name</h2>
-            <p style="margin:8px 0; font-size: 14px;">Total Outstanding: <span id="pdOldBal" class="party-bal">₹ 0</span></p>
+    <div id="details">
+        <div class="card" style="text-align: center;">
+            <h2 id="activePName">Party</h2>
+            <p>Old Balance: <span id="activePBal" class="bal-red">0</span></p>
         </div>
-        <div style="display: flex; gap: 12px; margin-bottom: 20px;">
-            <button class="btn btn-primary" onclick="openEntryForm('qty')">+ Add Quantity</button>
-            <button class="btn btn-success" onclick="openEntryForm('pay')">+ Add Payment</button>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn btn-blue" onclick="showInput('qty')">+ Add Qty</button>
+            <button class="btn btn-green" onclick="showInput('pay')">+ Add Payment</button>
         </div>
-        <div id="entryForm" class="card" style="display:none; border: 1px solid var(--secondary);">
-            <h4 id="formTitle" style="margin-top:0;">New Entry</h4>
-            <input type="date" id="entryDate">
-            <input type="number" id="entryVal" placeholder="Enter Value...">
-            <button class="btn btn-primary" onclick="saveEntryToCloud()">Save Data</button>
+        <div id="inputBox" class="card" style="display:none; margin-top:15px;">
+            <h4 id="inputTitle">Entry</h4>
+            <input type="date" id="inputDate">
+            <input type="number" id="inputVal" placeholder="Enter Value...">
+            <button class="btn btn-blue" onclick="submitToCloud()">Save to Cloud</button>
         </div>
-        <button class="btn btn-outline" style="margin-bottom: 15px;" onclick="showInvoice()">🧾 View Billing Statement</button>
-        <div id="historyList"></div>
+        <button class="btn btn-blue" style="margin-top:20px; background:#1e293b;" onclick="generateBill()">🧾 View & Print Bill</button>
+        <div id="history" style="margin-top:20px;"></div>
     </div>
 
-    <div id="invoiceScreen">
-        <div class="no-print" style="margin-bottom:20px; display:flex; gap:12px;">
-            <button class="btn btn-success" onclick="window.print()">🖨️ Print / Save PDF</button>
-            <button class="btn btn-primary" style="background:#dc2626;" onclick="closeBillingCycle()">✅ Finalize & Close Cycle</button>
-        </div>
-        <div class="inv-box">
-            <div style="display:flex; justify-content:space-between; border-bottom: 2px solid #eee; padding-bottom: 15px;">
-                <div><h1 style="margin:0; color: var(--primary);">JAY MAHADEV</h1><p style="margin:5px 0;">Re-Point Die Manufacturer</p></div>
-                <div style="text-align:right;"><h3>INVOICE</h3><p id="invDate" style="font-weight:bold;"></p></div>
-            </div>
-            <div style="margin:20px 0; padding:15px; background:#f8fafc; border-left:5px solid var(--secondary);">
-                <p style="font-size: 12px; font-weight: bold; margin:0; color: #64748b;">BILLED TO:</p>
-                <span id="invPartyName" style="font-size:20px; font-weight:800;"></span>
-            </div>
-            <table class="inv-table">
-                <thead><tr style="background: #f1f5f9;"><th>No.</th><th>Date</th><th>Quantity</th></tr></thead>
-                <tbody id="invTbody"></tbody>
-            </table>
-            <div style="float:right; width:55%; background:#f8fafc; padding:20px; border-radius:12px;">
-                <table style="width:100%; border-spacing: 0 8px;">
-                    <tr><td>Total Quantity:</td><td id="resQty" style="text-align:right; font-weight:bold;">0</td></tr>
-                    <tr><td>Rate:</td><td style="text-align:right;">₹ 0.30</td></tr>
-                    <tr><td>Old Balance:</td><td id="resOld" style="text-align:right;">0</td></tr>
-                    <tr><td style="color:#059669;">Less Received:</td><td id="resJama" style="text-align:right; color:#059669; font-weight:bold;">0</td></tr>
-                    <tr style="font-size:20px; font-weight:bold; border-top:2px solid #000;"><td style="padding-top:10px;">Net Payable:</td><td id="resFinal" style="text-align:right; color:#dc2626; padding-top:10px;">₹ 0</td></tr>
-                </table>
-            </div>
-            <div style="clear:both; padding-top:60px; text-align:right;">
-                <p style="font-weight: 800; font-size: 18px; margin:0;">SANJAYBHAI DODIYA</p>
-                <p style="font-size:12px; margin:0;">(Authorized Signatory)</p>
-            </div>
+    <div id="invoice">
+        <div class="card">
+            <h3>Invoice Preview</h3>
+            <p>Party: <span id="invName"></span></p>
+            <hr>
+            <div id="invTable"></div>
+            <button class="btn btn-green" onclick="window.print()">Print PDF</button>
+            <button class="btn btn-blue" style="background:#dc2626;" onclick="clearAndSave()">Close Cycle & Update Bal</button>
         </div>
     </div>
 </div>
 
 <script>
-    // --- FIREBASE CONFIGURATION ---
     const firebaseConfig = {
         apiKey: "AIzaSyAFsTJ3b4vPDC5ZdDEe-6dd8EbUcGK7Sb8",
         authDomain: "dai-bill.firebaseapp.com",
@@ -113,139 +84,80 @@
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    let appData = {};
-    let activeParty = null;
+    let parties = {};
+    let currentP = null;
     let entryMode = '';
 
-    // LIVE DATA SYNC
-    db.ref('jayMahadevData').on('value', (snap) => {
-        appData = snap.val() || {};
-        renderDashboard();
-        if(activeParty) updatePartyDetails();
+    // Real-time listener
+    db.ref('parties').on('value', (snapshot) => {
+        parties = snapshot.val() || {};
+        renderList();
+        if(currentP) updateDetailView();
     });
 
-    function renderDashboard() {
-        const container = document.getElementById('partyListContainer');
+    function renderList() {
+        const container = document.getElementById('pListContainer');
         container.innerHTML = '';
-        const search = document.getElementById('partySearch').value.toUpperCase();
-        
-        Object.keys(appData).sort().forEach(p => {
-            if(p.includes(search)) {
-                const card = document.createElement('div');
-                card.className = 'party-card';
-                card.onclick = () => openParty(p);
-                card.innerHTML = `<div><h3 style="margin:0;">${p}</h3></div><div class="party-bal">₹ ${appData[p].balance}</div>`;
-                container.appendChild(card);
-            }
+        Object.keys(parties).forEach(name => {
+            const div = document.createElement('div');
+            div.className = 'party-item';
+            div.onclick = () => openParty(name);
+            div.innerHTML = `<span>${name}</span><span class="bal-red">₹ ${parties[name].balance}</span>`;
+            container.appendChild(div);
         });
     }
 
-    function addNewParty() {
-        const n = document.getElementById('partySearch').value.trim().toUpperCase();
-        if(!n) { alert("Please enter a name"); return; }
-        if(appData[n]) { alert("Party already exists"); return; }
-        db.ref('jayMahadevData/' + n).set({ balance: 0, deliveries: [], payments: [] });
-        document.getElementById('partySearch').value = '';
+    function createParty() {
+        const n = document.getElementById('pNameInput').value.trim().toUpperCase();
+        if(!n) return;
+        db.ref('parties/' + n).set({ balance: 0, entries: [], payments: [] });
+        document.getElementById('pNameInput').value = '';
     }
 
-    function openParty(p) {
-        activeParty = p;
-        updatePartyDetails();
-        switchScreen('partyDetailScreen', p);
+    function openParty(name) {
+        currentP = name;
+        switchScreen('details');
+        updateDetailView();
     }
 
-    function updatePartyDetails() {
-        const data = appData[activeParty];
-        document.getElementById('pdName').innerText = activeParty;
-        document.getElementById('pdOldBal').innerText = "₹ " + data.balance;
-        const list = document.getElementById('historyList');
-        list.innerHTML = '<h4 style="margin-bottom:10px; border-bottom:1px solid #ddd;">Current Cycle Records</h4>';
-        
-        if(data.deliveries) {
-            data.deliveries.forEach(d => list.innerHTML += `<div class="card" style="padding:10px; margin-bottom:8px;">📦 ${d.date}: <b>${d.nang}</b> Units</div>`);
-        }
-        if(data.payments) {
-            data.payments.forEach(p => list.innerHTML += `<div class="card" style="padding:10px; margin-bottom:8px; color:#059669;">💰 ${p.date}: Received ₹<b>${p.amount}</b></div>`);
-        }
+    function updateDetailView() {
+        const p = parties[currentP];
+        document.getElementById('activePName').innerText = currentP;
+        document.getElementById('activePBal').innerText = "₹ " + p.balance;
+        const h = document.getElementById('history');
+        h.innerHTML = '<h4>Recent History</h4>';
+        (p.entries || []).forEach(e => h.innerHTML += `<div class='card' style='padding:10px; margin-bottom:5px;'>📦 ${e.date}: ${e.val} Units</div>`);
+        (p.payments || []).forEach(pay => h.innerHTML += `<div class='card' style='padding:10px; margin-bottom:5px; color:green;'>💰 ${pay.date}: ₹${pay.val}</div>`);
     }
 
-    function openEntryForm(m) {
+    function showInput(m) {
         entryMode = m;
-        document.getElementById('entryForm').style.display = 'block';
-        document.getElementById('formTitle').innerText = m === 'qty' ? 'Add Delivery Quantity' : 'Add Payment Received';
-        document.getElementById('entryDate').valueAsDate = new Date();
+        document.getElementById('inputBox').style.display = 'block';
+        document.getElementById('inputTitle').innerText = m === 'qty' ? 'Add Quantity' : 'Add Payment';
+        document.getElementById('inputDate').valueAsDate = new Date();
     }
 
-    function saveEntryToCloud() {
-        const d = document.getElementById('entryDate').value.split('-').reverse().join('/');
-        const v = parseFloat(document.getElementById('entryVal').value);
+    function submitToCloud() {
+        const d = document.getElementById('inputDate').value.split('-').reverse().join('/');
+        const v = parseFloat(document.getElementById('inputVal').value);
         if(!v) return;
-
-        if(entryMode === 'qty') {
-            const list = appData[activeParty].deliveries || [];
-            list.push({date: d, nang: v});
-            db.ref('jayMahadevData/' + activeParty + '/deliveries').set(list);
-        } else {
-            const list = appData[activeParty].payments || [];
-            list.push({date: d, amount: v});
-            db.ref('jayMahadevData/' + activeParty + '/payments').set(list);
-        }
-        
-        document.getElementById('entryForm').style.display = 'none';
-        document.getElementById('entryVal').value = '';
+        const path = entryMode === 'qty' ? 'entries' : 'payments';
+        const list = parties[currentP][path] || [];
+        list.push({date: d, val: v});
+        db.ref('parties/' + currentP + '/' + path).set(list);
+        document.getElementById('inputBox').style.display = 'none';
+        document.getElementById('inputVal').value = '';
     }
 
-    function showInvoice() {
-        const data = appData[activeParty];
-        document.getElementById('invPartyName').innerText = activeParty;
-        document.getElementById('invDate').innerText = "Date: " + new Date().toLocaleDateString();
-        const tbody = document.getElementById('invTbody');
-        tbody.innerHTML = '';
-        
-        let totalQ = 0;
-        if(data.deliveries) {
-            data.deliveries.forEach((d, i) => {
-                tbody.innerHTML += `<tr><td>${i+1}</td><td>${d.date}</td><td>${d.nang}</td></tr>`;
-                totalQ += d.nang;
-            });
-        }
-        
-        let curAmt = Math.round(totalQ * 0.30);
-        let totalP = 0;
-        if(data.payments) {
-            data.payments.forEach(p => totalP += p.amount);
-        }
-        
-        document.getElementById('resQty').innerText = totalQ;
-        document.getElementById('resOld').innerText = "₹ " + data.balance;
-        document.getElementById('resJama').innerText = "- ₹ " + totalP;
-        document.getElementById('resFinal').innerText = "₹ " + (data.balance + curAmt - totalP);
-        switchScreen('invoiceScreen', 'Invoice Preview');
+    function switchScreen(id) {
+        ['dashboard', 'details', 'invoice'].forEach(s => document.getElementById(s).classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        document.getElementById('backBtn').style.display = id === 'dashboard' ? 'none' : 'block';
     }
 
-    function closeBillingCycle() {
-        if(!confirm("Are you sure? This will clear current records and carry forward the balance.")) return;
-        const final = parseInt(document.getElementById('resFinal').innerText.replace('₹ ', ''));
-        db.ref('jayMahadevData/' + activeParty).update({
-            balance: final,
-            deliveries: null,
-            payments: null
-        });
-        goHome();
-    }
-
-    function filterParties() { renderDashboard(); }
+    function goHome() { currentP = null; switchScreen('dashboard'); }
     
-    function switchScreen(s, t) {
-        document.getElementById('dashboardScreen').classList.remove('active-screen');
-        document.getElementById('partyDetailScreen').classList.remove('active-screen');
-        document.getElementById('invoiceScreen').classList.remove('active-screen');
-        document.getElementById(s).classList.add('active-screen');
-        document.getElementById('navTitle').innerText = t;
-        document.getElementById('backBtn').style.display = s === 'dashboardScreen' ? 'none' : 'block';
-    }
-
-    function goHome() { activeParty = null; switchScreen('dashboardScreen', 'JAY MAHADEV'); }
+    // Additional logic for billing can go here...
 </script>
 </body>
 </html>
