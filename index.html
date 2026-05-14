@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jay Mahadev Dai</title>
@@ -80,8 +82,6 @@
     </style>
 </head>
 <body>
-    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
 <div class="navbar">
     <button class="back-btn" id="backBtn" onclick="goHome()">&#8592;</button>
     <h2 id="navTitle">JAY MAHADEV DAI</h2>
@@ -180,16 +180,31 @@
 </div>
 
 <script>
-const firebaseConfig = {
-    apiKey: "AIzaSyAFsTJ3b4vPDC5ZdDEe-6dd8EbUCGK7Sb8",
-    authDomain: "dai-bill.firebaseapp.com",
-    databaseURL: "https://dai-bill-default-rtdb.firebaseio.com",
-    projectId: "dai-bill",
-    storageBucket: "dai-bill.firebasestorage.app",
-    messagingSenderId: "222835726511",
-    appId: "1:222835726511:web:3bc69cc170d5019393dc5a",
-    measurementId: "G-1ZBMKX6R2P"
-};
+    const firebaseConfig = {
+        apiKey: "AIzaSyAFsTJ3b4vPDC5ZdDEe-6dd8EbUCGK7Sb8",
+        authDomain: "dai-bill.firebaseapp.com",
+        databaseURL: "https://dai-bill-default-rtdb.firebaseio.com",
+        projectId: "dai-bill",
+        storageBucket: "dai-bill.firebasestorage.app",
+        messagingSenderId: "222835726511",
+        appId: "1:222835726511:web:3bc69cc170d5019393dc5a"
+    };
+    
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    
+    let appData = {};
+    
+    // ડેટા લોડ કરતી વખતે 'Check' ઉમેર્યો છે
+    db.ref('erp_data').on('value', (snapshot) => {
+        appData = snapshot.val() || {}; // જો ડેટા ન હોય તો ખાલી ઓબ્જેક્ટ લેશે
+        loadDashboard();
+    });
+    
+    // જૂની localStorage વાળી saveDB લાઈન બદલી નાખો
+    function saveDB() {
+        db.ref('erp_data').set(appData);
+    }
 
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
@@ -220,18 +235,25 @@ const db = firebase.database();
     function loadDashboard() {
         let container = document.getElementById('partyListContainer');
         container.innerHTML = '';
+        
         Object.keys(appData).forEach(party => {
             let card = document.createElement('div');
             card.className = 'party-card';
+            
+            // ડેટા છે કે નહીં તે ચેક કરવા માટે (લાઇન ૨૪૪-૨૪૫)
+            let deliveryCount = (appData[party].deliveries ? appData[party].deliveries.length : 0);
+            let paymentCount = (appData[party].payments ? appData[party].payments.length : 0);
+    
             card.innerHTML = `
                 <div class="party-info" onclick="openParty('${party}')">
                     <h3>${party}</h3>
-                    <p>${appData[party].deliveries.length + appData[party].payments.length} Active Entries</p>
+                    <p>${deliveryCount + paymentCount} Active Entries</p>
                 </div>
                 <div class="party-actions">
                     <button class="action-btn btn-edit" onclick="renameParty('${party}')">✎</button>
                     <button class="action-btn btn-delete" onclick="deleteParty('${party}')">🗑</button>
                 </div>`;
+                
             container.appendChild(card);
         });
     }
