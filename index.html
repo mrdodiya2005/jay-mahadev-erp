@@ -3,266 +3,329 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jay Mahadev - Fast ERP</title>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-database-compat.js"></script>
+    <title>Jay Mahadev Dai</title>
     <style>
-        :root { --primary: #0f172a; --secondary: #3b82f6; --bg: #f8fafc; --card: #ffffff; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding: 0; }
+        :root { --primary: #0f172a; --secondary: #3b82f6; --accent: #1e40af; --bg: #f3f4f6; --text: #1f2937; --card: #ffffff; }
+        body { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background-color: var(--bg); margin: 0; padding: 0; color: var(--text); }
         
-        .fade-in { animation: fadeIn 0.3s ease-in; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        /* Navbar */
+        .navbar { background-color: var(--primary); color: white; padding: 16px 20px; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100;}
+        .navbar h2 { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: 1px;}
+        .back-btn { position: absolute; left: 15px; top: 15px; background: none; border: none; color: white; font-size: 18px; cursor: pointer; display: none; }
 
-        .navbar { background: var(--primary); color: white; padding: 18px; text-align: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .back-btn { position: absolute; left: 15px; top: 18px; background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
+        .container { max-width: 650px; margin: 20px auto; padding: 0 15px; }
 
-        .container { max-width: 600px; margin: 20px auto; padding: 0 15px; }
+        /* Dashboard & Cards */
+        .party-card { background: var(--card); padding: 18px; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border-left: 5px solid var(--secondary); transition: all 0.3s ease; }
+        .party-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); }
+        .party-info { cursor: pointer; flex-grow: 1; }
+        .party-info h3 { margin: 0 0 5px 0; color: var(--primary); font-size: 16px;}
+        .party-info p { margin: 0; font-size: 13px; color: #6b7280; }
         
-        /* Dashboard Items - Faster & Cleaner */
-        .party-item { 
-            background: white; 
-            padding: 18px; 
-            border-radius: 12px; 
-            margin-bottom: 10px; 
-            border-left: 6px solid var(--secondary); 
-            cursor: pointer; 
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-            font-size: 18px;
-            font-weight: 600;
-            color: var(--primary);
-            display: block; /* Purely name focus */
+        .party-actions { display: flex; gap: 8px; }
+        .action-btn { border: none; background: #f1f5f9; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 14px; transition: 0.2s; }
+        .btn-edit { color: var(--secondary); }
+        .btn-delete { color: #dc2626; }
+
+        /* Buttons & Inputs */
+        .btn { padding: 12px 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: 0.2s; display: inline-block; box-sizing: border-box; text-align: center;}
+        .btn-primary { background: var(--secondary); color: white; }
+        .btn-success { background: #059669; color: white; }
+        .btn-outline { background: transparent; border: 2px solid var(--secondary); color: var(--secondary); }
+        
+        .input-group { margin-bottom: 16px; }
+        input { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; box-sizing: border-box; }
+
+        /* Screens */
+        #dashboardScreen, #partyDetailScreen, #invoiceScreen { display: none; }
+        .active-screen { display: block !important; }
+
+        .detail-header { background: white; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 24px; }
+        .action-buttons { display: flex; gap: 12px; margin-bottom: 24px; }
+        .action-buttons .btn { flex: 1; }
+
+        /* History Table */
+        .history-box { background: white; border-radius: 12px; padding: 20px; margin-top: 24px; }
+        table { width: 100%; border-collapse: collapse; font-size: 14px; }
+        th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+
+        /* PREMIUM INVOICE CSS */
+        .invoice-wrapper { background: white; padding: 40px; border-radius: 4px; box-shadow: 0 10px 30px rgba(0,0,0,0.08); color: #1f2937; border-top: 8px solid var(--primary); }
+        .inv-header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 25px; border-bottom: 2px solid #f3f4f6; margin-bottom: 30px; }
+        .inv-brand h1 { margin: 0; color: var(--primary); font-size: 26px; font-weight: 800; letter-spacing: 1px; }
+        .inv-brand p { margin: 6px 0 0 0; font-size: 13px; color: #6b7280; }
+        .inv-meta h2 { margin: 0 0 8px 0; color: #9ca3af; font-size: 24px; font-weight: 300; letter-spacing: 2px; }
+        
+        .inv-party-section { display: flex; justify-content: space-between; margin-bottom: 30px; }
+        .inv-party { background: #f8fafc; padding: 15px 20px; border-left: 4px solid var(--secondary); border-radius: 0 8px 8px 0; min-width: 200px;}
+        .inv-party p { margin: 0; font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; }
+        .inv-party h3 { margin: 5px 0 0 0; font-size: 18px; color: var(--primary); }
+
+        .inv-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
+        .inv-table th { background-color: var(--primary); color: white; font-size: 13px; padding: 14px; text-align: center; }
+        .inv-table td { border-bottom: 1px solid #e2e8f0; padding: 14px; text-align: center; color: #334155; }
+        
+        .inv-footer-section { display: flex; justify-content: space-between; margin-top: 20px; }
+        .inv-terms { width: 45%; font-size: 11px; color: #64748b; }
+        .inv-summary { width: 45%; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; }
+        .inv-summary table { width: 100%; }
+        .inv-summary td { padding: 8px 0; border-bottom: 1px dashed #cbd5e1; }
+        .inv-total td { font-size: 18px; font-weight: 800; color: var(--primary); border: none; }
+
+        @media print {
+            .navbar, .no-print, .party-actions { display: none !important; }
+            .container { margin: 0; padding: 0; max-width: 100%; }
+            .invoice-wrapper { box-shadow: none; border-top: 6px solid var(--primary); }
         }
-
-        .btn { padding: 14px; border: none; border-radius: 10px; cursor: pointer; font-weight: 600; width: 100%; font-size: 15px; }
-        .btn-blue { background: var(--secondary); color: white; }
-        .btn-red { background: #ef4444; color: white; }
-        input { width: 100%; padding: 14px; margin-bottom: 12px; border: 2px solid #e2e8f0; border-radius: 10px; box-sizing: border-box; font-size: 16px; }
-
-        #dashboard, #details, #invoice { display: none; }
-        .active { display: block !important; }
-
-        /* Invoice Style */
-        .inv-box { background: white; padding: 30px 20px; border: 1px solid #000; color: #000; }
-        table { width: 100%; border-collapse: collapse; margin: 15px 0; }
-        table th, table td { border: 1px solid #000; padding: 8px; text-align: center; }
-        @media print { .no-print { display: none; } .container { max-width: 100%; margin:0; } }
     </style>
 </head>
 <body>
-
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
 <div class="navbar">
-    <button onclick="goHome()" id="backBtn" class="back-btn" style="display:none;">←</button>
-    <h2 id="navTitle">JAY MAHADEV</h2>
+    <button class="back-btn" id="backBtn" onclick="goHome()">&#8592;</button>
+    <h2 id="navTitle">JAY MAHADEV DAI</h2>
 </div>
 
 <div class="container">
-    <div id="dashboard" class="active fade-in">
-        <div style="background: white; padding: 15px; border-radius: 15px; margin-bottom: 20px;">
-            <input type="text" id="newPartyName" placeholder="Write Name">
-            <button class="btn btn-blue" onclick="addParty()">+ Add Party</button>
+    <div id="dashboardScreen" class="active-screen">
+        <div class="input-group" style="display: flex; gap: 12px;">
+            <input type="text" id="newPartyName" placeholder="Enter new party name...">
+            <button class="btn btn-primary" style="width: 130px;" onclick="addNewParty()">+ Add Party</button>
         </div>
-        <div id="pList">
-            <p style="text-align: center; color: #64748b;">Loading Parties...</p>
-        </div>
+        <div id="partyListContainer"></div>
     </div>
 
-    <div id="details" class="fade-in">
-        <div style="background: #1e293b; color: white; padding: 25px; border-radius: 15px; text-align: center; margin-bottom: 20px;">
-            <h2 id="dispName" style="margin:0;">Name</h2>
-            <p style="margin: 10px 0 0 0; font-size: 18px;">બાકી રકમ: <span id="dispBal" style="color: #fbbf24; font-weight: bold;">₹ 0</span></p>
-            <div style="margin-top: 15px; display: flex; gap: 10px; justify-content: center;">
-                <button onclick="renameParty()" style="background:none; border: 1px solid white; color: white; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Edit</button>
-                <button onclick="deleteParty()" style="background:#ef4444; border:none; color: white; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Delete</button>
-            </div>
+    <div id="partyDetailScreen">
+        <div class="detail-header">
+            <h2 id="pdName">Party Name</h2>
+            <p>Prev. Balance: <span id="pdOldBal" style="font-weight:700; color:#dc2626;">₹ 0</span></p>
         </div>
-        
-        <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-            <button class="btn btn-blue" onclick="openForm('qty')">📦 Add Qty</button>
-            <button class="btn btn-blue" style="background:#059669;" onclick="openForm('pay')">💰 Add Pay</button>
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="openEntryModal('qty')">Add Quantity</button>
+            <button class="btn btn-success" onclick="openEntryModal('jama')">Add Payment</button>
         </div>
-
-        <div id="entryForm" style="display:none; background: white; padding: 15px; border-radius: 15px; margin-bottom: 15px; border: 1px solid #3b82f6;">
-            <h4 id="formHead" style="margin:0 0 10px 0;">Entry</h4>
-            <input type="date" id="eDate">
-            <input type="number" id="eVal" placeholder="નંગ અથવા રકમ લખો...">
-            <button class="btn btn-blue" onclick="saveEntry()">Save</button>
+        <div id="entryForm" style="display:none; background: #fff; padding: 20px; border-radius: 12px; margin-bottom: 24px; border: 1px solid #e5e7eb;">
+            <h4 id="entryFormTitle">Add Entry</h4>
+            <div class="input-group"><label>Date:</label><input type="date" id="entryDate"></div>
+            <div class="input-group"><label id="entryLabel">Value:</label><input type="number" id="entryValue"></div>
+            <button class="btn btn-primary" style="width:100%" onclick="saveData()">Save Entry</button>
         </div>
-
-        <button class="btn btn-blue" style="background:#0f172a;" onclick="viewBill()">🧾 View Full Bill</button>
-        <div id="history" style="margin-top: 20px;"></div>
-    </div>
-
-    <div id="invoice" class="fade-in">
-        <div class="no-print" style="margin-bottom: 15px; display: flex; gap: 10px;">
-            <button class="btn btn-blue" style="background:#059669;" onclick="window.print()">Print</button>
-            <button class="btn btn-red" onclick="finishCycle()">Cycle પૂરો કરો</button>
-        </div>
-        <div class="inv-box">
-            <h2 style="text-align:center; margin:0;">JAY MAHADEV</h2>
-            <p style="text-align:center; margin:5px 0;">Premium Die Manufacturer</p>
-            <hr style="border: 1px solid #000;">
-            <p><b>Party:</b> <span id="invParty"></span></p>
-            <p><b>Date:</b> <span id="invDate"></span></p>
-            <table>
-                <thead><tr><th>No.</th><th>Date</th><th>Quantity</th></tr></thead>
-                <tbody id="invBody"></tbody>
+        <button class="btn btn-outline" style="width:100%; margin-bottom:20px;" onclick="showInvoice()">🧾 Generate Invoice</button>
+        <div class="history-box">
+            <table id="currentRecordTable">
+                <thead><tr><th>Date</th><th>Type</th><th style="text-align:right">Qty/Amt</th></tr></thead>
+                <tbody id="currentRecordBody"></tbody>
             </table>
-            <div style="float:right; width:60%; margin-top:10px;">
-                <table style="border:none;">
-                    <tr><td style="text-align:left; border:none;">Total Qty:</td><td id="resQty" style="border:none; text-align:right;">0</td></tr>
-                    <tr><td style="text-align:left; border:none;">Rate (0.30):</td><td id="resRate" style="border:none; text-align:right;">0</td></tr>
-                    <tr><td style="text-align:left; border:none;">Old Bal:</td><td id="resOld" style="border:none; text-align:right;">0</td></tr>
-                    <tr><td style="text-align:left; border:none; color:green;">Received:</td><td id="resPay" style="border:none; text-align:right;">0</td></tr>
-                    <tr style="font-weight:bold; font-size:18px; border-top: 1px solid #000;"><td style="text-align:left; border:none;">Total Due:</td><td id="resFinal" style="border:none; text-align:right;">0</td></tr>
-                </table>
+        </div>
+    </div>
+
+    <div id="invoiceScreen">
+        <div class="no-print" style="margin-bottom: 24px; display: flex; gap: 12px;">
+            <button class="btn btn-success" style="flex: 2;" onclick="window.print()">🖨️ Print / Save PDF</button>
+            <button class="btn btn-primary" style="flex: 1; background: #dc2626;" onclick="closeBook()">✅ Close Cycle</button>
+        </div>
+
+        <div class="invoice-wrapper">
+            <div class="inv-header">
+                <div class="inv-brand">
+                    <h1>JAY MAHADEV DAI</h1>
+                    <p>Premium Dai Manufacturing</p>
+                </div>
+                <div class="inv-meta">
+                    <h2>INVOICE</h2>
+                    <p>Date: <b id="invDate"></b></p>
+                </div>
             </div>
-            <div style="clear:both; padding-top:40px; text-align:right;">
-                <p><b>SANJAYBHAI DODIYA</b></p>
-                <P>(Authorized Person)</P>
+
+            <div class="inv-party-section">
+                <div class="inv-party">
+                    <p>Billed To:</p>
+                    <h3 id="invPartyName"></h3>
+                </div>
+                <div style="text-align: right;">
+                    <p style="margin: 0; font-size: 13px; color: #64748b;">Rate Applied:</p>
+                    <p style="margin: 5px 0 0 0; font-size: 16px; font-weight: 700;">₹ 0.30 / Unit</p>
+                </div>
+            </div>
+
+            <table class="inv-table">
+                <thead><tr><th style="width: 15%;">No.</th><th style="width: 45%;">Date</th><th style="width: 40%;">Quantity</th></tr></thead>
+                <tbody id="invItemsBody"></tbody>
+            </table>
+
+            <div class="inv-footer-section">
+                <div class="inv-terms">
+                    <h4 style="margin:0">Terms & Conditions</h4>
+                    <p>1. Please verify the quantities listed above.<br>
+                        2. All balances are carried forward to the next billing cycle if unpaid.<br>
+                        3. Thank you for your continued business!</p>
+                </div>
+                <div class="inv-summary">
+                    <table>
+                        <tr><td>Total Qty:</td><td style="text-align:right"><b id="invTotalQty">0</b></td></tr>
+                        <tr><td>Current Amount:</td><td style="text-align:right">₹ <span id="invCurrentAmt">0</span></td></tr>
+                        <tr><td>Old Balance:</td><td style="text-align:right">₹ <span id="invOldBal">0</span></td></tr>
+                        <tr style="color: #059669;"><td>Less Received:</td><td style="text-align:right">- ₹ <span id="invTotalJama">0</span></td></tr>
+                        <tr class="inv-total"><td>Final Due:</td><td style="text-align:right">₹ <span id="invFinalDue">0</span></td></tr>
+                    </table>
+                </div>
+            </div>
+            <div style="text-align: right; margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 15px;">
+                <p style="margin: 0; font-weight: 800;">SANJAYBHAI DODIYA</p>
+                <p style="margin: 4px 0 0 0; font-size: 11px; color: #64748b;">(Authorized Person)</p>
             </div>
         </div>
     </div>
 </div>
 
 <script>
-    const firebaseConfig = {
-        apiKey: "AIzaSyAFsTJ3b4vPDC5ZdDEe-6dd8EbUcGK7Sb8",
-        authDomain: "dai-bill.firebaseapp.com",
-        databaseURL: "https://dai-bill-default-rtdb.firebaseio.com",
-        projectId: "dai-bill",
-        storageBucket: "dai-bill.firebasestorage.app",
-        messagingSenderId: "222835726511",
-        appId: "1:222835726511:web:3bc69cc170d5019393dc5a"
-    };
+const firebaseConfig = {
+    apiKey: "AIzaSyAFsTJ3b4vPDC5ZdDEe-6dd8EbUCGK7Sb8",
+    authDomain: "dai-bill.firebaseapp.com",
+    databaseURL: "https://dai-bill-default-rtdb.firebaseio.com",
+    projectId: "dai-bill",
+    storageBucket: "dai-bill.firebasestorage.app",
+    messagingSenderId: "222835726511",
+    appId: "1:222835726511:web:3bc69cc170d5019393dc5a",
+    measurementId: "G-1ZBMKX6R2P"
+};
 
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    let parties = {};
-    let activeP = null;
-    let mode = '';
-
-    // Fast Data Fetching
-    db.ref('parties').on('value', (snap) => {
-        parties = snap.val() || {};
-        renderDashboard();
-        if(activeP) updateDetails();
-    });
-
-    function renderDashboard() {
-        const list = document.getElementById('pList');
-        list.innerHTML = '';
-        const sortedKeys = Object.keys(parties).sort();
-        
-        if (sortedKeys.length === 0) {
-            list.innerHTML = '<p style="text-align: center;">No parties found.</p>';
-            return;
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+    const RATE = 0.30;
+    let appData = {};
+    db.ref('erp_data').on('value', (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+            appData = data;
+            loadDashboard();
         }
+    });
+    let activeParty = null;
+    let entryMode = ''; 
 
-        sortedKeys.forEach(p => {
-            const div = document.createElement('div');
-            div.className = 'party-item fade-in';
-            div.onclick = () => openParty(p);
-            div.innerText = p; // ખાલી નામ જ બતાવશે
-            list.appendChild(div);
+    function saveDB() {db.ref('erp_data').set(appData);
+    }
+
+    function getFormattedToday() {
+        let today = new Date();
+        let dd = String(today.getDate()).padStart(2, '0');
+        let mm = String(today.getMonth() + 1).padStart(2, '0');
+        let yyyy = today.getFullYear();
+        return dd + '/' + mm + '/' + yyyy;
+    }
+
+    function loadDashboard() {
+        let container = document.getElementById('partyListContainer');
+        container.innerHTML = '';
+        Object.keys(appData).forEach(party => {
+            let card = document.createElement('div');
+            card.className = 'party-card';
+            card.innerHTML = `
+                <div class="party-info" onclick="openParty('${party}')">
+                    <h3>${party}</h3>
+                    <p>${appData[party].deliveries.length + appData[party].payments.length} Active Entries</p>
+                </div>
+                <div class="party-actions">
+                    <button class="action-btn btn-edit" onclick="renameParty('${party}')">✎</button>
+                    <button class="action-btn btn-delete" onclick="deleteParty('${party}')">🗑</button>
+                </div>`;
+            container.appendChild(card);
         });
     }
 
-    function addParty() {
-        const name = document.getElementById('newPartyName').value.trim().toUpperCase();
+    function addNewParty() {
+        let name = document.getElementById('newPartyName').value.trim().toUpperCase();
         if(!name) return;
-        db.ref('parties/' + name).set({ balance: 0, entries: [], payments: [] });
+        let oldBal = prompt("Enter Previous Due (Pela na baki paisa):", "0");
+        if(oldBal === null) return;
+        appData[name] = { balance: parseInt(oldBal) || 0, deliveries: [], payments: [], history: [] };
+        saveDB(); loadDashboard();
         document.getElementById('newPartyName').value = '';
     }
 
-    function openParty(p) {
-        activeP = p;
-        switchScreen('details', p);
-        updateDetails();
-    }
-
-    function updateDetails() {
-        const p = parties[activeP];
-        document.getElementById('dispName').innerText = activeP;
-        document.getElementById('dispBal').innerText = "₹ " + p.balance;
-        const h = document.getElementById('history');
-        h.innerHTML = '<h4>History</h4>';
-        (p.entries || []).forEach(e => h.innerHTML += `<div style="background:white; padding:10px; border-radius:8px; margin-bottom:5px; box-shadow:0 1px 3px rgba(0,0,0,0.1);">📦 ${e.date} - ${e.val} Units</div>`);
-        (p.payments || []).forEach(pay => h.innerHTML += `<div style="background:white; padding:10px; border-radius:8px; margin-bottom:5px; box-shadow:0 1px 3px rgba(0,0,0,0.1); color:green;">💰 ${pay.date} - ₹${pay.val} Received</div>`);
-    }
-
-    function renameParty() {
-        const newName = prompt("નવું નામ લખો:", activeP);
-        if(!newName || newName.toUpperCase() === activeP) return;
-        const data = parties[activeP];
-        db.ref('parties/' + newName.toUpperCase()).set(data);
-        db.ref('parties/' + activeP).remove();
-        activeP = newName.toUpperCase();
-    }
-
-    function deleteParty() {
-        if(confirm("આ પાર્ટી ડિલીટ કરવી છે?")) {
-            db.ref('parties/' + activeP).remove();
-            goHome();
+    function renameParty(oldName) {
+        let newName = prompt("Rename " + oldName + " to:", oldName);
+        if(newName && newName.toUpperCase() !== oldName) {
+            appData[newName.toUpperCase()] = appData[oldName];
+            delete appData[oldName];
+            saveDB(); loadDashboard();
         }
     }
 
-    function openForm(m) {
-        mode = m;
+    function deleteParty(name) {
+        if(confirm("Delete " + name + "?")) { delete appData[name]; saveDB(); loadDashboard(); }
+    }
+
+    function openParty(party) {
+        activeParty = party;
+        let data = appData[party];
+        document.getElementById('pdName').innerText = party;
+        document.getElementById('pdOldBal').innerText = "₹ " + data.balance;
+        let currBody = document.getElementById('currentRecordBody');
+        currBody.innerHTML = '';
+        data.deliveries.forEach(d => currBody.innerHTML += `<tr><td>${d.date}</td><td>Qty</td><td style="text-align:right">${d.nang}</td></tr>`);
+        data.payments.forEach(p => currBody.innerHTML += `<tr><td>${p.date}</td><td style="color:green">Paid</td><td style="text-align:right; color:green">₹ ${p.amount}</td></tr>`);
+        switchScreen('partyDetailScreen', 'Dashboard');
+    }
+
+    function openEntryModal(mode) {
+        entryMode = mode;
         document.getElementById('entryForm').style.display = 'block';
-        document.getElementById('formHead').innerText = m === 'qty' ? 'Add Quantity' : 'Add Payment';
-        document.getElementById('eDate').valueAsDate = new Date();
+        document.getElementById('entryDate').valueAsDate = new Date();
     }
 
-    function saveEntry() {
-        const d = document.getElementById('eDate').value.split('-').reverse().join('/');
-        const v = parseFloat(document.getElementById('eVal').value);
-        if(!v) return;
-        const path = mode === 'qty' ? 'entries' : 'payments';
-        const list = parties[activeP][path] || [];
-        list.push({date: d, val: v});
-        db.ref('parties/' + activeP + '/' + path).set(list);
+    function saveData() {
+        let val = parseFloat(document.getElementById('entryValue').value);
+        let date = document.getElementById('entryDate').value.split('-').reverse().join('/');
+        if(!val) return;
+        if(entryMode === 'qty') appData[activeParty].deliveries.push({date, nang: val});
+        else appData[activeParty].payments.push({date, amount: val});
+        saveDB(); openParty(activeParty);
         document.getElementById('entryForm').style.display = 'none';
-        document.getElementById('eVal').value = '';
+        document.getElementById('entryValue').value = '';
     }
 
-    function viewBill() {
-        const p = parties[activeP];
-        document.getElementById('invParty').innerText = activeP;
-        document.getElementById('invDate').innerText = new Date().toLocaleDateString('en-GB');
-        const body = document.getElementById('invBody');
-        body.innerHTML = '';
-        let totalQ = 0;
-        (p.entries || []).forEach((e, i) => {
-            body.innerHTML += `<tr><td>${i+1}</td><td>${e.date}</td><td>${e.val}</td></tr>`;
-            totalQ += e.val;
+    function showInvoice() {
+        let data = appData[activeParty];
+        let totalQty = 0, invBody = document.getElementById('invItemsBody');
+        invBody.innerHTML = '';
+        data.deliveries.forEach((d, i) => {
+            invBody.innerHTML += `<tr><td>${i+1}</td><td>${d.date}</td><td>${d.nang}</td></tr>`;
+            totalQty += d.nang;
         });
-        let amt = Math.round(totalQ * 0.30);
-        let paid = 0;
-        (p.payments || []).forEach(pay => paid += pay.val);
+        let curAmt = Math.round(totalQty * RATE), totalPaid = 0;
+        data.payments.forEach(p => totalPaid += p.amount);
         
-        document.getElementById('resQty').innerText = totalQ;
-        document.getElementById('resRate').innerText = "₹ " + amt;
-        document.getElementById('resOld').innerText = "₹ " + p.balance;
-        document.getElementById('resPay').innerText = "₹ " + paid;
-        document.getElementById('resFinal').innerText = "₹ " + (p.balance + amt - paid);
-        switchScreen('invoice', 'Bill Preview');
+        document.getElementById('invDate').innerText = getFormattedToday();
+        document.getElementById('invPartyName').innerText = activeParty;
+        document.getElementById('invTotalQty').innerText = totalQty;
+        document.getElementById('invCurrentAmt').innerText = curAmt;
+        document.getElementById('invOldBal').innerText = data.balance;
+        document.getElementById('invTotalJama').innerText = totalPaid;
+        document.getElementById('invFinalDue').innerText = (data.balance + curAmt) - totalPaid;
+        switchScreen('invoiceScreen', 'Invoice');
     }
 
-    function finishCycle() {
-        if(!confirm("Cycle પૂરો કરવાથી જૂનો ડેટા સાફ થઈ જશે અને નવું બેલેન્સ સેટ થશે. ચાલુ રાખવું છે?")) return;
-        const final = parseInt(document.getElementById('resFinal').innerText.replace('₹ ', ''));
-        db.ref('parties/' + activeP).update({ balance: final, entries: null, payments: null });
-        goHome();
+    function closeBook() {
+        if(confirm("Close cycle and carry forward balance?")) {
+            appData[activeParty].balance = parseInt(document.getElementById('invFinalDue').innerText);
+            appData[activeParty].deliveries = []; appData[activeParty].payments = [];
+            saveDB(); goHome();
+        }
     }
 
     function switchScreen(id, title) {
-        ['dashboard', 'details', 'invoice'].forEach(s => document.getElementById(s).classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        document.getElementById('navTitle').innerText = title || "JAY MAHADEV";
-        document.getElementById('backBtn').style.display = id === 'dashboard' ? 'none' : 'block';
+        document.querySelectorAll('.container > div').forEach(d => d.classList.remove('active-screen'));
+        document.getElementById(id).classList.add('active-screen');
+        document.getElementById('navTitle').innerText = title;
+        document.getElementById('backBtn').style.display = id === 'dashboardScreen' ? 'none' : 'block';
     }
 
-    function goHome() { activeP = null; switchScreen('dashboard'); }
+    function goHome() { switchScreen('dashboardScreen', 'JAY MAHADEV'); loadDashboard(); }
+    loadDashboard();
 </script>
 </body>
 </html>
