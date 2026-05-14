@@ -5,26 +5,31 @@
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jay Mahadev Dai</title>
+    <title>Jay Mahadev - Premium ERP</title>
     <style>
         :root { --primary: #0f172a; --secondary: #3b82f6; --accent: #1e40af; --bg: #f3f4f6; --text: #1f2937; --card: #ffffff; }
         body { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background-color: var(--bg); margin: 0; padding: 0; color: var(--text); }
         
+        /* Navbar */
         .navbar { background-color: var(--primary); color: white; padding: 16px 20px; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100;}
         .navbar h2 { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: 1px;}
         .back-btn { position: absolute; left: 15px; top: 15px; background: none; border: none; color: white; font-size: 18px; cursor: pointer; display: none; }
 
         .container { max-width: 650px; margin: 20px auto; padding: 0 15px; }
 
+        /* Dashboard & Cards */
         .party-card { background: var(--card); padding: 18px; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border-left: 5px solid var(--secondary); transition: all 0.3s ease; }
+        .party-card:hover { transform: translateY(-3px); }
         .party-info { cursor: pointer; flex-grow: 1; }
         .party-info h3 { margin: 0 0 5px 0; color: var(--primary); font-size: 16px;}
+        .party-info p { margin: 0; font-size: 13px; color: #6b7280; }
         
         .party-actions { display: flex; gap: 8px; }
-        .action-btn { border: none; background: #f1f5f9; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+        .action-btn { border: none; background: #f1f5f9; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 14px; transition: 0.2s; }
         .btn-edit { color: var(--secondary); }
         .btn-delete { color: #dc2626; }
 
+        /* Buttons & Inputs */
         .btn { padding: 12px 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: 0.2s; display: inline-block; box-sizing: border-box; text-align: center;}
         .btn-primary { background: var(--secondary); color: white; }
         .btn-success { background: #059669; color: white; }
@@ -33,32 +38,45 @@
         .input-group { margin-bottom: 16px; }
         input { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; box-sizing: border-box; }
 
-        #dashboardScreen, #partyDetailScreen, #invoiceScreen { display: none; }
+        /* Screens */
+        #dashboardScreen, #partyDetailScreen, #invoiceScreen, #historyScreen { display: none; }
         .active-screen { display: block !important; }
 
         .detail-header { background: white; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 24px; }
         .action-buttons { display: flex; gap: 12px; margin-bottom: 24px; }
         .action-buttons .btn { flex: 1; }
 
+        /* History Table */
         .history-box { background: white; border-radius: 12px; padding: 20px; margin-top: 24px; }
         table { width: 100%; border-collapse: collapse; font-size: 14px; }
         th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #e5e7eb; }
 
-        /* INVOICE STYLING */
+        /* PREMIUM INVOICE CSS */
         .invoice-wrapper { background: white; padding: 40px; border-radius: 4px; color: #1f2937; border-top: 8px solid var(--primary); }
         .inv-header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 25px; border-bottom: 2px solid #f3f4f6; margin-bottom: 30px; }
-        .inv-brand h1 { margin: 0; color: var(--primary); font-size: 26px; font-weight: 800; }
+        .inv-brand h1 { margin: 0; color: var(--primary); font-size: 26px; font-weight: 800; letter-spacing: 1px; }
+        .inv-brand p { margin: 6px 0 0 0; font-size: 13px; color: #6b7280; }
+        .inv-meta h2 { margin: 0 0 8px 0; color: #9ca3af; font-size: 24px; font-weight: 300; letter-spacing: 2px; }
+        
         .inv-party-section { display: flex; justify-content: space-between; margin-bottom: 30px; }
         .inv-party { background: #f8fafc; padding: 15px 20px; border-left: 4px solid var(--secondary); border-radius: 0 8px 8px 0; min-width: 200px;}
-        .inv-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; border: 1px solid #e2e8f0; }
-        .inv-table th { background-color: var(--primary); color: white; padding: 14px; text-align: center; }
-        .inv-table td { border-bottom: 1px solid #e2e8f0; padding: 14px; text-align: center; }
+        .inv-party p { margin: 0; font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; }
+        .inv-party h3 { margin: 5px 0 0 0; font-size: 18px; color: var(--primary); }
+
+        .inv-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
+        .inv-table th { background-color: var(--primary); color: white; font-size: 13px; padding: 14px; text-align: center; }
+        .inv-table td { border-bottom: 1px solid #e2e8f0; padding: 14px; text-align: center; color: #334155; }
         
         .inv-footer-section { display: flex; justify-content: space-between; margin-top: 20px; }
-        .inv-summary { width: 45%; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-left: auto; } /* જમણી બાજુ રાખવા માટે */
+        .inv-terms { width: 45%; font-size: 11px; color: #64748b; }
+        .inv-summary { width: 45%; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-left: auto; }
         .inv-summary table { width: 100%; }
         .inv-summary td { padding: 8px 0; border-bottom: 1px dashed #cbd5e1; }
         .inv-total td { font-size: 18px; font-weight: 800; color: var(--primary); border: none; }
+
+        /* History Items */
+        .history-item { background: white; padding: 15px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #e5e7eb; cursor: pointer; transition: 0.2s; }
+        .history-item:hover { border-color: var(--secondary); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
 
         @media print {
             .navbar, .no-print, .party-actions { display: none !important; }
@@ -77,16 +95,16 @@
 <div class="container">
     <div id="dashboardScreen" class="active-screen">
         <div class="input-group" style="display: flex; gap: 12px;">
-            <input type="text" id="newPartyName" placeholder="Enter party name...">
-            <button class="btn btn-primary" onclick="addNewParty()">+ Add Party</button>
+            <input type="text" id="newPartyName" placeholder="Enter new party name...">
+            <button class="btn btn-primary" style="width: 130px;" onclick="addNewParty()">+ Add Party</button>
         </div>
         <div id="partyListContainer"></div>
     </div>
 
     <div id="partyDetailScreen">
         <div class="detail-header">
-            <h2 id="pdName">Name</h2>
-            <p>Prev. Balance: <span id="pdOldBal" style="font-weight:700; color:#dc2626;">₹ 0</span></p>
+            <h2 id="pdName">Party Name</h2>
+            <p>Prev. Balance: <span id="pdOldBal" style="font-weight:700; color:#dc2626;">â‚¹ 0</span></p>
         </div>
         <div class="action-buttons">
             <button class="btn btn-primary" onclick="openEntryModal('qty')">Add Quantity</button>
@@ -98,7 +116,10 @@
             <div class="input-group"><label id="entryLabel">Value:</label><input type="number" id="entryValue"></div>
             <button class="btn btn-primary" style="width:100%" onclick="saveData()">Save Entry</button>
         </div>
-        <button class="btn btn-outline" style="width:100%; margin-bottom:20px;" onclick="showInvoice()">🧾 Generate Invoice</button>
+        <div style="display: flex; gap: 12px; margin-bottom: 20px;">
+            <button class="btn btn-outline" style="flex:1" onclick="showInvoice()">ðŸ§¾ Generate Invoice</button>
+            <button class="btn btn-outline" style="flex:1" onclick="showHistoryList()">ðŸ•’ View History</button>
+        </div>
         <div class="history-box">
             <table id="currentRecordTable">
                 <thead><tr><th>Date</th><th>Type</th><th style="text-align:right">Qty/Amt</th></tr></thead>
@@ -109,40 +130,65 @@
 
     <div id="invoiceScreen">
         <div class="no-print" style="margin-bottom: 24px; display: flex; gap: 12px;">
-            <button class="btn btn-success" style="flex: 2;" onclick="window.print()">🖨️ Print / Save PDF</button>
-            <button class="btn btn-primary" style="flex: 1; background: #dc2626;" onclick="closeBook()">✅ Close Cycle</button>
+            <button class="btn btn-success" style="flex: 2;" onclick="window.print()">ðŸ–¨ï¸ Print / Save PDF</button>
+            <button class="btn btn-primary" style="flex: 1; background: #dc2626;" id="closeCycleBtn" onclick="closeBook()">âœ… Close Cycle</button>
         </div>
+
         <div class="invoice-wrapper">
             <div class="inv-header">
-                <div><h1>JAY MAHADEV DAI</h1><p>Premium Dai Manufacturing</p></div>
-                <div style="text-align:right"><h2>INVOICE</h2><p>Date: <b id="invDate"></b></p></div>
+                <div class="inv-brand">
+                    <h1>JAY MAHADEV DAI</h1>
+                    <p>Premium Dai Manufacturing</p>
+                </div>
+                <div class="inv-meta">
+                    <h2>INVOICE</h2>
+                    <p>Date: <b id="invDate"></b></p>
+                </div>
             </div>
+
             <div class="inv-party-section">
-                <div class="inv-party"><p>Billed To:</p><h3 id="invPartyName"></h3></div>
-                <div style="text-align: right;"><p>Rate Applied:</p><p>₹ 0.30 / Unit</p></div>
+                <div class="inv-party">
+                    <p>Billed To:</p>
+                    <h3 id="invPartyName"></h3>
+                </div>
+                <div style="text-align: right;">
+                    <p style="margin: 0; font-size: 13px; color: #64748b;">Rate Applied:</p>
+                    <p style="margin: 5px 0 0 0; font-size: 16px; font-weight: 700;">â‚¹ 0.30 / Unit</p>
+                </div>
             </div>
+
             <table class="inv-table">
-                <thead><tr><th>No.</th><th>Date</th><th>Quantity</th></tr></thead>
+                <thead><tr><th style="width: 15%;">No.</th><th style="width: 45%;">Date</th><th style="width: 40%;">Quantity</th></tr></thead>
                 <tbody id="invItemsBody"></tbody>
             </table>
+
             <div class="inv-footer-section">
-                <div style="width:45%"><h4>Terms & Conditions</h4><p>1. Please verify the quantities listed above.<br>
-                    2. All balances are carried forward to the next billing cycle if unpaid.<br>
-                    3. Thank you for your continued business!</p></div>
-                <div class="inv-summary"> <table>
+                <div class="inv-terms">
+                    <h4 style="margin:0">Terms & Conditions</h4>
+                    <p>1. Please verify the quantities listed above.<br>
+                        2. All balances are carried forward to the next billing cycle if unpaid.<br>
+                        3. Thank you for your continued business!</p>
+                </div>
+                <div class="inv-summary">
+                    <table>
                         <tr><td>Total Qty:</td><td style="text-align:right"><b id="invTotalQty">0</b></td></tr>
-                        <tr><td>Current Amount:</td><td style="text-align:right">₹ <span id="invCurrentAmt">0</span></td></tr>
-                        <tr><td>Old Balance:</td><td style="text-align:right">₹ <span id="invOldBal">0</span></td></tr>
-                        <tr style="color: #059669;"><td>Less Received:</td><td style="text-align:right">- ₹ <span id="invTotalJama">0</span></td></tr>
-                        <tr class="inv-total"><td>Final Due:</td><td style="text-align:right">₹ <span id="invFinalDue">0</span></td></tr>
+                        <tr><td>Current Amount:</td><td style="text-align:right">â‚¹ <span id="invCurrentAmt">0</span></td></tr>
+                        <tr><td>Old Balance:</td><td style="text-align:right">â‚¹ <span id="invOldBal">0</span></td></tr>
+                        <tr style="color: #059669;"><td>Less Received:</td><td style="text-align:right">- â‚¹ <span id="invTotalJama">0</span></td></tr>
+                        <tr class="inv-total"><td>Final Due:</td><td style="text-align:right">â‚¹ <span id="invFinalDue">0</span></td></tr>
                     </table>
                 </div>
             </div>
             <div style="text-align: right; margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 15px;">
-                <p style="margin: 0; font-weight: 800;">SANJAYBHAI DODIYA</p>
-                <p style="margin: 4px 0 0 0; font-size: 11px; color: #64748b;">(Authorized Person)</p>
+                <p style="margin: 0; font-weight: 800; font-size: 15px;">SANJAYBHAI DODIYA</p>
+                <p style="margin: 4px 0 0 0; font-size: 11px; color: #64748b; font-weight: 600;">(Authorized Person)</p>
             </div>
         </div>
+    </div>
+
+    <div id="historyScreen">
+        <h3>Cycle History for <span id="histPartyName"></span></h3>
+        <div id="historyListContainer"></div>
     </div>
 </div>
 
@@ -160,13 +206,10 @@
     
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    
     const RATE = 0.30;
-    let appData = {};
-    let activeParty = null;
-    let entryMode = ''; 
+    let appData = {}, activeParty = null, entryMode = ''; 
 
-    // Live Data Sync
+    // Sync Data
     db.ref('erp_data').on('value', (snapshot) => {
         appData = snapshot.val() || {};
         loadDashboard();
@@ -184,18 +227,17 @@
         let container = document.getElementById('partyListContainer');
         container.innerHTML = '';
         Object.keys(appData).forEach(party => {
-            let delCount = (appData[party].deliveries || []).length;
-            let payCount = (appData[party].payments || []).length;
+            let entries = (appData[party].deliveries || []).length + (appData[party].payments || []).length;
             let card = document.createElement('div');
             card.className = 'party-card';
             card.innerHTML = `
                 <div class="party-info" onclick="openParty('${party}')">
                     <h3>${party}</h3>
-                    <p>${delCount + payCount} Active Entries</p>
+                    <p>${entries} Active Entries</p>
                 </div>
                 <div class="party-actions">
-                    <button class="action-btn btn-edit" onclick="renameParty('${party}')">✎</button>
-                    <button class="action-btn btn-delete" onclick="deleteParty('${party}')">🗑</button>
+                    <button class="action-btn btn-edit" onclick="renameParty('${party}')">âœŽ</button>
+                    <button class="action-btn btn-delete" onclick="deleteParty('${party}')">ðŸ—‘</button>
                 </div>`;
             container.appendChild(card);
         });
@@ -206,32 +248,29 @@
         if(!name) return;
         let oldBal = prompt("Enter Previous Due:", "0");
         if(oldBal === null) return;
-        appData[name] = { balance: parseInt(oldBal) || 0, deliveries: [], payments: [] };
+        appData[name] = { balance: parseInt(oldBal) || 0, deliveries: [], payments: [], history: [] };
         saveDB(); document.getElementById('newPartyName').value = '';
     }
 
     function renameParty(oldName) {
-        let newName = prompt("Rename to:", oldName);
+        let newName = prompt("Rename " + oldName + " to:", oldName);
         if(newName && newName.toUpperCase() !== oldName) {
             appData[newName.toUpperCase()] = appData[oldName];
-            delete appData[oldName];
-            saveDB();
+            delete appData[oldName]; saveDB();
         }
     }
 
-    function deleteParty(name) {
-        if(confirm("Delete " + name + "?")) { delete appData[name]; saveDB(); }
-    }
+    function deleteParty(name) { if(confirm("Delete " + name + "?")) { delete appData[name]; saveDB(); } }
 
     function openParty(party) {
         activeParty = party;
         let data = appData[party];
         document.getElementById('pdName').innerText = party;
-        document.getElementById('pdOldBal').innerText = "₹ " + data.balance;
-        let body = document.getElementById('currentRecordBody');
-        body.innerHTML = '';
-        (data.deliveries || []).forEach(d => body.innerHTML += `<tr><td>${d.date}</td><td>Qty</td><td style="text-align:right">${d.nang}</td></tr>`);
-        (data.payments || []).forEach(p => body.innerHTML += `<tr><td>${p.date}</td><td style="color:green">Paid</td><td style="text-align:right; color:green">₹ ${p.amount}</td></tr>`);
+        document.getElementById('pdOldBal').innerText = "â‚¹ " + data.balance;
+        let currBody = document.getElementById('currentRecordBody');
+        currBody.innerHTML = '';
+        (data.deliveries || []).forEach(d => currBody.innerHTML += `<tr><td>${d.date}</td><td>Qty</td><td style="text-align:right">${d.nang}</td></tr>`);
+        (data.payments || []).forEach(p => currBody.innerHTML += `<tr><td>${p.date}</td><td style="color:green">Paid</td><td style="text-align:right; color:green">â‚¹ ${p.amount}</td></tr>`);
         switchScreen('partyDetailScreen', 'Dashboard');
     }
 
@@ -243,15 +282,14 @@
 
     function saveData() {
         let val = parseFloat(document.getElementById('entryValue').value);
-        let dateVal = document.getElementById('entryDate').value;
-        if(!val || !dateVal) return;
-        let date = dateVal.split('-').reverse().join('/');
+        let dateInput = document.getElementById('entryDate').value;
+        if(!val || !dateInput) return;
+        let date = dateInput.split('-').reverse().join('/');
         if(!appData[activeParty].deliveries) appData[activeParty].deliveries = [];
         if(!appData[activeParty].payments) appData[activeParty].payments = [];
         if(entryMode === 'qty') appData[activeParty].deliveries.push({date, nang: val});
         else appData[activeParty].payments.push({date, amount: val});
-        saveDB(); document.getElementById('entryForm').style.display = 'none';
-        document.getElementById('entryValue').value = '';
+        saveDB(); document.getElementById('entryForm').style.display = 'none'; document.getElementById('entryValue').value = '';
     }
 
     function showInvoice() {
@@ -272,15 +310,61 @@
         document.getElementById('invOldBal').innerText = data.balance;
         document.getElementById('invTotalJama').innerText = totalPaid;
         document.getElementById('invFinalDue').innerText = (data.balance + curAmt) - totalPaid;
-        switchScreen('invoiceScreen', 'Invoice');
+        document.getElementById('closeCycleBtn').style.display = 'block';
+        switchScreen('invoiceScreen', 'Tax Invoice');
     }
 
     function closeBook() {
-        if(confirm("Close cycle?")) {
-            appData[activeParty].balance = parseInt(document.getElementById('invFinalDue').innerText);
-            appData[activeParty].deliveries = []; appData[activeParty].payments = [];
+        if(confirm("Close cycle? This will save the full table to history.")) {
+            let data = appData[activeParty];
+            let finalDue = parseInt(document.getElementById('invFinalDue').innerText);
+            let histEntry = {
+                date: getFormattedToday(),
+                deliveries: [...(data.deliveries || [])],
+                payments: [...(data.payments || [])],
+                oldBal: data.balance,
+                finalDue: finalDue
+            };
+            if(!data.history) data.history = [];
+            data.history.push(histEntry);
+            data.balance = finalDue;
+            data.deliveries = []; data.payments = [];
             saveDB(); goHome();
         }
+    }
+
+    function showHistoryList() {
+        let data = appData[activeParty];
+        document.getElementById('histPartyName').innerText = activeParty;
+        let cont = document.getElementById('historyListContainer');
+        cont.innerHTML = '';
+        (data.history || []).forEach((h, idx) => {
+            let div = document.createElement('div');
+            div.className = 'history-item';
+            div.innerHTML = `<b>Cycle Closed: ${h.date}</b><br>Final Due: â‚¹ ${h.finalDue}`;
+            div.onclick = () => showOldInvoice(h);
+            cont.appendChild(div);
+        });
+        switchScreen('historyScreen', 'Cycle History');
+    }
+
+    function showOldInvoice(h) {
+        let invBody = document.getElementById('invItemsBody'); invBody.innerHTML = '';
+        let totalQty = 0;
+        (h.deliveries || []).forEach((d, i) => {
+            invBody.innerHTML += `<tr><td>${i+1}</td><td>${d.date}</td><td>${d.nang}</td></tr>`;
+            totalQty += d.nang;
+        });
+        let tPay = 0; (h.payments || []).forEach(p => tPay += p.amount);
+        document.getElementById('invDate').innerText = h.date;
+        document.getElementById('invPartyName').innerText = activeParty;
+        document.getElementById('invTotalQty').innerText = totalQty;
+        document.getElementById('invCurrentAmt').innerText = Math.round(totalQty * RATE);
+        document.getElementById('invOldBal').innerText = h.oldBal;
+        document.getElementById('invTotalJama').innerText = tPay;
+        document.getElementById('invFinalDue').innerText = h.finalDue;
+        document.getElementById('closeCycleBtn').style.display = 'none'; // àªœà«‚àª¨à«€ àª¹àª¿àª¸à«àªŸà«àª°à«€àª®àª¾àª‚ àª•à«àª²à«‹àª àª¬àªŸàª¨ àª¨ àª¹à«‹àª¯
+        switchScreen('invoiceScreen', 'Old Record Invoice');
     }
 
     function switchScreen(id, title) {
