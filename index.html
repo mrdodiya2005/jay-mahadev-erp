@@ -105,7 +105,7 @@
     <div id="partyDetailScreen">
         <div class="detail-header">
             <h2 id="pdName">Party Name</h2>
-            <p>Prev. Balance: <span id="pdOldBal" style="font-weight:700; color:#dc2626;">â‚¹ 0</span></p>
+            <p>Prev. Balance: <span id="pdOldBal" style="font-weight:700; color:#dc2626;">₹ 0</span></p>
         </div>
         <div class="action-buttons">
             <button class="btn btn-primary" onclick="openEntryModal('qty')">Add Quantity</button>
@@ -118,8 +118,8 @@
             <button class="btn btn-primary" style="width:100%" onclick="saveData()">Save Entry</button>
         </div>
         <div style="display: flex; gap: 12px; margin-bottom: 20px;">
-            <button class="btn btn-outline" style="flex:1" onclick="showInvoice()">ðŸ§¾ Generate Invoice</button>
-            <button class="btn btn-outline" style="flex:1" onclick="showHistoryList()">ðŸ•’ View History</button>
+            <button class="btn btn-outline" style="flex:1" onclick="showInvoice()">🧾 Generate Invoice</button>
+            <button class="btn btn-outline" style="flex:1" onclick="showHistoryList()">🕒 View History</button>
         </div>
         <div class="history-box">
             <table id="currentRecordTable">
@@ -131,8 +131,8 @@
 
     <div id="invoiceScreen">
         <div class="no-print" style="margin-bottom: 24px; display: flex; gap: 12px;">
-            <button class="btn btn-success" style="flex: 2;" onclick="window.print()">ðŸ–¨ï¸ Print / Save PDF</button>
-            <button class="btn btn-primary" style="flex: 1; background: #dc2626;" id="closeCycleBtn" onclick="closeBook()">âœ… Close Cycle</button>
+            <button class="btn btn-success" style="flex: 2;" onclick="window.print()">🖨️ Print / Save PDF</button>
+            <button class="btn btn-primary" style="flex: 1; background: #dc2626;" id="closeCycleBtn" onclick="closeBook()">✅ Close Cycle</button>
         </div>
 
         <div class="invoice-wrapper">
@@ -154,7 +154,7 @@
                 </div>
                 <div style="text-align: right;">
                     <p style="margin: 0; font-size: 13px; color: #64748b;">Rate Applied:</p>
-                    <p style="margin: 5px 0 0 0; font-size: 16px; font-weight: 700;">â‚¹ 0.30 / Unit</p>
+                    <p style="margin: 5px 0 0 0; font-size: 16px; font-weight: 700;">₹ 0.30 / Unit</p>
                 </div>
             </div>
 
@@ -173,10 +173,10 @@
                 <div class="inv-summary">
                     <table>
                         <tr><td>Total Qty:</td><td style="text-align:right"><b id="invTotalQty">0</b></td></tr>
-                        <tr><td>Current Amount:</td><td style="text-align:right">â‚¹ <span id="invCurrentAmt">0</span></td></tr>
-                        <tr><td>Old Balance:</td><td style="text-align:right">â‚¹ <span id="invOldBal">0</span></td></tr>
-                        <tr style="color: #059669;"><td>Less Received:</td><td style="text-align:right">- â‚¹ <span id="invTotalJama">0</span></td></tr>
-                        <tr class="inv-total"><td>Final Due:</td><td style="text-align:right">â‚¹ <span id="invFinalDue">0</span></td></tr>
+                        <tr><td>Current Amount:</td><td style="text-align:right">₹ <span id="invCurrentAmt">0</span></td></tr>
+                        <tr><td>Old Balance:</td><td style="text-align:right">₹ <span id="invOldBal">0</span></td></tr>
+                        <tr style="color: #059669;"><td>Less Received:</td><td style="text-align:right">- ₹ <span id="invTotalJama">0</span></td></tr>
+                        <tr class="inv-total"><td>Final Due:</td><td style="text-align:right">₹ <span id="invFinalDue">0</span></td></tr>
                     </table>
                 </div>
             </div>
@@ -237,8 +237,8 @@
                     <p>${entries} Active Entries</p>
                 </div>
                 <div class="party-actions">
-                    <button class="action-btn btn-edit" onclick="renameParty('${party}')">âœŽ</button>
-                    <button class="action-btn btn-delete" onclick="deleteParty('${party}')">ðŸ—‘</button>
+                    <button class="action-btn btn-edit" onclick="renameParty('${party}')">✎</button>
+                    <button class="action-btn btn-delete" onclick="deleteParty('${party}')">🗑</button>
                 </div>`;
             container.appendChild(card);
         });
@@ -267,11 +267,11 @@
         activeParty = party;
         let data = appData[party];
         document.getElementById('pdName').innerText = party;
-        document.getElementById('pdOldBal').innerText = "â‚¹ " + data.balance;
+        document.getElementById('pdOldBal').innerText = "₹ " + data.balance;
         let currBody = document.getElementById('currentRecordBody');
         currBody.innerHTML = '';
         (data.deliveries || []).forEach(d => currBody.innerHTML += `<tr><td>${d.date}</td><td>Qty</td><td style="text-align:right">${d.nang}</td></tr>`);
-        (data.payments || []).forEach(p => currBody.innerHTML += `<tr><td>${p.date}</td><td style="color:green">Paid</td><td style="text-align:right; color:green">â‚¹ ${p.amount}</td></tr>`);
+        (data.payments || []).forEach(p => currBody.innerHTML += `<tr><td>${p.date}</td><td style="color:green">Paid</td><td style="text-align:right; color:green">₹ ${p.amount}</td></tr>`);
         switchScreen('partyDetailScreen', 'Dashboard');
     }
 
@@ -342,7 +342,7 @@
         (data.history || []).forEach((h, idx) => {
             let div = document.createElement('div');
             div.className = 'history-item';
-            div.innerHTML = `<b>Cycle Closed: ${h.date}</b><br>Final Due: â‚¹ ${h.finalDue}`;
+            div.innerHTML = `<b>Cycle Closed: ${h.date}</b><br>Final Due: ₹ ${h.finalDue}`;
             div.onclick = () => showOldInvoice(h);
             cont.appendChild(div);
         });
@@ -364,7 +364,7 @@
         document.getElementById('invOldBal').innerText = h.oldBal;
         document.getElementById('invTotalJama').innerText = tPay;
         document.getElementById('invFinalDue').innerText = h.finalDue;
-        document.getElementById('closeCycleBtn').style.display = 'none'; // àªœà«‚àª¨à«€ àª¹àª¿àª¸à«àªŸà«àª°à«€àª®àª¾àª‚ àª•à«àª²à«‹àª àª¬àªŸàª¨ àª¨ àª¹à«‹àª¯
+        document.getElementById('closeCycleBtn').style.display = 'none'; // જૂની હિસ્ટ્રીમાં ક્લોઝ બટન ન હોય
         switchScreen('invoiceScreen', 'Old Record Invoice');
     }
 
