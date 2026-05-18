@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
-    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jay Mahadev - Premium ERP</title>
     <style>
@@ -40,7 +39,7 @@
         input { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; box-sizing: border-box; }
 
         /* Screens */
-        #dashboardScreen, #partyDetailScreen, #invoiceScreen, #historyScreen { display: none; }
+        #dashboardScreen, #partyDetailScreen, #invoiceScreen, #historyScreen, #stockScreen { display: none; }
         .active-screen { display: block !important; }
 
         .detail-header { background: white; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 24px; }
@@ -50,7 +49,7 @@
         /* History Table */
         .history-box { background: white; border-radius: 12px; padding: 20px; margin-top: 24px; }
         table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #e5e7eb; }
+        th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #e5e7eb; vertical-align: middle; }
 
         /* PREMIUM INVOICE CSS */
         .invoice-wrapper { background: white; padding: 40px; border-radius: 4px; color: #1f2937; border-top: 8px solid var(--primary); }
@@ -72,15 +71,15 @@
         .inv-terms { width: 45%; font-size: 11px; color: #64748b; }
         .inv-summary { width: 45%; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-left: auto; }
         .inv-summary table { width: 100%; }
-        .inv-summary td { padding: 8px 0; border-bottom: 1px dashed #cbd5e1; }
-        .inv-total td { font-size: 18px; font-weight: 800; color: var(--primary); border: none; }
+        .inv-summary td { padding: 8px 0; border-bottom: 1px dashed #cbd5e1; font-size: 14px; }
+        .inv-total td { font-size: 18px; font-weight: 800; color: var(--primary); border: none; padding-top: 15px; }
 
         /* History Items */
         .history-item { background: white; padding: 15px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #e5e7eb; cursor: pointer; transition: 0.2s; }
         .history-item:hover { border-color: var(--secondary); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
 
         @media print {
-            .navbar, .no-print, .party-actions { display: none !important; }
+            .navbar, .no-print, .party-actions, .nav-buttons { display: none !important; }
             .container { margin: 0; padding: 0; max-width: 100%; }
             .invoice-wrapper { box-shadow: none; border-top: 6px solid var(--primary); padding: 0; }
         }
@@ -95,11 +94,23 @@
 
 <div class="container">
     <div id="dashboardScreen" class="active-screen">
+        <div class="nav-buttons" style="margin-bottom: 20px;">
+            <button class="btn btn-primary" style="background: #1e293b; width: 100%;" onclick="switchScreen('stockScreen', 'Stock Inventory')">📦 Manage Stock Inventory</button>
+        </div>
+
         <div class="input-group" style="display: flex; gap: 12px;">
             <input type="text" id="newPartyName" placeholder="Enter new party name...">
-            <button class="btn btn-primary" style="width: 130px;" onclick="addNewParty()">+ Add Party</button>
+            <button class="btn btn-primary" style="margin:0; width: 130px;" onclick="addNewParty()">+ Add Party</button>
         </div>
+        
+        <h3 style="color: #4b5563; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; margin-top: 24px; font-size: 15px; text-transform: uppercase;">Active Clients</h3>
         <div id="partyListContainer"></div>
+    </div>
+
+    <div id="stockScreen">
+        <div class="stock-grid" id="stockItemsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; margin-top: 15px;">
+            </div>
+        <button class="btn btn-outline" style="width: 100%; margin-top: 24px;" onclick="goHome()">Back to Dashboard</button>
     </div>
 
     <div id="partyDetailScreen">
@@ -116,6 +127,7 @@
             <div class="input-group"><label>Date:</label><input type="date" id="entryDate"></div>
             <div class="input-group"><label id="entryLabel">Value:</label><input type="number" id="entryValue"></div>
             <button class="btn btn-primary" style="width:100%" onclick="saveData()">Save Entry</button>
+            <button class="btn btn-outline" style="width: 100%; margin-top: 12px;" onclick="document.getElementById('entryForm').style.display='none'">Cancel</button>
         </div>
         <div style="display: flex; gap: 12px; margin-bottom: 20px;">
             <button class="btn btn-outline" style="flex:1" onclick="showInvoice()">🧾 Generate Invoice</button>
@@ -208,13 +220,27 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     const RATE = 0.30;
-    let appData = {}, activeParty = null, entryMode = ''; 
+    let appData = {}, stockInventory = {}, activeParty = null, entryMode = ''; 
 
-    // Sync Data
-    db.ref('erp_data').on('value', (snapshot) => {
-        appData = snapshot.val() || {};
+    // Live Sync Matrix
+    db.ref().on('value', (snapshot) => {
+        const rootData = snapshot.val() || {};
+        appData = rootData.erp_data || {};
+        stockInventory = rootData.stock_inventory || {};
+        
+        // Loop bound structure checks
+        for(let i = 10; i <= 25; i++) {
+            if(stockInventory[i] === undefined) stockInventory[i] = 0;
+        }
+
         loadDashboard();
-        if(activeParty) openParty(activeParty);
+        
+        // Screens realtime updater node conditions
+        if (document.getElementById('stockScreen').classList.contains('active-screen')) {
+            renderStockPage();
+        } else if (activeParty && document.getElementById('partyDetailScreen').classList.contains('active-screen')) {
+            openParty(activeParty);
+        }
     });
 
     function saveDB() { db.ref('erp_data').set(appData); }
@@ -222,6 +248,37 @@
     function getFormattedToday() {
         let today = new Date();
         return String(today.getDate()).padStart(2, '0') + '/' + String(today.getMonth() + 1).padStart(2, '0') + '/' + today.getFullYear();
+    }
+
+    // DYNAMIC STOCK COMPONENT RENDERING
+    function renderStockPage() {
+        let grid = document.getElementById('stockItemsGrid');
+        grid.innerHTML = '';
+
+        for (let size = 10; size <= 25; size++) {
+            let totalNang = stockInventory[size] || 0;
+            let itemCard = document.createElement('div');
+            itemCard.style = "background:white; padding:14px; border-radius:10px; border:1px solid #e5e7eb; text-align:center; box-shadow: 0 2px 4px rgba(0,0,0,0.02);";
+            itemCard.innerHTML = `
+                <h4 style="margin:0 0 6px 0; color:#0f172a; font-size:15px; font-weight:700;">Dai No. ${size}</h4>
+                <div style="font-size:22px; font-weight:800; color:#3b82f6;">${totalNang}</div>
+                <div style="font-size:11px; color:#6b7280; font-weight:bold; margin-top:2px;">Total Nang</div>
+                <div style="display:flex; gap:6px; margin-top:10px; justify-content: center;">
+                    <button style="background:#f1f5f9; border:none; padding:6px 12px; border-radius:4px; color:#059669; font-weight:bold; cursor:pointer;" onclick="adjustSizeStock(${size}, 'add')">+</button>
+                    <button style="background:#f1f5f9; border:none; padding:6px 12px; border-radius:4px; color:#dc2626; font-weight:bold; cursor:pointer;" onclick="adjustSizeStock(${size}, 'sub')">-</button>
+                </div>
+            `;
+            grid.appendChild(itemCard);
+        }
+    }
+
+    function adjustSizeStock(size, operation) {
+        let currentQty = stockInventory[size] || 0;
+        let amount = 500; 
+        let newQty = operation === 'add' ? currentQty + amount : currentQty - amount;
+
+        if(newQty < 0) return alert("Stock minus ma na jaay!");
+        db.ref(`stock_inventory/${size}`).set(newQty);
     }
 
     function loadDashboard() {
@@ -265,14 +322,60 @@
 
     function openParty(party) {
         activeParty = party;
-        let data = appData[party];
+        let data = appData[party] || { balance:0, deliveries:[], payments:[] };
         document.getElementById('pdName').innerText = party;
-        document.getElementById('pdOldBal').innerText = "₹ " + data.balance;
+        document.getElementById('pdOldBal').innerText = "₹ " + (data.balance || 0);
         let currBody = document.getElementById('currentRecordBody');
         currBody.innerHTML = '';
-        (data.deliveries || []).forEach(d => currBody.innerHTML += `<tr><td>${d.date}</td><td>Qty</td><td style="text-align:right">${d.nang}</td></tr>`);
-        (data.payments || []).forEach(p => currBody.innerHTML += `<tr><td>${p.date}</td><td style="color:green">Paid</td><td style="text-align:right; color:green">₹ ${p.amount}</td></tr>`);
+        
+        (data.deliveries || []).forEach((d, index) => {
+           currBody.innerHTML += `<tr>
+            <td>${d.date}</td>
+            <td>Qty</td>
+            <td style="text-align:right">
+            ${d.nang} 
+            <button onclick="editEntry(${index}, ${d.nang}, 'deliveries')" style="background:none; border:none; cursor:pointer; color:#3b82f6; margin-left:6px; font-size:14px;">✎</button>
+            <button onclick="deleteEntry(${index}, 'deliveries')" style="background:none; border:none; cursor:pointer; color:#dc2626; margin-left:3px; font-size:14px;">🗑</button>
+            </td>
+            </tr>`;
+        });
+
+        (data.payments || []).forEach((p, index) => {
+            currBody.innerHTML += `<tr>
+            <td>${p.date}</td>
+            <td style="color:green">Paid</td>
+            <td style="text-align:right; color:green">
+            ₹ ${p.amount} 
+            <button onclick="editEntry(${index}, ${p.amount}, 'payments')" style="background:none; border:none; cursor:pointer; color:#3b82f6; margin-left:6px; font-size:14px;">✎</button>
+            <button onclick="deleteEntry(${index}, 'payments')" style="background:none; border:none; cursor:pointer; color:#dc2626; margin-left:3px; font-size:14px;">🗑</button>
+             </td>
+             </tr>`; 
+        });
         switchScreen('partyDetailScreen', 'Dashboard');
+    }
+
+    function editEntry(index, currentVal, nodeType) {
+        let msg = nodeType === 'deliveries' ? "Enter new Quantity (Nang):" : "Enter new Payment Amount (₹):";
+        let newVal = prompt(msg, currentVal);
+        if(!newVal || isNaN(newVal) || parseFloat(newVal) <= 0) return;
+
+        if(nodeType === 'deliveries') {
+            appData[activeParty].deliveries[index].nang = parseInt(newVal);
+        } else {
+            appData[activeParty].payments[index].amount = parseFloat(newVal);
+        }
+        saveDB();
+    }
+
+    function deleteEntry(index, nodeType) {
+        if(confirm("Are you sure you want to delete this log?")) {
+            if(nodeType === 'deliveries') {
+                appData[activeParty].deliveries.splice(index, 1);
+            } else {
+                appData[activeParty].payments.splice(index, 1);
+            }
+            saveDB();
+        }
     }
 
     function openEntryModal(mode) {
@@ -364,7 +467,7 @@
         document.getElementById('invOldBal').innerText = h.oldBal;
         document.getElementById('invTotalJama').innerText = tPay;
         document.getElementById('invFinalDue').innerText = h.finalDue;
-        document.getElementById('closeCycleBtn').style.display = 'none'; // જૂની હિસ્ટ્રીમાં ક્લોઝ બટન ન હોય
+        document.getElementById('closeCycleBtn').style.display = 'none'; 
         switchScreen('invoiceScreen', 'Old Record Invoice');
     }
 
@@ -373,9 +476,10 @@
         document.getElementById(id).classList.add('active-screen');
         document.getElementById('navTitle').innerText = title;
         document.getElementById('backBtn').style.display = id === 'dashboardScreen' ? 'none' : 'block';
+        if(id === 'stockScreen') renderStockPage();
     }
 
-    function goHome() { activeParty = null; switchScreen('dashboardScreen', 'JAY MAHADEV'); }
+    function goHome() { activeParty = null; switchScreen('dashboardScreen', 'JAY MAHADEV DAI'); }
 </script>
 </body>
 </html>
