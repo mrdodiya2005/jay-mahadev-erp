@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jay Mahadev - Premium ERP</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -38,7 +41,7 @@
             padding: 40px 30px; border-radius: 20px; width: 100%; max-width: 380px;
             text-align: center; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
-        .login-card h2 { margin-top: 0; color: #ffffff; font-weight: 800; font-size: 24px; letter-spacing: 1px; }
+        .login-card h2 { margin-top: 0; color: #ffffff; font-weight: 800; font-size: 24px; letter-spacing: 1.5px; }
         .login-card p { color: #94a3b8; font-size: 13px; font-weight: 500; letter-spacing: 1px; margin-bottom: 30px; text-transform: uppercase;}
         .login-card label { color: #cbd5e1; font-size: 12px; font-weight: 600; margin-bottom: 6px; display: block; text-align: left;}
         .login-card input {
@@ -343,18 +346,19 @@
         </div>
 
         <div id="chitthiScreen">
-            <div class="no-print" style="margin-bottom: 20px;">
-                <button class="btn btn-success" style="width:100%; padding: 16px; font-size: 16px;" onclick="window.print()">🖨️ Print Slip (Chitthi)</button>
+            <div class="no-print" style="margin-bottom: 20px; display: flex; gap: 12px;">
+                <button class="btn btn-success" style="flex:1; padding: 15px; font-size: 15px;" onclick="window.print()">🖨️ PDF / Print</button>
+                <button class="btn btn-primary" style="flex:1; padding: 15px; font-size: 15px; background:#25D366; color:white; border:none;" onclick="shareChitthiWhatsApp()">💬 WhatsApp PDF</button>
             </div>
 
-            <div class="invoice-wrapper" style="max-width: 420px; padding: 25px;">
+            <div id="chitthiPrintArea" class="invoice-wrapper" style="max-width: 420px; padding: 25px;">
                 <div style="text-align:center; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 20px;">
-                    <h2 style="margin:0; font-size:22px; font-weight:900; letter-spacing: 0.5px;">DELIVERY SLIP</h2>
-                    <p style="margin:4px 0 0 0; font-size:12px; color:var(--text-sub); font-weight:700;">JAY MAHADEV DAI</p>
+                    <h2 style="margin:0; font-size:22px; font-weight:900; letter-spacing: 0.5px; color:#0f172a;">DELIVERY SLIP</h2>
+                    <p style="margin:4px 0 0 0; font-size:12px; color:#64748b; font-weight:700;">JAY MAHADEV DAI</p>
                 </div>
                 
-                <div style="display:flex; justify-content:space-between; margin-bottom: 20px; font-size:14px;">
-                    <div><strong>Party:</strong> <span id="chitthiPartyName" style="color:var(--secondary); font-weight:800;"></span></div>
+                <div style="display:flex; justify-content:space-between; margin-bottom: 20px; font-size:14px; color:#1e293b;">
+                    <div><strong>Party:</strong> <span id="chitthiPartyName" style="color:#2563eb; font-weight:800;"></span></div>
                     <div><strong>Date:</strong> <span id="chitthiDate" style="font-weight:600;"></span></div>
                 </div>
                 
@@ -369,8 +373,8 @@
                     <tbody id="chitthiItemsBody"></tbody>
                 </table>
                 
-                <div style="text-align:right; font-size:16px; font-weight:800; border-top:2px solid #e2e8f0; padding-top:16px; color: var(--text-main);">
-                    Total Delivered: <span id="chitthiTotalQty" style="color:var(--secondary); font-size: 20px;">0</span> Dai
+                <div style="text-align:right; font-size:16px; font-weight:800; border-top:2px solid #e2e8f0; padding-top:16px; color: #1e293b;">
+                    Total Delivered: <span id="chitthiTotalQty" style="color:#2563eb; font-size: 20px;">0</span> Dai
                 </div>
             </div>
             <button class="btn btn-outline no-print" id="chitthiBackBtn" style="width: 100%; margin-top: 24px;">← Back</button>
@@ -378,18 +382,19 @@
 
         <div id="invoiceScreen">
             <div class="no-print" style="margin-bottom: 20px; display: flex; gap: 12px;">
-                <button class="btn btn-success" style="flex: 2;" onclick="window.print()">🖨️ Print / Save PDF</button>
+                <button class="btn btn-success" style="flex: 1;" onclick="window.print()">🖨️ PDF / Print</button>
+                <button class="btn btn-primary" style="flex: 1; background: #25D366; color:white; border:none;" onclick="shareOnWhatsApp()">💬 WhatsApp PDF</button>
                 <button class="btn btn-primary" style="flex: 1; background: var(--danger);" id="closeCycleBtn" onclick="closeBook()">✅ Close Cycle</button>
             </div>
 
-            <div class="invoice-wrapper">
+            <div id="invoicePrintArea" class="invoice-wrapper">
                 <div class="inv-header">
-                    <div class="inv-brand"><h1>JAY MAHADEV DAI</h1><p>Premium Dai Manufacturing</p></div>
-                    <div class="inv-meta"><h2>INVOICE</h2><p>Date: <span id="invDate"></span></p></div>
+                    <div class="inv-brand"><h1 style="color:#0f172a;">JAY MAHADEV DAI</h1><p style="color:#64748b;">Premium Dai Manufacturing</p></div>
+                    <div class="inv-meta"><h2 style="color:#3b82f6;">INVOICE</h2><p style="color:#0f172a;">Date: <span id="invDate"></span></p></div>
                 </div>
                 <div class="inv-party-section">
-                    <div class="inv-party"><p>Billed To:</p><h3 id="invPartyName"></h3></div>
-                    <div class="inv-rate"><p class="label">Rate Applied:</p><p class="value">₹ 0.30 / Unit</p></div>
+                    <div class="inv-party"><p style="color:#64748b;">Billed To:</p><h3 id="invPartyName" style="color:#0f172a;"></h3></div>
+                    <div class="inv-rate"><p class="label" style="color:#64748b;">Rate Applied:</p><p class="value" style="color:#3b82f6;">₹ 0.30 / Unit</p></div>
                 </div>
                 <table class="inv-table">
                     <thead>
@@ -402,18 +407,18 @@
                     <tbody id="invItemsBody"></tbody>
                 </table>
                 <div class="inv-footer-section">
-                    <div class="inv-terms"><h4>Terms & Conditions</h4><p>1. Please verify the quantities listed above.<br>2. All balances are carried forward to the<br>next billing cycle if unpaid.<br>3. Thank you for your continued business!</p></div>
+                    <div class="inv-terms"><h4 style="color:#0f172a;">Terms & Conditions</h4><p style="color:#475569;">1. Please verify the quantities listed above.<br>2. All balances are carried forward to the<br>next billing cycle if unpaid.<br>3. Thank you for your continued business!</p></div>
                     <div class="inv-summary">
                         <table>
-                            <tr><td>Total Qty:</td><td class="text-right"><span id="invTotalQty">0</span></td></tr>
-                            <tr><td>Current Amount:</td><td class="text-right">₹ <span id="invCurrentAmt">0</span></td></tr>
-                            <tr><td>Old Balance:</td><td class="text-right">₹ <span id="invOldBal">0</span></td></tr>
-                            <tr class="less-received"><td>Less Received:</td><td class="text-right">- ₹ <span id="invTotalJama">0</span></td></tr>
+                            <tr><td style="color:#475569;">Total Qty:</td><td class="text-right" style="color:#0f172a;"><span id="invTotalQty">0</span></td></tr>
+                            <tr><td style="color:#475569;">Current Amount:</td><td class="text-right" style="color:#0f172a;">₹ <span id="invCurrentAmt">0</span></td></tr>
+                            <tr><td style="color:#475569;">Old Balance:</td><td class="text-right" style="color:#0f172a;">₹ <span id="invOldBal">0</span></td></tr>
+                            <tr class="less-received"><td style="color:#10b981;">Less Received:</td><td class="text-right" style="color:#10b981;">- ₹ <span id="invTotalJama">0</span></td></tr>
                         </table>
-                        <div class="inv-total"><span class="label">Final Due:</span><span class="value">₹ <span id="invFinalDue">0</span></span></div>
+                        <div class="inv-total"><span class="label" style="color:#0f172a;">Final Due:</span><span class="value" style="color:#3b82f6;">₹ <span id="invFinalDue">0</span></span></div>
                     </div>
                 </div>
-                <div class="auth-sign"><h4>SANJAYBHAI DODIYA</h4><p>(Authorized Person)</p></div>
+                <div class="auth-sign"><h4 style="color:#0f172a;">SANJAYBHAI DODIYA</h4><p style="color:#64748b;">(Authorized Person)</p></div>
             </div>
         </div>
 
@@ -425,6 +430,7 @@
 </div>
 
 <script>
+    // 🔥 NEW PASSWORDS SET HERE 🔥
     const USERS = { "parth": "pd27", "sanjaybhai": "sd01", "deep": "dd24" };
     const RATE = 0.30;
     
@@ -463,7 +469,7 @@
         if (USERS[user] && USERS[user] === pass) {
             localStorage.setItem("isLoggedIn", "true"); localStorage.setItem("currentUser", user);
             showAppLayout(); startFirebaseSync(); logActivity("Logged into the system");
-        } else alert("Khooto ID ke Password!");
+        } else alert("Wrong id or Password");
     }
 
     function showAppLayout() {
@@ -585,21 +591,19 @@
         }
         if(totalNangToSave === 0) return alert("Koy quantity nakhi nathi!");
         
+        // Deduct from stock securely and Push Log
         sizesDeducted.forEach(item => {
             db.ref(`stock_inventory/${item.size}`).set((stockInventory[item.size]||0) - item.val);
             db.ref('stock_logs').push({
-                date: date,
-                size: item.size,
-                qty: item.val,
-                type: 'OUT',
-                detail: `Direct Sale: ${name}`
+                date: date, size: item.size, qty: item.val, type: 'OUT', detail: `Direct Sale: ${name}`
             });
         });
         
         db.ref('direct_sales').push({ date: date, party: name, sizes: sizesDeducted, totalNang: totalNangToSave });
         logActivity(`Generated Direct Invoice for ${name} (${totalNangToSave} Dai).`);
 
-        let invBody = document.getElementById('invItemsBody'); invBody.innerHTML = '';
+        let invBody = document.getElementById('invItemsBody');
+        invBody.innerHTML = '';
         sizesDeducted.forEach((sz, i) => {
             invBody.innerHTML += `<tr><td>${i+1}</td><td>${date}</td><td style="text-align:right;">${sz.val}</td></tr>`;
         });
@@ -620,6 +624,7 @@
     function renderSalesBook() {
         let salesArray = []; let totalGlobalSold = 0;
         
+        // Ledger
         Object.keys(appData).forEach(party => {
             let data = appData[party];
             getSafeArray(data.deliveries).forEach(d => {
@@ -632,6 +637,7 @@
             });
         });
         
+        // Direct Sales
         Object.keys(directSalesData).forEach(k => {
             let ds = directSalesData[k];
             salesArray.push({ date: ds.date, party: ds.party, nang: ds.totalNang, type: 'Direct Bill' }); totalGlobalSold += ds.totalNang;
@@ -709,11 +715,8 @@
         let currentStock = stockInventory[size] || 0;
         let newStock = currentStock;
 
-        if (type === 'IN') {
-            newStock = currentStock - qty; 
-        } else if (type === 'OUT') {
-            newStock = currentStock + qty; 
-        }
+        if (type === 'IN') { newStock = currentStock - qty; } 
+        else if (type === 'OUT') { newStock = currentStock + qty; }
 
         if (newStock < 0) newStock = 0;
 
@@ -865,6 +868,7 @@
             
             if(totalNangToSave === 0) return alert("Koy quantity nakhi nathi!");
             
+            // Deduct from stock securely and log
             sizesDeducted.forEach(item => {
                 db.ref(`stock_inventory/${item.size}`).set((stockInventory[item.size]||0) - item.val);
                 db.ref('stock_logs').push({
@@ -872,11 +876,13 @@
                 });
             });
             
+            // Group logic: If entry for this date exists, merge it
             let existingEntry = targetDeliveries.find(d => d.date === date);
             if(existingEntry) {
                 existingEntry.nang += totalNangToSave;
                 if(!existingEntry.sizes) existingEntry.sizes = [];
                 
+                // Merge same sizes to prevent duplicates in chitthi
                 sizesDeducted.forEach(newItem => {
                     let foundSize = existingEntry.sizes.find(sz => sz.size === newItem.size);
                     if(foundSize) foundSize.val += newItem.val;
@@ -893,9 +899,11 @@
             if(!val || val <= 0) return alert("Amount nakho!");
             
             let existingEntry = targetPayments.find(p => p.date === date);
-            if(existingEntry) existingEntry.amount += val;
-            else targetPayments.push({date: date, amount: val});
-            
+            if(existingEntry) {
+                existingEntry.amount += val;
+            } else {
+                targetPayments.push({date: date, amount: val});
+            }
             logActivity(`Received ₹${val} Payment from ${targetParty}.`);
         }
         
@@ -961,6 +969,7 @@
             appData[activeParty].deliveries = getSafeArray(appData[activeParty].deliveries);
             let deletedItem = appData[activeParty].deliveries[index];
             
+            // Revert back all sizes to stock securely
             if (deletedItem.sizes) { 
                 deletedItem.sizes.forEach(sz => {
                     let current = stockInventory[sz.size] || 0;
@@ -976,6 +985,40 @@
             appData[activeParty].payments.splice(index, 1);
         }
         saveDB();
+    }
+
+    // 🔥 DIRECT WHATSAPP PDF SHARE (CHITTHI) 🔥
+    async function shareChitthiWhatsApp() {
+        let printArea = document.getElementById('chitthiPrintArea');
+        let partyName = document.getElementById('chitthiPartyName').innerText || "Party";
+        let fileName = partyName.replace(/ /g, "_") + "_Delivery_Slip.pdf";
+        
+        var opt = {
+            margin:       0.5,
+            filename:     fileName,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'in', format: 'a5', orientation: 'portrait' }
+        };
+
+        try {
+            const pdfBlob = await html2pdf().set(opt).from(printArea).output('blob');
+            const file = new File([pdfBlob], fileName, { type: "application/pdf" });
+
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    title: 'Delivery Slip',
+                    text: `Jay Mahadev Dai\nDelivery Slip for ${partyName}.`,
+                    files: [file]
+                });
+            } else {
+                html2pdf().set(opt).from(printArea).save();
+                alert("Mobile ma aap direct share kari shako cho. PC ma aani PDF download thai gai che, tame WhatsApp Web thi mokli shako cho.");
+                window.open(`https://wa.me/?text=${encodeURIComponent('Jay Mahadev Dai - Delivery Slip is attached.')}`, '_blank');
+            }
+        } catch(e) {
+            alert("Error: " + e.message);
+        }
     }
 
     // CHITTHI (DELIVERY SLIP) VIEW
@@ -1020,6 +1063,40 @@
         document.getElementById('chitthiTotalQty').innerText = total;
         document.getElementById('chitthiBackBtn').onclick = function() { showOldInvoice(appData[activeParty].history[hIndex], hIndex); };
         switchScreen('chitthiScreen', 'OLD DELIVERY SLIP');
+    }
+
+    // 🔥 DIRECT WHATSAPP PDF SHARE (INVOICE) 🔥
+    async function shareOnWhatsApp() {
+        let printArea = document.getElementById('invoicePrintArea');
+        let partyName = document.getElementById('invPartyName').innerText || "Cash_Customer";
+        let fileName = partyName.replace(/ /g, "_") + "_Tax_Invoice.pdf";
+        
+        var opt = {
+            margin:       0.5,
+            filename:     fileName,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+
+        try {
+            const pdfBlob = await html2pdf().set(opt).from(printArea).output('blob');
+            const file = new File([pdfBlob], fileName, { type: "application/pdf" });
+
+            if (navigator.canShare && navigator.canShare({ files: [file] })) {
+                await navigator.share({
+                    title: 'Tax Invoice',
+                    text: `Jay Mahadev Dai\nTax Invoice for ${partyName}.`,
+                    files: [file]
+                });
+            } else {
+                html2pdf().set(opt).from(printArea).save();
+                alert("Mobile ma aap direct share kari shako cho. PC ma aani PDF download thai gai che, tame WhatsApp Web thi mokli shako cho.");
+                window.open(`https://wa.me/?text=${encodeURIComponent('Jay Mahadev Dai - Invoice is attached.')}`, '_blank');
+            }
+        } catch(e) {
+            alert("Error: " + e.message);
+        }
     }
 
     // Invoice Logic
