@@ -6,207 +6,434 @@
     <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jay Mahadev - Premium ERP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
     <style>
-        :root { --primary: #0f172a; --secondary: #3b82f6; --accent: #1e40af; --bg: #f3f4f6; --text: #1f2937; --card: #ffffff; }
-        body { font-family: 'Inter', 'Segoe UI', Arial, sans-serif; background-color: var(--bg); margin: 0; padding: 0; color: var(--text); }
+        :root { 
+            --primary: #0f172a; --primary-light: #1e293b; --secondary: #2563eb; --secondary-hover: #1d4ed8;
+            --success: #10b981; --danger: #ef4444; --bg-main: #f8fafc; --text-main: #334155; 
+            --text-sub: #64748b; --card-bg: #ffffff; --radius: 12px; --border-color: #e2e8f0;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05); --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --primary: #f8fafc; --primary-light: #f1f5f9; --secondary: #3b82f6; --secondary-hover: #60a5fa;
+            --bg-main: #0f172a; --text-main: #f8fafc; --text-sub: #94a3b8; --card-bg: #1e293b; --border-color: #334155; 
+            --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
         
-        /* Navbar */
-        .navbar { background-color: var(--primary); color: white; padding: 16px 20px; text-align: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 100;}
-        .navbar h2 { margin: 0; font-size: 18px; font-weight: 600; letter-spacing: 1px;}
-        .back-btn { position: absolute; left: 15px; top: 15px; background: none; border: none; color: white; font-size: 18px; cursor: pointer; display: none; }
+        body { 
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background: var(--bg-main); background-attachment: fixed;
+            margin: 0; padding: 0; color: var(--text-main); transition: background 0.3s ease, color 0.3s ease;
+            -webkit-font-smoothing: antialiased;
+        }
 
-        .container { max-width: 650px; margin: 20px auto; padding: 0 15px; }
+        #loginScreen {
+            display: flex; align-items: center; justify-content: center;
+            min-height: 100vh; padding: 20px; box-sizing: border-box; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+        }
+        .login-card {
+            background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            padding: 40px 30px; border-radius: 20px; width: 100%; max-width: 380px;
+            text-align: center; border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .login-card h2 { margin-top: 0; color: #ffffff; font-weight: 800; font-size: 24px; letter-spacing: 1px; }
+        .login-card p { color: #94a3b8; font-size: 13px; font-weight: 500; letter-spacing: 1px; margin-bottom: 30px; text-transform: uppercase;}
+        .login-card label { color: #cbd5e1; font-size: 12px; font-weight: 600; margin-bottom: 6px; display: block; text-align: left;}
+        .login-card input {
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15);
+            color: white; border-radius: 8px; padding: 12px 14px; width: 100%; box-sizing: border-box; font-size:14px;
+            transition: all 0.2s; outline: none; margin-bottom: 15px;
+        }
+        .login-card input:focus { border-color: #3b82f6; background: rgba(255, 255, 255, 0.1); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3); }
+        
+        #mainAppWrapper { display: none; }
+        
+        .navbar { 
+            background: #ffffff; color: var(--primary); padding: 12px 24px; border-bottom: 1px solid var(--border-color); 
+            box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between;
+        }
+        [data-theme="dark"] .navbar { background: #1e293b; color: #f8fafc; border-bottom-color: #334155;}
+        .navbar h2 { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: 0.5px; flex-grow: 1; text-align: center; color: var(--primary);}
+        [data-theme="dark"] .navbar h2 { color: #ffffff; }
 
-        /* Dashboard & Cards */
-        .party-card { background: var(--card); padding: 18px; border-radius: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); border-left: 5px solid var(--secondary); transition: all 0.3s ease; }
-        .party-card:hover { transform: translateY(-3px); }
+        .back-btn, .theme-btn, .logout-btn { 
+            background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); 
+            padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; margin-right: 8px; transition: all 0.2s;
+        }
+        .back-btn:hover, .theme-btn:hover { background: #e2e8f0; }
+        [data-theme="dark"] .back-btn:hover, [data-theme="dark"] .theme-btn:hover { background: #334155; }
+        
+        .logout-btn { color: var(--danger); border-color: #fca5a5; background: #fef2f2; }
+        .logout-btn:hover { background: #fee2e2; }
+        [data-theme="dark"] .logout-btn { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2); }
+        .back-btn { display: none; }
+        .user-badge { background: rgba(37, 99, 235, 0.1); color: var(--secondary); padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; margin-right: 12px; }
+
+        .container { max-width: 680px; margin: 30px auto; padding: 0 15px; }
+        .nav-buttons { display: flex; gap: 12px; margin-bottom: 15px; }
+        .nav-buttons .btn { flex: 1; }
+
+        .input-group { margin-bottom: 16px; text-align: left; }
+        label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px;}
+        input, select { 
+            width: 100%; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 10px; 
+            box-sizing: border-box; font-size: 15px; font-family: 'Inter', sans-serif; background-color: var(--card-bg); color: var(--text-main); 
+            transition: all 0.2s ease; outline: none; box-shadow: var(--shadow-sm);
+        }
+        input:focus, select:focus { border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
+
+        .search-group { margin-bottom: 24px; }
+        
+        .party-card { 
+            background: var(--card-bg); padding: 18px 20px; border-radius: var(--radius); margin-bottom: 12px; 
+            display: flex; justify-content: space-between; align-items: center; box-shadow: var(--shadow-sm); 
+            border: 1px solid var(--border-color); border-left: 4px solid var(--secondary); transition: all 0.2s ease;
+        }
+        .party-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); border-color: #cbd5e1;}
+        [data-theme="dark"] .party-card:hover { border-color: #475569; }
+        
         .party-info { cursor: pointer; flex-grow: 1; }
-        .party-info h3 { margin: 0 0 5px 0; color: var(--primary); font-size: 16px;}
-        .party-info p { margin: 0; font-size: 13px; color: #6b7280; }
+        .party-info h3 { margin: 0 0 6px 0; font-size: 16px; font-weight: 700; color: var(--text-main); text-transform:uppercase;}
+        .party-info p { margin: 0; font-size: 13px; color: var(--text-sub); font-weight: 500;}
         
-        .party-actions { display: flex; gap: 8px; }
-        .action-btn { border: none; background: #f1f5f9; padding: 8px; border-radius: 6px; cursor: pointer; font-size: 14px; transition: 0.2s; }
-        .btn-edit { color: var(--secondary); }
-        .btn-delete { color: #dc2626; }
+        .action-btn { border: none; background: #f1f5f9; width: 36px; height: 36px; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s;}
+        .action-btn:hover { background: #e2e8f0; }
+        [data-theme="dark"] .action-btn { background: rgba(255,255,255,0.05); }
+        [data-theme="dark"] .action-btn:hover { background: rgba(255,255,255,0.1); }
+        .btn-edit { color: var(--secondary); } .btn-delete { color: var(--danger); }
 
-        /* Buttons & Inputs */
-        .btn { padding: 12px 16px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: 0.2s; display: inline-block; box-sizing: border-box; text-align: center;}
-        .btn-primary { background: var(--secondary); color: white; }
-        .btn-success { background: #059669; color: white; }
-        .btn-outline { background: transparent; border: 2px solid var(--secondary); color: var(--secondary); }
+        .btn { 
+            padding: 12px 20px; border: none; border-radius: 10px; cursor: pointer; font-family: 'Inter', sans-serif;
+            font-weight: 600; font-size: 14px; text-align: center; transition: all 0.2s ease; display: inline-block; box-sizing: border-box;
+        }
+        .btn:active { transform: scale(0.98); }
+        .btn-primary { background: var(--secondary); color: white; box-shadow: 0 2px 4px rgba(37, 99, 235, 0.2); }
+        .btn-primary:hover { background: var(--secondary-hover); box-shadow: 0 4px 6px rgba(37, 99, 235, 0.3); }
+        .btn-success { background: var(--success); color: white; box-shadow: 0 2px 4px rgba(16, 185, 129, 0.2); }
+        .btn-success:hover { background: #059669; box-shadow: 0 4px 6px rgba(16, 185, 129, 0.3); }
+        .btn-outline { background: transparent; border: 1px solid var(--border-color); color: var(--text-main); box-shadow: var(--shadow-sm); }
+        .btn-outline:hover { background: #f8fafc; border-color: #cbd5e1; }
+        [data-theme="dark"] .btn-outline:hover { background: #334155; border-color: #475569; }
+
+        .history-box { background: var(--card-bg); border-radius: var(--radius); padding: 20px; margin-top: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); overflow-x: auto;}
+        table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
+        th { padding: 12px 10px; font-weight: 600; color: var(--text-sub); font-size: 12px; border-bottom: 2px solid var(--border-color); text-align: left; text-transform: uppercase; letter-spacing: 0.5px;}
+        td { padding: 14px 10px; border-bottom: 1px solid var(--border-color); font-weight: 500; }
+        tr:last-child td { border-bottom: none; }
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.3px;}
+        .badge-in { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .badge-out { background: rgba(37, 99, 235, 0.1); color: var(--secondary); }
+
+        .stock-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 16px; margin-top: 15px; }
+        .stock-item-card { background: var(--card-bg); padding: 20px 15px; border-radius: var(--radius); border: 1px solid var(--border-color); text-align: center; box-shadow: var(--shadow-sm); transition: all 0.2s;}
+        .stock-item-card:hover { box-shadow: var(--shadow-md); border-color: #cbd5e1; transform: translateY(-2px);}
+        [data-theme="dark"] .stock-item-card:hover { border-color: #475569; }
+        .stock-item-card h4 { margin: 0 0 8px 0; font-size: 15px; color: var(--text-main); font-weight: 700;}
+        .stock-item-card .value { font-size: 26px; font-weight: 800; color: var(--secondary); }
         
-        .input-group { margin-bottom: 16px; }
-        input { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; box-sizing: border-box; }
+        .expense-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px; }
+        .stat-card { background: var(--card-bg); padding: 20px; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); display:flex; flex-direction:column; justify-content:center; transition: all 0.2s;}
+        .stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+        .stat-card h4 { margin: 0 0 6px 0; font-size: 12px; color: var(--text-sub); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;}
+        .stat-card div { font-size: 22px; font-weight: 800; }
 
-        /* Screens */
-        #dashboardScreen, #partyDetailScreen, #invoiceScreen, #historyScreen, #stockScreen { display: none; }
+        .detail-header { background: var(--card-bg); padding: 24px; border-radius: var(--radius); text-align: center; margin-bottom: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); }
+        .detail-header h2 { font-size: 22px; font-weight: 800; color: var(--text-main); margin:0 0 8px 0; text-transform:uppercase;}
+
+        #dashboardScreen, #partyDetailScreen, #invoiceScreen, #historyScreen, #stockScreen, #expenseScreen, #chitthiScreen, #salesBookScreen, #directInvoiceScreen { display: none; }
         .active-screen { display: block !important; }
 
-        .detail-header { background: white; padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 24px; }
-        .action-buttons { display: flex; gap: 12px; margin-bottom: 24px; }
-        .action-buttons .btn { flex: 1; }
-
-        /* History Table */
-        .history-box { background: white; border-radius: 12px; padding: 20px; margin-top: 24px; }
-        table { width: 100%; border-collapse: collapse; font-size: 14px; }
-        th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #e5e7eb; vertical-align: middle; }
-
-        /* PREMIUM INVOICE CSS */
-        .invoice-wrapper { background: white; padding: 40px; border-radius: 4px; color: #1f2937; border-top: 8px solid var(--primary); }
-        .inv-header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 25px; border-bottom: 2px solid #f3f4f6; margin-bottom: 30px; }
-        .inv-brand h1 { margin: 0; color: var(--primary); font-size: 26px; font-weight: 800; letter-spacing: 1px; }
-        .inv-brand p { margin: 6px 0 0 0; font-size: 13px; color: #6b7280; }
-        .inv-meta h2 { margin: 0 0 8px 0; color: #9ca3af; font-size: 24px; font-weight: 300; letter-spacing: 2px; }
+        /* EXACT MATCH SCREENSHOT INVOICE STYLE - UNTOUCHED FOR PERFECT PRINTING */
+        .invoice-wrapper { background: #ffffff; padding: 40px; border-radius: 8px; color: #0f172a; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 6px solid #0f172a; }
+        .inv-header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 25px; margin-bottom: 25px; }
+        .inv-brand h1 { margin: 0; color: #0f172a; font-size: 22px; font-weight: 800; text-transform: uppercase; }
+        .inv-brand p { margin: 4px 0 0 0; font-size: 11px; color: #64748b; font-weight: 500; }
+        .inv-meta { text-align: right; }
+        .inv-meta h2 { margin: 0 0 10px 0; color: transparent; -webkit-text-stroke: 1px #cbd5e1; font-size: 32px; letter-spacing: 2px; text-transform: uppercase; }
+        .inv-meta p { margin: 0; font-size: 12px; color: #0f172a; font-weight: 700; }
         
-        .inv-party-section { display: flex; justify-content: space-between; margin-bottom: 30px; }
-        .inv-party { background: #f8fafc; padding: 15px 20px; border-left: 4px solid var(--secondary); border-radius: 0 8px 8px 0; min-width: 200px;}
-        .inv-party p { margin: 0; font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; }
-        .inv-party h3 { margin: 5px 0 0 0; font-size: 18px; color: var(--primary); }
+        .inv-party-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .inv-party { background: #f8fafc; border-left: 4px solid #3b82f6; padding: 12px 20px; border-radius: 6px; width: 45%; }
+        .inv-party p { margin: 0 0 4px 0; font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; }
+        .inv-party h3 { margin: 0; font-size: 15px; color: #0f172a; font-weight: 800; text-transform: uppercase;}
+        .inv-rate { text-align: right; }
+        .inv-rate p.label { margin: 0; font-size: 11px; color: #64748b; font-weight: 600; }
+        .inv-rate p.value { margin: 4px 0 0 0; font-size: 14px; font-weight: 800; color: #0f172a; }
 
-        .inv-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; }
-        .inv-table th { background-color: var(--primary); color: white; font-size: 13px; padding: 14px; text-align: center; }
-        .inv-table td { border-bottom: 1px solid #e2e8f0; padding: 14px; text-align: center; color: #334155; }
+        .inv-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 30px; }
+        .inv-table thead th { background-color: #0f172a; color: #ffffff; padding: 12px 15px; font-size: 11px; text-transform: uppercase; text-align: left; }
+        .inv-table thead th:first-child { border-top-left-radius: 6px; border-bottom-left-radius: 6px; }
+        .inv-table thead th:last-child { border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
+        .inv-table tbody td { padding: 12px 15px; color: #1e293b; font-weight: 600; font-size: 12px; border-bottom: 1px solid #f1f5f9; }
         
-        .inv-footer-section { display: flex; justify-content: space-between; margin-top: 20px; }
-        .inv-terms { width: 45%; font-size: 11px; color: #64748b; }
-        .inv-summary { width: 45%; background: #f8fafc; padding: 20px; border-radius: 12px; border: 1px solid #e2e8f0; margin-left: auto; }
-        .inv-summary table { width: 100%; }
-        .inv-summary td { padding: 8px 0; border-bottom: 1px dashed #cbd5e1; font-size: 14px; }
-        .inv-total td { font-size: 18px; font-weight: 800; color: var(--primary); border: none; padding-top: 15px; }
-
-        /* History Items */
-        .history-item { background: white; padding: 15px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #e5e7eb; cursor: pointer; transition: 0.2s; }
-        .history-item:hover { border-color: var(--secondary); box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .inv-footer-section { display: flex; justify-content: space-between; gap: 40px; margin-top: 10px; }
+        .inv-terms { flex: 1.2; }
+        .inv-terms h4 { margin: 0 0 10px 0; font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; }
+        .inv-terms p { margin: 0; font-size: 10px; color: #64748b; line-height: 1.6; }
+        
+        .inv-summary { width: 300px; background: #ffffff; padding: 15px 20px; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .inv-summary table { width: 100%; border-collapse: collapse; }
+        .inv-summary td { padding: 10px 0; font-weight: 500; font-size: 12px; }
+        .inv-summary td.text-right { text-align: right; font-weight: 600;}
+        .inv-summary tr:not(:last-child) td { border-bottom: 1px dashed #cbd5e1; }
+        .inv-summary tr.less-received td { color: #10b981; }
+        .inv-total { margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; font-weight: 800;}
+        .auth-sign { text-align: right; margin-top: 40px; }
 
         @media print {
-            .navbar, .no-print, .party-actions, .nav-buttons { display: none !important; }
+            body { background: #ffffff !important; }
+            .navbar, .no-print, .nav-buttons, .search-group { display: none !important; }
             .container { margin: 0; padding: 0; max-width: 100%; }
-            .invoice-wrapper { box-shadow: none; border-top: 6px solid var(--primary); padding: 0; }
+            .invoice-wrapper { box-shadow: none !important; border-top: 6px solid #0f172a !important; padding: 10px !important;}
+            .inv-table thead th { background-color: #0f172a !important; color: #ffffff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .inv-party { background: #f8fafc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
     </style>
 </head>
 <body>
 
-<div class="navbar">
-    <button class="back-btn" id="backBtn" onclick="goHome()">&#8592;</button>
-    <h2 id="navTitle">JAY MAHADEV DAI</h2>
+<div id="loginScreen">
+    <div class="login-card">
+        <h2>JAY MAHADEV DAI</h2><p>ADMIN LOGIN</p>
+        <div class="input-group"><label>Username</label><input type="text" id="loginUser" placeholder="Enter username..."></div>
+        <div class="input-group" style="margin-bottom:25px;"><label>Password</label><input type="password" id="loginPass" placeholder="Enter password..."></div>
+        <button class="btn btn-primary" style="width:100%" onclick="checkLogin()">🔓 Secure Login</button>
+    </div>
 </div>
 
-<div class="container">
-    <div id="dashboardScreen" class="active-screen">
-        <div class="nav-buttons" style="margin-bottom: 20px;">
-            <button class="btn btn-primary" style="background: #1e293b; width: 100%;" onclick="switchScreen('stockScreen', 'Stock Inventory')">📦 Manage Stock Inventory</button>
-        </div>
-
-        <div class="input-group" style="display: flex; gap: 12px;">
-            <input type="text" id="newPartyName" placeholder="Enter new party name...">
-            <button class="btn btn-primary" style="margin:0; width: 130px;" onclick="addNewParty()">+ Add Party</button>
-        </div>
-        
-        <h3 style="color: #4b5563; border-bottom: 2px solid #e5e7eb; padding-bottom: 8px; margin-top: 24px; font-size: 15px; text-transform: uppercase;">Active Clients</h3>
-        <div id="partyListContainer"></div>
-    </div>
-
-    <div id="stockScreen">
-        <div class="stock-grid" id="stockItemsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; margin-top: 15px;">
-            </div>
-        <button class="btn btn-outline" style="width: 100%; margin-top: 24px;" onclick="goHome()">Back to Dashboard</button>
-    </div>
-
-    <div id="partyDetailScreen">
-        <div class="detail-header">
-            <h2 id="pdName">Party Name</h2>
-            <p>Prev. Balance: <span id="pdOldBal" style="font-weight:700; color:#dc2626;">₹ 0</span></p>
-        </div>
-        <div class="action-buttons">
-            <button class="btn btn-primary" onclick="openEntryModal('qty')">Add Quantity</button>
-            <button class="btn btn-success" onclick="openEntryModal('jama')">Add Payment</button>
-        </div>
-        <div id="entryForm" style="display:none; background: #fff; padding: 20px; border-radius: 12px; margin-bottom: 24px; border: 1px solid #e5e7eb;">
-            <h4 id="entryFormTitle">Add Entry</h4>
-            <div class="input-group"><label>Date:</label><input type="date" id="entryDate"></div>
-            <div class="input-group"><label id="entryLabel">Value:</label><input type="number" id="entryValue"></div>
-            <button class="btn btn-primary" style="width:100%" onclick="saveData()">Save Entry</button>
-            <button class="btn btn-outline" style="width: 100%; margin-top: 12px;" onclick="document.getElementById('entryForm').style.display='none'">Cancel</button>
-        </div>
-        <div style="display: flex; gap: 12px; margin-bottom: 20px;">
-            <button class="btn btn-outline" style="flex:1" onclick="showInvoice()">🧾 Generate Invoice</button>
-            <button class="btn btn-outline" style="flex:1" onclick="showHistoryList()">🕒 View History</button>
-        </div>
-        <div class="history-box">
-            <table id="currentRecordTable">
-                <thead><tr><th>Date</th><th>Type</th><th style="text-align:right">Qty/Amt</th></tr></thead>
-                <tbody id="currentRecordBody"></tbody>
-            </table>
+<div id="mainAppWrapper">
+    <div class="navbar">
+        <button class="back-btn" id="backBtn" onclick="goHome()">← Back</button>
+        <h2 id="navTitle">JAY MAHADEV DAI</h2>
+        <div style="display:flex; align-items:center;">
+            <span class="user-badge" id="currentUserBadge">Admin</span>
+            <button class="theme-btn" onclick="toggleTheme()">🌓 Theme</button>
+            <button class="logout-btn" onclick="handleLogout()">🔒 Logout</button>
         </div>
     </div>
 
-    <div id="invoiceScreen">
-        <div class="no-print" style="margin-bottom: 24px; display: flex; gap: 12px;">
-            <button class="btn btn-success" style="flex: 2;" onclick="window.print()">🖨️ Print / Save PDF</button>
-            <button class="btn btn-primary" style="flex: 1; background: #dc2626;" id="closeCycleBtn" onclick="closeBook()">✅ Close Cycle</button>
+    <div class="container">
+        <div id="dashboardScreen" class="active-screen">
+            <div class="nav-buttons">
+                <button class="btn btn-primary" style="flex:1;" onclick="switchScreen('stockScreen', 'Manage Stock')">📦 Manage Stock</button>
+                <button class="btn btn-primary" style="flex:1; background: var(--text-sub);" onclick="switchScreen('expenseScreen', 'Business Expenses & Hisab')">💸 Expenses (Hisab)</button>
+            </div>
+            
+            <div class="nav-buttons" style="margin-bottom: 24px;">
+                <button class="btn btn-primary" style="flex:1; background: #f59e0b;" onclick="openDirectInvoiceScreen()">⚡ Direct Invoice</button>
+                <button class="btn btn-primary" style="flex:1; background: var(--success);" onclick="switchScreen('salesBookScreen', 'Global Sales Book')">📊 All Sales Book</button>
+            </div>
+
+            <div class="input-group" style="display: flex; gap: 10px; margin-bottom: 20px;">
+                <input type="text" id="newPartyName" placeholder="Enter new party name...">
+                <button class="btn btn-primary" style="margin:0; width: 120px;" onclick="addNewParty()">+ Add Party</button>
+            </div>
+            <div class="search-group"><input type="text" id="partySearchInput" placeholder="🔍 Search party name here..." oninput="filterPartiesDashboard()"></div>
+            
+            <h3 style="color: var(--text-sub); border-bottom: 2px solid var(--border-color); padding-bottom: 8px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;">ACTIVE CLIENTS</h3>
+            <div id="partyListContainer"><p style="text-align:center; padding: 20px; font-weight: 500; color: var(--text-sub);">⏳ Loading Data...</p></div>
         </div>
 
-        <div class="invoice-wrapper">
-            <div class="inv-header">
-                <div class="inv-brand">
-                    <h1>JAY MAHADEV DAI</h1>
-                    <p>Premium Dai Manufacturing</p>
-                </div>
-                <div class="inv-meta">
-                    <h2>INVOICE</h2>
-                    <p>Date: <b id="invDate"></b></p>
-                </div>
+        <div id="directInvoiceScreen">
+            <div class="detail-header">
+                <h2>⚡ Direct Invoice</h2>
+                <p style="color: var(--text-sub); margin: 0; font-size: 14px;">Quick Bill without adding to Ledger (Deducts Stock)</p>
+            </div>
+            
+            <div style="background: var(--card-bg); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 24px; box-shadow: var(--shadow-sm);">
+                <div class="input-group"><label>Customer / Party Name:</label><input type="text" id="diName" placeholder="Enter customer name..."></div>
+                <div class="input-group"><label>Date:</label><input type="date" id="diDate"></div>
+                
+                <label style="margin-top:10px;">Select Quantities (Dai):</label>
+                <div id="diSizeGrid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; max-height: 280px; overflow-y: auto; border: 1px solid var(--border-color); padding: 12px; border-radius: 10px; margin-bottom: 16px; background: var(--bg-main);">
+                    </div>
+
+                <button class="btn btn-primary" style="width:100%; background: #f59e0b; margin-top: 8px;" onclick="saveDirectInvoice()">🧾 Generate Bill & Deduct Stock</button>
+            </div>
+            <button class="btn btn-outline" style="width: 100%;" onclick="goHome()">Cancel</button>
+        </div>
+
+        <div id="salesBookScreen">
+            <div class="expense-stats">
+                 <div class="stat-card" style="border-top-color: var(--secondary);">
+                     <h4>Total Global Sales</h4><div id="sbTotalSold" style="color: var(--secondary); font-size:24px;">0 Dai</div>
+                 </div>
+            </div>
+            <div class="history-box" style="margin-top:0;">
+                 <h4 style="margin-top:0; text-transform:uppercase; font-size:12px; color:var(--text-main);">📊 All Sales Ledger</h4>
+                 <table>
+                     <thead><tr><th>Date</th><th>Party / Customer</th><th>Type</th><th style="text-align:right">Total Dai</th></tr></thead>
+                     <tbody id="salesBookBody"></tbody>
+                 </table>
+            </div>
+            <button class="btn btn-outline" style="width: 100%; margin-top:24px;" onclick="goHome()">Back to Dashboard</button>
+        </div>
+
+        <div id="stockScreen">
+            <div class="stock-grid" id="stockItemsGrid"></div>
+
+            <div class="history-box" style="margin-top: 30px;">
+                <h4 style="margin-top:0; font-size: 14px; color: var(--text-main); font-weight: 800; text-transform: uppercase;">🔄 Stock History (Ledger)</h4>
+                <table id="stockLogsTable">
+                    <thead><tr><th>Date</th><th>Detail</th><th>Size</th><th style="text-align:right">Action & Qty</th><th></th></tr></thead>
+                    <tbody id="stockLogsBody"></tbody>
+                </table>
             </div>
 
-            <div class="inv-party-section">
-                <div class="inv-party">
-                    <p>Billed To:</p>
-                    <h3 id="invPartyName"></h3>
-                </div>
-                <div style="text-align: right;">
-                    <p style="margin: 0; font-size: 13px; color: #64748b;">Rate Applied:</p>
-                    <p style="margin: 5px 0 0 0; font-size: 16px; font-weight: 700;">₹ 0.30 / Unit</p>
-                </div>
+            <button class="btn btn-outline" style="width: 100%; margin-top: 24px;" onclick="goHome()">Back to Dashboard</button>
+        </div>
+
+        <div id="expenseScreen">
+            <div class="expense-stats">
+                <div class="stat-card" style="border-top-color: var(--success);"><h4>Total Cash In</h4><div id="expTotalIn" style="color: var(--success);">₹ 0</div></div>
+                <div class="stat-card" style="border-top-color: var(--danger);"><h4>Total Kharcha</h4><div id="expTotalOut" style="color: var(--danger);">₹ 0</div></div>
+            </div>
+            <div style="background: var(--card-bg); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 24px; box-shadow: var(--shadow-sm);">
+                <h4 style="margin-top:0; margin-bottom:16px; font-size:16px; color: var(--text-main);">Add New Ledger Entry</h4>
+                <div class="input-group"><label>Particulars (Vigat):</label><input type="text" id="expDesc" placeholder="e.g. Light bill, Kacho Mal..."></div>
+                <div class="input-group"><label>Type:</label><select id="expType"><option value="IN">Cash In (Aavya)</option><option value="OUT">Cash Out (Kharcha)</option></select></div>
+                <div class="input-group"><label>Amount (₹):</label><input type="number" id="expAmount" placeholder="Enter amount..."></div>
+                <button class="btn btn-success" style="width: 100%; margin-top: 8px;" onclick="saveExpense()">Save Expense</button>
+            </div>
+            <div class="history-box" style="margin-top:0;">
+                <table><thead><tr><th>Date</th><th>Particulars</th><th>Type</th><th style="text-align:right">Amount</th><th></th></tr></thead><tbody id="expenseTableBody"></tbody></table>
+            </div>
+            <button class="btn btn-outline" style="width: 100%; margin-top: 24px;" onclick="goHome()">Back to Dashboard</button>
+        </div>
+
+        <div id="partyDetailScreen">
+            <div class="detail-header">
+                <h2 id="pdName" style="margin:0 0 8px 0;">Party Name</h2>
+                <p style="color: var(--text-sub); margin: 0; font-size: 14px; font-weight: 500;">Prev. Balance: <span id="pdOldBal" style="font-weight:800; color:var(--danger);">₹ 0</span></p>
+            </div>
+            
+            <div class="nav-buttons">
+                <button class="btn btn-primary" onclick="openEntryModal('qty')">Add Dai (Sell)</button>
+                <button class="btn btn-success" onclick="openEntryModal('jama')">Add Payment (Jama)</button>
+            </div>
+            
+            <div class="nav-buttons">
+                <button class="btn btn-outline" onclick="showInvoice()">🧾 Generate Invoice</button>
+                <button class="btn btn-outline" onclick="showHistoryList()">🕒 View History</button>
             </div>
 
-            <table class="inv-table">
-                <thead><tr><th style="width: 15%;">No.</th><th style="width: 45%;">Date</th><th style="width: 40%;">Quantity</th></tr></thead>
-                <tbody id="invItemsBody"></tbody>
-            </table>
+            <div id="entryForm" style="display:none; background: var(--card-bg); padding: 20px; border-radius: var(--radius); margin-bottom: 24px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+                <h4 id="entryFormTitle" style="margin:0 0 16px 0; font-size: 16px; color: var(--text-main);">Add Entry</h4>
+                <div class="input-group"><label>Date:</label><input type="date" id="entryDate"></div>
+                
+                <div id="multiSizeGrid" style="display:none; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; max-height: 280px; overflow-y: auto; border: 1px solid var(--border-color); padding: 12px; border-radius: 10px; margin-bottom: 16px; background: var(--bg-main);">
+                </div>
 
-            <div class="inv-footer-section">
-                <div class="inv-terms">
-                    <h4 style="margin:0">Terms & Conditions</h4>
-                    <p>1. Please verify the quantities listed above.<br>
-                        2. All balances are carried forward to the next billing cycle if unpaid.<br>
-                        3. Thank you for your continued business!</p>
+                <div id="singleValueGroup">
+                    <div class="input-group"><label id="entryLabel">Value:</label><input type="number" id="entryValue"></div>
                 </div>
-                <div class="inv-summary">
-                    <table>
-                        <tr><td>Total Qty:</td><td style="text-align:right"><b id="invTotalQty">0</b></td></tr>
-                        <tr><td>Current Amount:</td><td style="text-align:right">₹ <span id="invCurrentAmt">0</span></td></tr>
-                        <tr><td>Old Balance:</td><td style="text-align:right">₹ <span id="invOldBal">0</span></td></tr>
-                        <tr style="color: #059669;"><td>Less Received:</td><td style="text-align:right">- ₹ <span id="invTotalJama">0</span></td></tr>
-                        <tr class="inv-total"><td>Final Due:</td><td style="text-align:right">₹ <span id="invFinalDue">0</span></td></tr>
-                    </table>
-                </div>
+
+                <button class="btn btn-primary" style="width:100%; margin-top: 8px;" onclick="saveData()">Save Entry</button>
+                <button class="btn btn-outline" style="width: 100%; margin-top: 12px; border: none; box-shadow: none;" onclick="document.getElementById('entryForm').style.display='none'">Cancel</button>
             </div>
-            <div style="text-align: right; margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 15px;">
-                <p style="margin: 0; font-weight: 800; font-size: 15px;">SANJAYBHAI DODIYA</p>
-                <p style="margin: 4px 0 0 0; font-size: 11px; color: #64748b; font-weight: 600;">(Authorized Person)</p>
+            
+            <div class="history-box" style="margin-top: 0;">
+                <table id="currentRecordTable">
+                    <thead><tr><th>Date</th><th>Type</th><th style="text-align:right">Total Qty/Amt</th></tr></thead>
+                    <tbody id="currentRecordBody"></tbody>
+                </table>
             </div>
         </div>
-    </div>
 
-    <div id="historyScreen">
-        <h3>Cycle History for <span id="histPartyName"></span></h3>
-        <div id="historyListContainer"></div>
+        <div id="chitthiScreen">
+            <div class="no-print" style="margin-bottom: 20px;">
+                <button class="btn btn-success" style="width:100%; padding: 16px; font-size: 16px;" onclick="window.print()">🖨️ Print Slip (Chitthi)</button>
+            </div>
+
+            <div class="invoice-wrapper" style="max-width: 420px; padding: 25px;">
+                <div style="text-align:center; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 20px;">
+                    <h2 style="margin:0; font-size:22px; font-weight:900; letter-spacing: 0.5px;">DELIVERY SLIP</h2>
+                    <p style="margin:4px 0 0 0; font-size:12px; color:var(--text-sub); font-weight:700;">JAY MAHADEV DAI</p>
+                </div>
+                
+                <div style="display:flex; justify-content:space-between; margin-bottom: 20px; font-size:14px;">
+                    <div><strong>Party:</strong> <span id="chitthiPartyName" style="color:var(--secondary); font-weight:800;"></span></div>
+                    <div><strong>Date:</strong> <span id="chitthiDate" style="font-weight:600;"></span></div>
+                </div>
+                
+                <table class="inv-table" style="margin-bottom:20px;">
+                    <thead>
+                        <tr>
+                            <th style="width:20%">NO.</th>
+                            <th style="width:50%">DAI SIZE</th>
+                            <th style="width:30%; text-align:right;">DAI</th>
+                        </tr>
+                    </thead>
+                    <tbody id="chitthiItemsBody"></tbody>
+                </table>
+                
+                <div style="text-align:right; font-size:16px; font-weight:800; border-top:2px solid #e2e8f0; padding-top:16px; color: var(--text-main);">
+                    Total Delivered: <span id="chitthiTotalQty" style="color:var(--secondary); font-size: 20px;">0</span> Dai
+                </div>
+            </div>
+            <button class="btn btn-outline no-print" id="chitthiBackBtn" style="width: 100%; margin-top: 24px;">← Back</button>
+        </div>
+
+        <div id="invoiceScreen">
+            <div class="no-print" style="margin-bottom: 20px; display: flex; gap: 12px;">
+                <button class="btn btn-success" style="flex: 2;" onclick="window.print()">🖨️ Print / Save PDF</button>
+                <button class="btn btn-primary" style="flex: 1; background: var(--danger);" id="closeCycleBtn" onclick="closeBook()">✅ Close Cycle</button>
+            </div>
+
+            <div class="invoice-wrapper">
+                <div class="inv-header">
+                    <div class="inv-brand"><h1>JAY MAHADEV DAI</h1><p>Premium Dai Manufacturing</p></div>
+                    <div class="inv-meta"><h2>INVOICE</h2><p>Date: <span id="invDate"></span></p></div>
+                </div>
+                <div class="inv-party-section">
+                    <div class="inv-party"><p>Billed To:</p><h3 id="invPartyName"></h3></div>
+                    <div class="inv-rate"><p class="label">Rate Applied:</p><p class="value">₹ 0.30 / Unit</p></div>
+                </div>
+                <table class="inv-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 20%;">NO.</th>
+                            <th style="width: 40%;">DATE</th>
+                            <th style="width: 40%; text-align:right;">QUANTITY</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invItemsBody"></tbody>
+                </table>
+                <div class="inv-footer-section">
+                    <div class="inv-terms"><h4>Terms & Conditions</h4><p>1. Please verify the quantities listed above.<br>2. All balances are carried forward to the<br>next billing cycle if unpaid.<br>3. Thank you for your continued business!</p></div>
+                    <div class="inv-summary">
+                        <table>
+                            <tr><td>Total Qty:</td><td class="text-right"><span id="invTotalQty">0</span></td></tr>
+                            <tr><td>Current Amount:</td><td class="text-right">₹ <span id="invCurrentAmt">0</span></td></tr>
+                            <tr><td>Old Balance:</td><td class="text-right">₹ <span id="invOldBal">0</span></td></tr>
+                            <tr class="less-received"><td>Less Received:</td><td class="text-right">- ₹ <span id="invTotalJama">0</span></td></tr>
+                        </table>
+                        <div class="inv-total"><span class="label">Final Due:</span><span class="value">₹ <span id="invFinalDue">0</span></span></div>
+                    </div>
+                </div>
+                <div class="auth-sign"><h4>SANJAYBHAI DODIYA</h4><p>(Authorized Person)</p></div>
+            </div>
+        </div>
+
+        <div id="historyScreen">
+            <h3 style="font-weight:800; color: var(--text-main);">Cycle History for <span id="histPartyName" style="color:var(--secondary)"></span></h3>
+            <div id="historyListContainer"></div>
+        </div>
     </div>
 </div>
 
 <script>
-    // Firebase Config
+    const USERS = { "parth": "pd27", "sanjaybhai": "sd01", "deep": "dd24" };
+    const RATE = 0.30;
+    
+    let appData = {}, stockInventory = {}, expenseData = {}, stockLogsData = {}, directSalesData = {};
+    let activeParty = null, entryMode = ''; 
+    let databaseInitialized = false;
+
+    function getActiveUser() { return localStorage.getItem("currentUser") || "Unknown"; }
+
     const firebaseConfig = {
         apiKey: "AIzaSyAFsTJ3b4vPDC5ZdDEe-6dd8EbUCGK7Sb8",
         authDomain: "dai-bill.firebaseapp.com",
@@ -216,267 +443,642 @@
         messagingSenderId: "222835726511",
         appId: "1:222835726511:web:3bc69cc170d5019393dc5a"
     };
-    
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    const RATE = 0.30;
-    let appData = {}, stockInventory = {}, activeParty = null, entryMode = ''; 
+    db.ref().keepSynced(true); 
 
-    // Live Sync Matrix
-    db.ref().on('value', (snapshot) => {
-        const rootData = snapshot.val() || {};
-        appData = rootData.erp_data || {};
-        stockInventory = rootData.stock_inventory || {};
-        
-        // Loop bound structure checks
-        for(let i = 10; i <= 25; i++) {
-            if(stockInventory[i] === undefined) stockInventory[i] = 0;
-        }
-
-        loadDashboard();
-        
-        // Screens realtime updater node conditions
-        if (document.getElementById('stockScreen').classList.contains('active-screen')) {
-            renderStockPage();
-        } else if (activeParty && document.getElementById('partyDetailScreen').classList.contains('active-screen')) {
-            openParty(activeParty);
-        }
-    });
-
-    function saveDB() { db.ref('erp_data').set(appData); }
-
-    function getFormattedToday() {
-        let today = new Date();
-        return String(today.getDate()).padStart(2, '0') + '/' + String(today.getMonth() + 1).padStart(2, '0') + '/' + today.getFullYear();
+    function getSafeArray(fbData) {
+        if (!fbData) return [];
+        if (Array.isArray(fbData)) return fbData.filter(Boolean);
+        return Object.values(fbData); 
     }
 
-    // DYNAMIC STOCK COMPONENT RENDERING
-    function renderStockPage() {
-        let grid = document.getElementById('stockItemsGrid');
-        grid.innerHTML = '';
+    function logActivity(actionMessage) {
+        if(!databaseInitialized) return;
+        db.ref('activity_logs').push({ user: getActiveUser(), timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }), action: actionMessage });
+    }
 
-        for (let size = 10; size <= 25; size++) {
-            let totalNang = stockInventory[size] || 0;
-            let itemCard = document.createElement('div');
-            itemCard.style = "background:white; padding:14px; border-radius:10px; border:1px solid #e5e7eb; text-align:center; box-shadow: 0 2px 4px rgba(0,0,0,0.02);";
-            itemCard.innerHTML = `
-                <h4 style="margin:0 0 6px 0; color:#0f172a; font-size:15px; font-weight:700;">Dai No. ${size}</h4>
-                <div style="font-size:22px; font-weight:800; color:#3b82f6;">${totalNang}</div>
-                <div style="font-size:11px; color:#6b7280; font-weight:bold; margin-top:2px;">Total Nang</div>
-                <div style="display:flex; gap:6px; margin-top:10px; justify-content: center;">
-                    <button style="background:#f1f5f9; border:none; padding:6px 12px; border-radius:4px; color:#059669; font-weight:bold; cursor:pointer;" onclick="adjustSizeStock(${size}, 'add')">+</button>
-                    <button style="background:#f1f5f9; border:none; padding:6px 12px; border-radius:4px; color:#dc2626; font-weight:bold; cursor:pointer;" onclick="adjustSizeStock(${size}, 'sub')">-</button>
+    function checkLogin() {
+        const user = document.getElementById('loginUser').value.trim().toLowerCase(), pass = document.getElementById('loginPass').value.trim();
+        if (USERS[user] && USERS[user] === pass) {
+            localStorage.setItem("isLoggedIn", "true"); localStorage.setItem("currentUser", user);
+            showAppLayout(); startFirebaseSync(); logActivity("Logged into the system");
+        } else alert("Wrong id or Password");
+    }
+
+    function showAppLayout() {
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('mainAppWrapper').style.display = 'block';
+        document.getElementById('currentUserBadge').innerText = getActiveUser();
+    }
+    function handleLogout() { localStorage.clear(); window.location.reload(); }
+
+    function startFirebaseSync() {
+        if(databaseInitialized) return;
+        databaseInitialized = true;
+        
+        db.ref('erp_data').on('value', (snapshot) => {
+            appData = snapshot.val() || {};
+            if (localStorage.getItem("isLoggedIn") === "true") {
+                filterPartiesDashboard();
+                if(activeParty && document.getElementById('partyDetailScreen').classList.contains('active-screen')) openParty(activeParty);
+                if(document.getElementById('salesBookScreen').classList.contains('active-screen')) renderSalesBook();
+            }
+        });
+
+        db.ref('stock_inventory').on('value', (snapshot) => {
+            stockInventory = snapshot.val() || {};
+            for(let i = 10; i <= 25; i++) { if(stockInventory[i] === undefined) stockInventory[i] = 0; }
+            if (localStorage.getItem("isLoggedIn") === "true" && document.getElementById('stockScreen').classList.contains('active-screen')) {
+                renderStockPage();
+            }
+        });
+
+        db.ref('expense_inventory').on('value', (snapshot) => {
+            expenseData = snapshot.val() || {};
+            if (localStorage.getItem("isLoggedIn") === "true" && document.getElementById('expenseScreen').classList.contains('active-screen')) {
+                renderExpensePage();
+            }
+        });
+
+        db.ref('stock_logs').on('value', (snapshot) => {
+            stockLogsData = snapshot.val() || {};
+            if (localStorage.getItem("isLoggedIn") === "true" && document.getElementById('stockScreen').classList.contains('active-screen')) {
+                renderStockLogs();
+            }
+        });
+        
+        db.ref('direct_sales').on('value', (snapshot) => {
+            directSalesData = snapshot.val() || {};
+            if (localStorage.getItem("isLoggedIn") === "true" && document.getElementById('salesBookScreen').classList.contains('active-screen')) {
+                renderSalesBook();
+            }
+        });
+    }
+
+    if(localStorage.getItem("isLoggedIn") === "true") { showAppLayout(); startFirebaseSync(); }
+
+    function toggleTheme() {
+        const body = document.documentElement;
+        if (body.getAttribute('data-theme') === 'dark') { body.removeAttribute('data-theme'); localStorage.setItem('theme', 'light'); } 
+        else { body.setAttribute('data-theme', 'dark'); localStorage.setItem('theme', 'dark'); }
+    }
+    if (localStorage.getItem('theme') === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+
+    function saveDB() { return db.ref('erp_data').set(appData); }
+    function getFormattedToday() { let d = new Date(); return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear(); }
+
+    /* ============================================================
+       🔥 DIRECT INVOICE LOGIC 🔥
+       ============================================================ */
+    function openDirectInvoiceScreen() {
+        document.getElementById('diDate').valueAsDate = new Date();
+        let gridHtml = '';
+        for(let s=10; s<=25; s++) {
+            let currentStock = stockInventory[s] || 0;
+            gridHtml += `
+                <div style="background:var(--card-bg); padding:12px; border-radius:10px; border:1px solid var(--border-color); text-align:center; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                    <label style="font-size:12px; font-weight:800; color:var(--primary); margin-bottom:4px; display:block;">No. ${s}</label>
+                    <p style="font-size:11px; color:var(--success); font-weight:700; margin:0 0 10px 0;">📦 ${currentStock}</p>
+                    <div style="display:flex; justify-content:center; gap:6px;">
+                        <button type="button" style="background:rgba(239, 68, 68, 0.1); border:none; border-radius:6px; color:var(--danger); width:32px; height:32px; font-size:18px; font-weight:bold; cursor:pointer;" onclick="adjustDiQty(${s}, -500)">-</button>
+                        <input type="number" id="di_size_${s}" placeholder="0" min="0" max="${currentStock}" style="padding:0; font-size:15px; font-weight:700; text-align:center; width:50px; border:2px solid var(--border-color); border-radius:6px; box-sizing:border-box;">
+                        <button type="button" style="background:rgba(16, 185, 129, 0.1); border:none; border-radius:6px; color:var(--success); width:32px; height:32px; font-size:18px; font-weight:bold; cursor:pointer;" onclick="adjustDiQty(${s}, 500)">+</button>
+                    </div>
                 </div>
             `;
+        }
+        document.getElementById('diSizeGrid').innerHTML = gridHtml;
+        switchScreen('directInvoiceScreen', 'Direct Bill Generation');
+    }
+
+    function adjustDiQty(size, amount) {
+        let input = document.getElementById(`di_size_${size}`);
+        let currentVal = parseInt(input.value) || 0;
+        let maxStock = stockInventory[size] || 0;
+        let newVal = currentVal + amount;
+        if (newVal < 0) newVal = 0;
+        if (newVal > maxStock) return alert(`⚠️ Error: Dai No. ${size} no stock purto nathi!`);
+        input.value = newVal === 0 ? '' : newVal;
+    }
+
+    function saveDirectInvoice() {
+        let name = document.getElementById('diName').value.trim();
+        let dateInput = document.getElementById('diDate').value;
+        if(!name || !dateInput) return alert("Customer Name ane Date nakho!");
+        let date = dateInput.split('-').reverse().join('/');
+        
+        let totalNangToSave = 0;
+        let sizesDeducted = [];
+        
+        for(let s=10; s<=25; s++) {
+            let el = document.getElementById(`di_size_${s}`);
+            if(el && el.value) {
+                let val = parseInt(el.value);
+                if(val > 0) {
+                    let curStock = stockInventory[s] || 0;
+                    if(curStock < val) return alert(`⚠️ Error: Dai No. ${s} no stock o6o che! (Available: ${curStock})`);
+                    sizesDeducted.push({size: s, val: val});
+                    totalNangToSave += val;
+                }
+            }
+        }
+        if(totalNangToSave === 0) return alert("Koy quantity nakhi nathi!");
+        
+        sizesDeducted.forEach(item => {
+            db.ref(`stock_inventory/${item.size}`).set((stockInventory[item.size]||0) - item.val);
+            db.ref('stock_logs').push({
+                date: date,
+                size: item.size,
+                qty: item.val,
+                type: 'OUT',
+                detail: `Direct Sale: ${name}`
+            });
+        });
+        
+        db.ref('direct_sales').push({ date: date, party: name, sizes: sizesDeducted, totalNang: totalNangToSave });
+        logActivity(`Generated Direct Invoice for ${name} (${totalNangToSave} Dai).`);
+
+        let invBody = document.getElementById('invItemsBody'); invBody.innerHTML = '';
+        sizesDeducted.forEach((sz, i) => {
+            invBody.innerHTML += `<tr><td>${i+1}</td><td>${date}</td><td style="text-align:right;">${sz.val}</td></tr>`;
+        });
+        
+        let curAmt = Math.round(totalNangToSave * RATE);
+        document.getElementById('invDate').innerText = date; document.getElementById('invPartyName').innerText = name;
+        document.getElementById('invTotalQty').innerText = totalNangToSave; document.getElementById('invCurrentAmt').innerText = curAmt;
+        document.getElementById('invOldBal').innerText = 0; document.getElementById('invTotalJama').innerText = 0;
+        document.getElementById('invFinalDue').innerText = curAmt;
+        document.getElementById('closeCycleBtn').style.display = 'none'; 
+        switchScreen('invoiceScreen', 'Tax Invoice (Direct)');
+        document.getElementById('diName').value = '';
+    }
+
+    /* ============================================================
+       🔥 GLOBAL SALES BOOK LOGIC 🔥
+       ============================================================ */
+    function renderSalesBook() {
+        let salesArray = []; let totalGlobalSold = 0;
+        
+        Object.keys(appData).forEach(party => {
+            let data = appData[party];
+            getSafeArray(data.deliveries).forEach(d => {
+                salesArray.push({ date: d.date, party: party, nang: d.nang, type: 'Ledger' }); totalGlobalSold += d.nang;
+            });
+            getSafeArray(data.history).forEach(h => {
+                getSafeArray(h.deliveries).forEach(hd => {
+                    salesArray.push({ date: hd.date, party: party + " (History)", nang: hd.nang, type: 'Ledger' }); totalGlobalSold += hd.nang;
+                });
+            });
+        });
+        
+        Object.keys(directSalesData).forEach(k => {
+            let ds = directSalesData[k];
+            salesArray.push({ date: ds.date, party: ds.party, nang: ds.totalNang, type: 'Direct Bill' }); totalGlobalSold += ds.totalNang;
+        });
+        
+        salesArray.sort((a, b) => {
+            let pa = a.date.split('/').reverse().join(''), pb = b.date.split('/').reverse().join(''); return pb.localeCompare(pa); 
+        });
+        
+        let body = document.getElementById('salesBookBody'); body.innerHTML = '';
+        salesArray.forEach(item => {
+            let b = item.type === 'Direct Bill' ? '<span class="badge" style="background:#f59e0b; color:white;">Direct Bill</span>' : '<span class="badge badge-out" style="background:rgba(59,130,246,0.1); color:var(--secondary)">Ledger</span>';
+            body.innerHTML += `<tr><td>${item.date}</td><td style="font-weight:700;">${item.party}</td><td>${b}</td><td style="text-align:right; font-weight:800;">${item.nang}</td></tr>`;
+        });
+        document.getElementById('sbTotalSold').innerText = totalGlobalSold + " Dai";
+    }
+
+    /* ============================================================
+       🔥 STOCK LOGIC & HISTORY 🔥
+       ============================================================ */
+
+    function renderStockPage() {
+        let grid = document.getElementById('stockItemsGrid'); grid.innerHTML = '';
+        for (let size = 10; size <= 25; size++) {
+            let totalNang = stockInventory[size] || 0;
+            let itemCard = document.createElement('div'); itemCard.className = 'stock-item-card';
+            itemCard.innerHTML = `
+                <h4>Dai No. ${size}</h4><div class="value">${totalNang}</div><div style="font-size:11px; color:var(--text-sub); font-weight:700; margin-top:2px;">Total Dai</div>
+                <div style="display:flex; gap:12px; margin-top:16px; justify-content: center;">
+                    <button style="background:rgba(239, 68, 68, 0.1); border:none; padding:8px 16px; border-radius:8px; color:var(--danger); font-weight:800; font-size:16px; cursor:pointer; transition:all 0.2s;" onclick="adjustSizeStock(${size}, 'sub')">-</button>
+                    <button style="background:rgba(16, 185, 129, 0.1); border:none; padding:8px 16px; border-radius:8px; color:var(--success); font-weight:800; font-size:16px; cursor:pointer; transition:all 0.2s;" onclick="adjustSizeStock(${size}, 'add')">+</button>
+                </div>`;
             grid.appendChild(itemCard);
         }
+        renderStockLogs();
+    }
+
+    function renderStockLogs() {
+        let tbody = document.getElementById('stockLogsBody');
+        if(!tbody) return; tbody.innerHTML = '';
+        
+        let logsArray = [];
+        Object.keys(stockLogsData).forEach(key => {
+            let log = stockLogsData[key];
+            log.id = key;
+            logsArray.push(log);
+        });
+        logsArray.reverse();
+        
+        if(logsArray.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:15px; color:var(--text-sub);">No stock history yet.</td></tr>';
+            return;
+        }
+
+        logsArray.forEach(log => {
+            let bClass = log.type === 'IN' ? 'badge badge-in' : 'badge badge-out';
+            let bText = log.type === 'IN' ? 'IN (+)' : 'OUT (-)';
+            let sign = log.type === 'IN' ? '+' : '-';
+            let color = log.type === 'IN' ? 'var(--success)' : 'var(--danger)';
+
+            tbody.innerHTML += `<tr>
+                <td>${log.date}</td><td style="font-weight:600; color:var(--text-main);">${log.detail}</td>
+                <td>Dai No. ${log.size}</td>
+                <td style="text-align:right; font-weight:800; color:${color};"><span class="${bClass}" style="margin-right:8px;">${bText}</span> ${sign} ${log.qty}</td>
+                <td style="text-align:right;">
+                    <button onclick="deleteStockLog('${log.id}', ${log.size}, ${log.qty}, '${log.type}')" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:16px;">🗑</button>
+                </td>
+            </tr>`;
+        });
+    }
+
+    function deleteStockLog(logId, size, qty, type) {
+        if(!confirm("Are you sure you want to delete this stock entry? Stock will be automatically adjusted.")) return;
+        
+        let currentStock = stockInventory[size] || 0;
+        let newStock = currentStock;
+
+        if (type === 'IN') {
+            newStock = currentStock - qty; 
+        } else if (type === 'OUT') {
+            newStock = currentStock + qty; 
+        }
+
+        if (newStock < 0) newStock = 0;
+
+        db.ref(`stock_inventory/${size}`).set(newStock).then(() => {
+            db.ref(`stock_logs/${logId}`).remove().then(() => {
+                logActivity(`Deleted Stock Log (Size ${size}, Qty: ${qty}, Type: ${type})`);
+            });
+        });
     }
 
     function adjustSizeStock(size, operation) {
         let currentQty = stockInventory[size] || 0;
-        let amount = 500; 
+        let amount = 500;
         let newQty = operation === 'add' ? currentQty + amount : currentQty - amount;
-
-        if(newQty < 0) return alert("Stock minus ma na jaay!");
-        db.ref(`stock_inventory/${size}`).set(newQty);
+        
+        if (newQty < 0) return alert("Stock minus ma na jaay!");
+        
+        db.ref(`stock_inventory/${size}`).set(newQty).then(() => {
+            logActivity(`Adjusted Stock for Dai No. ${size} (${operation === 'add' ? '+500' : '-500'})`);
+            db.ref('stock_logs').push({
+                date: getFormattedToday(), size: size, qty: amount,
+                type: operation === 'add' ? 'IN' : 'OUT',
+                detail: operation === 'add' ? 'Production / Added' : 'Manual Deduction'
+            });
+        });
     }
 
-    function loadDashboard() {
-        let container = document.getElementById('partyListContainer');
-        container.innerHTML = '';
-        Object.keys(appData).forEach(party => {
-            let entries = (appData[party].deliveries || []).length + (appData[party].payments || []).length;
-            let card = document.createElement('div');
-            card.className = 'party-card';
-            card.innerHTML = `
-                <div class="party-info" onclick="openParty('${party}')">
-                    <h3>${party}</h3>
-                    <p>${entries} Active Entries</p>
-                </div>
-                <div class="party-actions">
-                    <button class="action-btn btn-edit" onclick="renameParty('${party}')">✎</button>
-                    <button class="action-btn btn-delete" onclick="deleteParty('${party}')">🗑</button>
-                </div>`;
+    // Expense Logic
+    function saveExpense() {
+        let desc = document.getElementById('expDesc').value.trim(), type = document.getElementById('expType').value, amt = parseFloat(document.getElementById('expAmount').value);
+        if(!desc || !amt || amt <= 0) return alert("Please fill all fields!");
+        db.ref('expense_inventory').push({ date: getFormattedToday(), particulars: desc, type: type, amount: amt }).then(() => {
+            document.getElementById('expDesc').value = ''; document.getElementById('expAmount').value = '';
+        });
+    }
+
+    function renderExpensePage() {
+        let body = document.getElementById('expenseTableBody'); body.innerHTML = '';
+        let totalIn = 0, totalOut = 0;
+        Object.keys(expenseData).forEach(id => {
+            let item = expenseData[id];
+            if(item.type === 'IN') totalIn += item.amount; else if(item.type === 'OUT') totalOut += item.amount;
+            let bClass = item.type === 'IN' ? 'badge badge-in' : 'badge badge-out', bText = item.type === 'IN' ? 'Cash In' : 'Cash Out';
+            body.innerHTML += `<tr><td>${item.date}</td><td style="font-weight:600;">${item.particulars}</td><td><span class="${bClass}">${bText}</span></td>
+                <td style="text-align:right; font-weight:700;">₹ ${item.amount}</td><td><button onclick="deleteExpense('${id}')" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:16px;">🗑</button></td></tr>`;
+        });
+        document.getElementById('expTotalIn').innerText = '₹ ' + totalIn; document.getElementById('expTotalOut').innerText = '₹ ' + totalOut;
+    }
+
+    function deleteExpense(id) { if(confirm("Delete this transaction row?")) db.ref(`expense_inventory/${id}`).remove(); }
+
+    /* ============================================================
+       🔥 PARTY & GROUPED ENTRY LOGIC 🔥
+       ============================================================ */
+
+    function filterPartiesDashboard() {
+        let container = document.getElementById('partyListContainer'), query = document.getElementById('partySearchInput') ? document.getElementById('partySearchInput').value.trim().toUpperCase() : "";
+        if(!container) return; container.innerHTML = '';
+        let filteredKeys = Object.keys(appData).filter(key => key.includes(query));
+        if(filteredKeys.length === 0) return container.innerHTML = '<p style="text-align:center; color:var(--text-sub); padding: 20px;">No clients found.</p>';
+        filteredKeys.forEach(party => {
+            let entries = getSafeArray(appData[party].deliveries).length + getSafeArray(appData[party].payments).length;
+            let card = document.createElement('div'); card.className = 'party-card';
+            card.innerHTML = `<div class="party-info" onclick="openParty('${party}')"><h3 style="margin-top:0;">${party}</h3><p>💼 ${entries} Active Logs</p></div>
+                <div class="party-actions"><button class="action-btn btn-edit" onclick="renameParty('${party}')">✎</button><button class="action-btn btn-delete" onclick="deleteParty('${party}')">🗑</button></div>`;
             container.appendChild(card);
         });
     }
 
     function addNewParty() {
-        let name = document.getElementById('newPartyName').value.trim().toUpperCase();
-        if(!name) return;
-        let oldBal = prompt("Enter Previous Due:", "0");
-        if(oldBal === null) return;
-        appData[name] = { balance: parseInt(oldBal) || 0, deliveries: [], payments: [], history: [] };
-        saveDB(); document.getElementById('newPartyName').value = '';
+        let name = document.getElementById('newPartyName').value.trim().toUpperCase(); if(!name) return;
+        let oldBal = prompt("Enter Previous Due:", "0"); if(oldBal === null) return;
+        appData[name] = { balance: parseInt(oldBal) || 0, deliveries: [], payments: [], history: [] }; db.ref('erp_data').set(appData).then(() => { document.getElementById('newPartyName').value = ''; });
     }
-
-    function renameParty(oldName) {
-        let newName = prompt("Rename " + oldName + " to:", oldName);
-        if(newName && newName.toUpperCase() !== oldName) {
-            appData[newName.toUpperCase()] = appData[oldName];
-            delete appData[oldName]; saveDB();
-        }
-    }
-
-    function deleteParty(name) { if(confirm("Delete " + name + "?")) { delete appData[name]; saveDB(); } }
-
-    function openParty(party) {
-        activeParty = party;
-        let data = appData[party] || { balance:0, deliveries:[], payments:[] };
-        document.getElementById('pdName').innerText = party;
-        document.getElementById('pdOldBal').innerText = "₹ " + (data.balance || 0);
-        let currBody = document.getElementById('currentRecordBody');
-        currBody.innerHTML = '';
-        
-        (data.deliveries || []).forEach((d, index) => {
-           currBody.innerHTML += `<tr>
-            <td>${d.date}</td>
-            <td>Qty</td>
-            <td style="text-align:right">
-            ${d.nang} 
-            <button onclick="editEntry(${index}, ${d.nang}, 'deliveries')" style="background:none; border:none; cursor:pointer; color:#3b82f6; margin-left:6px; font-size:14px;">✎</button>
-            <button onclick="deleteEntry(${index}, 'deliveries')" style="background:none; border:none; cursor:pointer; color:#dc2626; margin-left:3px; font-size:14px;">🗑</button>
-            </td>
-            </tr>`;
-        });
-
-        (data.payments || []).forEach((p, index) => {
-            currBody.innerHTML += `<tr>
-            <td>${p.date}</td>
-            <td style="color:green">Paid</td>
-            <td style="text-align:right; color:green">
-            ₹ ${p.amount} 
-            <button onclick="editEntry(${index}, ${p.amount}, 'payments')" style="background:none; border:none; cursor:pointer; color:#3b82f6; margin-left:6px; font-size:14px;">✎</button>
-            <button onclick="deleteEntry(${index}, 'payments')" style="background:none; border:none; cursor:pointer; color:#dc2626; margin-left:3px; font-size:14px;">🗑</button>
-             </td>
-             </tr>`; 
-        });
-        switchScreen('partyDetailScreen', 'Dashboard');
-    }
-
-    function editEntry(index, currentVal, nodeType) {
-        let msg = nodeType === 'deliveries' ? "Enter new Quantity (Nang):" : "Enter new Payment Amount (₹):";
-        let newVal = prompt(msg, currentVal);
-        if(!newVal || isNaN(newVal) || parseFloat(newVal) <= 0) return;
-
-        if(nodeType === 'deliveries') {
-            appData[activeParty].deliveries[index].nang = parseInt(newVal);
-        } else {
-            appData[activeParty].payments[index].amount = parseFloat(newVal);
-        }
-        saveDB();
-    }
-
-    function deleteEntry(index, nodeType) {
-        if(confirm("Are you sure you want to delete this log?")) {
-            if(nodeType === 'deliveries') {
-                appData[activeParty].deliveries.splice(index, 1);
-            } else {
-                appData[activeParty].payments.splice(index, 1);
-            }
-            saveDB();
-        }
-    }
+    function renameParty(oldName) { let newName = prompt("Rename " + oldName + " to:", oldName); if(newName && newName.toUpperCase() !== oldName) { appData[newName.toUpperCase()] = appData[oldName]; delete appData[oldName]; db.ref('erp_data').set(appData); } }
+    function deleteParty(name) { if(confirm("Delete " + name + "?")) { delete appData[name]; db.ref('erp_data').set(appData); } }
 
     function openEntryModal(mode) {
         entryMode = mode;
         document.getElementById('entryForm').style.display = 'block';
         document.getElementById('entryDate').valueAsDate = new Date();
+        
+        if(mode === 'qty') {
+            document.getElementById('entryFormTitle').innerText = "Add Dai (Sell from Stock)";
+            document.getElementById('singleValueGroup').style.display = 'none';
+            document.getElementById('multiSizeGrid').style.display = 'grid';
+            
+            let gridHtml = '';
+            for(let s=10; s<=25; s++) {
+                let currentStock = stockInventory[s] || 0;
+                gridHtml += `
+                    <div style="background:var(--card-bg); padding:12px; border-radius:10px; border:1px solid var(--border-color); text-align:center; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                        <label style="font-size:12px; font-weight:800; color:var(--primary); margin-bottom:4px; display:block;">No. ${s}</label>
+                        <p style="font-size:11px; color:var(--success); font-weight:700; margin:0 0 10px 0;">📦 ${currentStock}</p>
+                        <div style="display:flex; justify-content:center; gap:6px;">
+                            <button type="button" style="background:rgba(239, 68, 68, 0.1); border:none; border-radius:6px; color:var(--danger); width:32px; height:32px; font-size:18px; font-weight:bold; cursor:pointer; transition:background 0.2s;" onclick="adjustSellQty(${s}, -500)">-</button>
+                            <input type="number" id="sell_size_${s}" placeholder="0" min="0" max="${currentStock}" style="padding:0; font-size:15px; font-weight:700; text-align:center; width:50px; border:2px solid var(--border-color); border-radius:6px; box-sizing:border-box; box-shadow:none;">
+                            <button type="button" style="background:rgba(16, 185, 129, 0.1); border:none; border-radius:6px; color:var(--success); width:32px; height:32px; font-size:18px; font-weight:bold; cursor:pointer; transition:background 0.2s;" onclick="adjustSellQty(${s}, 500)">+</button>
+                        </div>
+                    </div>
+                `;
+            }
+            document.getElementById('multiSizeGrid').innerHTML = gridHtml;
+        } else {
+            document.getElementById('entryFormTitle').innerText = "Add Payment (Jama)";
+            document.getElementById('singleValueGroup').style.display = 'block';
+            document.getElementById('multiSizeGrid').style.display = 'none';
+            document.getElementById('entryLabel').innerText = "Amount (₹):";
+        }
+    }
+
+    function adjustSellQty(size, amount) {
+        let input = document.getElementById(`sell_size_${size}`);
+        let currentVal = parseInt(input.value) || 0;
+        let maxStock = stockInventory[size] || 0;
+        let newVal = currentVal + amount;
+        
+        if (newVal < 0) newVal = 0;
+        if (newVal > maxStock) return alert(`⚠️ Error: Dai No. ${size} no stock purto nathi! (Available: ${maxStock})`);
+        input.value = newVal === 0 ? '' : newVal;
     }
 
     function saveData() {
-        let val = parseFloat(document.getElementById('entryValue').value);
         let dateInput = document.getElementById('entryDate').value;
-        if(!val || !dateInput) return;
+        if(!dateInput) return alert("⚠️ Error: Proper Date nakho!");
         let date = dateInput.split('-').reverse().join('/');
-        if(!appData[activeParty].deliveries) appData[activeParty].deliveries = [];
-        if(!appData[activeParty].payments) appData[activeParty].payments = [];
-        if(entryMode === 'qty') appData[activeParty].deliveries.push({date, nang: val});
-        else appData[activeParty].payments.push({date, amount: val});
-        saveDB(); document.getElementById('entryForm').style.display = 'none'; document.getElementById('entryValue').value = '';
+        let targetParty = activeParty;
+        if (!appData[targetParty]) appData[targetParty] = { balance: 0, deliveries: [], payments: [], history: [] };
+        
+        let targetDeliveries = getSafeArray(appData[targetParty].deliveries);
+        let targetPayments = getSafeArray(appData[targetParty].payments);
+        
+        if(entryMode === 'qty') {
+            let totalNangToSave = 0;
+            let sizesDeducted = [];
+            
+            for(let s=10; s<=25; s++) {
+                let el = document.getElementById(`sell_size_${s}`);
+                if(el && el.value) {
+                    let val = parseInt(el.value);
+                    if(val > 0) {
+                        let curStock = stockInventory[s] || 0;
+                        if(curStock < val) return alert(`⚠️ Error: Dai No. ${s} no stock o6o che! (Available: ${curStock} Dai)`);
+                        sizesDeducted.push({size: s, val: val});
+                        totalNangToSave += val;
+                    }
+                }
+            }
+            
+            if(totalNangToSave === 0) return alert("Koy quantity nakhi nathi!");
+            
+            sizesDeducted.forEach(item => {
+                db.ref(`stock_inventory/${item.size}`).set((stockInventory[item.size]||0) - item.val);
+                db.ref('stock_logs').push({
+                    date: date, size: item.size, qty: item.val, type: 'OUT', detail: `Sold to ${targetParty}`
+                });
+            });
+            
+            let existingEntry = targetDeliveries.find(d => d.date === date);
+            if(existingEntry) {
+                existingEntry.nang += totalNangToSave;
+                if(!existingEntry.sizes) existingEntry.sizes = [];
+                
+                sizesDeducted.forEach(newItem => {
+                    let foundSize = existingEntry.sizes.find(sz => sz.size === newItem.size);
+                    if(foundSize) foundSize.val += newItem.val;
+                    else existingEntry.sizes.push(newItem);
+                });
+                
+            } else {
+                targetDeliveries.push({date: date, nang: totalNangToSave, sizes: sizesDeducted});
+            }
+            logActivity(`Sold total ${totalNangToSave} Dai to ${targetParty}.`);
+            
+        } else {
+            let val = parseFloat(document.getElementById('entryValue').value);
+            if(!val || val <= 0) return alert("Amount nakho!");
+            
+            let existingEntry = targetPayments.find(p => p.date === date);
+            if(existingEntry) existingEntry.amount += val;
+            else targetPayments.push({date: date, amount: val});
+            
+            logActivity(`Received ₹${val} Payment from ${targetParty}.`);
+        }
+        
+        appData[targetParty].deliveries = targetDeliveries; appData[targetParty].payments = targetPayments;
+        document.getElementById('entryForm').style.display = 'none'; 
+        if(document.getElementById('entryValue')) document.getElementById('entryValue').value = '';
+        db.ref('erp_data/' + targetParty).set(appData[targetParty]);
     }
 
-    function showInvoice() {
-        let data = appData[activeParty];
-        let totalQty = 0, invBody = document.getElementById('invItemsBody');
-        invBody.innerHTML = '';
-        (data.deliveries || []).forEach((d, i) => {
-            invBody.innerHTML += `<tr><td>${i+1}</td><td>${d.date}</td><td>${d.nang}</td></tr>`;
-            totalQty += d.nang;
-        });
-        let curAmt = Math.round(totalQty * RATE), totalPaid = 0;
-        (data.payments || []).forEach(p => totalPaid += p.amount);
+    function openParty(party) {
+        activeParty = party;
+        let data = appData[party] || { balance:0, deliveries:[], payments:[] };
+        document.getElementById('pdName').innerText = party; document.getElementById('pdOldBal').innerText = "₹ " + (data.balance || 0);
+        let currBody = document.getElementById('currentRecordBody'); currBody.innerHTML = '';
         
-        document.getElementById('invDate').innerText = getFormattedToday();
-        document.getElementById('invPartyName').innerText = activeParty;
-        document.getElementById('invTotalQty').innerText = totalQty;
-        document.getElementById('invCurrentAmt').innerText = curAmt;
-        document.getElementById('invOldBal').innerText = data.balance;
-        document.getElementById('invTotalJama').innerText = totalPaid;
+        let safeDeliveries = getSafeArray(data.deliveries); let safePayments = getSafeArray(data.payments);
+
+        safeDeliveries.forEach((d, index) => {
+           currBody.innerHTML += `<tr>
+                <td>${d.date}</td>
+                <td><span class="badge badge-out">Delivery</span></td>
+                <td style="text-align:right; font-weight:700;">
+                    <a href="#" onclick="viewChitthi(${index})" style="color:var(--secondary); text-decoration:none; border-bottom: 2px dashed var(--secondary); font-size:15px; margin-right:12px; display:inline-block; padding-bottom:2px; transition:all 0.2s;">${d.nang} Dai</a>
+                    <button onclick="editEntry(${index}, ${d.nang}, 'deliveries')" style="background:none; border:none; color:var(--text-sub); margin-left:4px; cursor:pointer; font-size:16px; transition:color 0.2s;" onmouseover="this.style.color='var(--secondary)'" onmouseout="this.style.color='var(--text-sub)'">✎</button>
+                    <button onclick="deleteEntry(${index}, 'deliveries')" style="background:none; border:none; color:var(--text-sub); margin-left:4px; cursor:pointer; font-size:16px; transition:color 0.2s;" onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--text-sub)'">🗑</button>
+                </td>
+            </tr>`;
+        });
+
+        safePayments.forEach((p, index) => {
+            currBody.innerHTML += `<tr>
+                <td>${p.date}</td>
+                <td><span class="badge badge-in">Payment</span></td>
+                <td style="text-align:right; font-weight:700; color:var(--success); font-size:15px;">₹ ${p.amount} 
+                    <button onclick="editEntry(${index}, ${p.amount}, 'payments')" style="background:none; border:none; color:var(--text-sub); margin-left:12px; cursor:pointer; font-size:16px; transition:color 0.2s;" onmouseover="this.style.color='var(--secondary)'" onmouseout="this.style.color='var(--text-sub)'">✎</button>
+                    <button onclick="deleteEntry(${index}, 'payments')" style="background:none; border:none; color:var(--text-sub); margin-left:4px; cursor:pointer; font-size:16px; transition:color 0.2s;" onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--text-sub)'">🗑</button>
+                </td>
+            </tr>`; 
+        });
+        switchScreen('partyDetailScreen', party + ' DETAILS');
+    }
+
+    function editEntry(index, currentVal, nodeType) {
+        let msg = nodeType === 'deliveries' ? "Enter new Total Quantity (Dai):" : "Enter new Payment Amount (₹):";
+        let newVal = prompt(msg, currentVal);
+        if(!newVal || isNaN(newVal) || parseFloat(newVal) <= 0) return;
+
+        if(nodeType === 'deliveries') {
+            appData[activeParty].deliveries = getSafeArray(appData[activeParty].deliveries);
+            appData[activeParty].deliveries[index].nang = parseInt(newVal);
+            logActivity(`Edited Delivery Entry for ${activeParty}`);
+        } else {
+            appData[activeParty].payments = getSafeArray(appData[activeParty].payments);
+            appData[activeParty].payments[index].amount = parseFloat(newVal);
+            logActivity(`Edited Payment Entry for ${activeParty}`);
+        }
+        saveDB();
+    }
+
+    function deleteEntry(index, nodeType) {
+        if(!confirm("Are you sure you want to delete this row?")) return;
+        if(nodeType === 'deliveries') {
+            appData[activeParty].deliveries = getSafeArray(appData[activeParty].deliveries);
+            let deletedItem = appData[activeParty].deliveries[index];
+            
+            if (deletedItem.sizes) { 
+                deletedItem.sizes.forEach(sz => {
+                    let current = stockInventory[sz.size] || 0;
+                    db.ref(`stock_inventory/${sz.size}`).set(current + sz.val);
+                    db.ref('stock_logs').push({
+                        date: getFormattedToday(), size: sz.size, qty: sz.val, type: 'IN', detail: `Entry Deleted (${activeParty})`
+                    });
+                });
+            }
+            appData[activeParty].deliveries.splice(index, 1);
+        } else {
+            appData[activeParty].payments = getSafeArray(appData[activeParty].payments);
+            appData[activeParty].payments.splice(index, 1);
+        }
+        saveDB();
+    }
+
+    // CHITTHI (DELIVERY SLIP) VIEW
+    function viewChitthi(index) {
+        let d = appData[activeParty].deliveries[index];
+        document.getElementById('chitthiPartyName').innerText = activeParty;
+        document.getElementById('chitthiDate').innerText = d.date;
+        
+        let tbody = document.getElementById('chitthiItemsBody'); tbody.innerHTML = '';
+        let total = 0;
+        if (d.sizes && d.sizes.length > 0) {
+            d.sizes.forEach((sz, i) => {
+                tbody.innerHTML += `<tr><td>${i+1}</td><td style="font-weight:700; color:var(--text-main);">Dai No. ${sz.size}</td><td style="text-align:right; font-weight:800; color:var(--text-main);">${sz.val}</td></tr>`;
+                total += sz.val;
+            });
+        } else {
+            tbody.innerHTML += `<tr><td>1</td><td style="font-weight:700; color:var(--text-main);">Mixed Size (Auto)</td><td style="text-align:right; font-weight:800; color:var(--text-main);">${d.nang}</td></tr>`;
+            total = d.nang;
+        }
+        document.getElementById('chitthiTotalQty').innerText = total;
+        document.getElementById('chitthiBackBtn').onclick = function() { switchScreen('partyDetailScreen', activeParty + ' DETAILS'); };
+        switchScreen('chitthiScreen', 'DELIVERY SLIP');
+    }
+
+    // OLD CHITTHI FROM HISTORY
+    function viewOldChitthi(hIndex, dIndex) {
+        let d = appData[activeParty].history[hIndex].deliveries[dIndex];
+        document.getElementById('chitthiPartyName').innerText = activeParty + " (Old Record)";
+        document.getElementById('chitthiDate').innerText = d.date;
+        
+        let tbody = document.getElementById('chitthiItemsBody'); tbody.innerHTML = '';
+        let total = 0;
+        if (d.sizes && d.sizes.length > 0) {
+            d.sizes.forEach((sz, i) => {
+                tbody.innerHTML += `<tr><td>${i+1}</td><td style="font-weight:700; color:var(--text-main);">Dai No. ${sz.size}</td><td style="text-align:right; font-weight:800; color:var(--text-main);">${sz.val}</td></tr>`;
+                total += sz.val;
+            });
+        } else {
+            tbody.innerHTML += `<tr><td>1</td><td style="font-weight:700; color:var(--text-main);">Mixed Size (Auto)</td><td style="text-align:right; font-weight:800; color:var(--text-main);">${d.nang}</td></tr>`;
+            total = d.nang;
+        }
+        document.getElementById('chitthiTotalQty').innerText = total;
+        document.getElementById('chitthiBackBtn').onclick = function() { showOldInvoice(appData[activeParty].history[hIndex], hIndex); };
+        switchScreen('chitthiScreen', 'OLD DELIVERY SLIP');
+    }
+
+    // Invoice Logic
+    function showInvoice() {
+        let data = appData[activeParty]; let totalQty = 0, invBody = document.getElementById('invItemsBody'); invBody.innerHTML = '';
+        getSafeArray(data.deliveries).forEach((d, i) => {
+            invBody.innerHTML += `<tr><td>${i+1}</td><td>${d.date}</td><td style="text-align:right;">${d.nang}</td></tr>`; totalQty += d.nang;
+        });
+        let curAmt = Math.round(totalQty * RATE), totalPaid = 0; getSafeArray(data.payments).forEach(p => totalPaid += p.amount);
+        
+        document.getElementById('invDate').innerText = getFormattedToday(); document.getElementById('invPartyName').innerText = activeParty;
+        document.getElementById('invTotalQty').innerText = totalQty; document.getElementById('invCurrentAmt').innerText = curAmt;
+        document.getElementById('invOldBal').innerText = data.balance; document.getElementById('invTotalJama').innerText = totalPaid;
         document.getElementById('invFinalDue').innerText = (data.balance + curAmt) - totalPaid;
-        document.getElementById('closeCycleBtn').style.display = 'block';
-        switchScreen('invoiceScreen', 'Tax Invoice');
+        document.getElementById('closeCycleBtn').style.display = 'block'; switchScreen('invoiceScreen', 'Tax Invoice');
     }
 
     function closeBook() {
         if(confirm("Close cycle? This will save the full table to history.")) {
-            let data = appData[activeParty];
-            let finalDue = parseInt(document.getElementById('invFinalDue').innerText);
-            let histEntry = {
-                date: getFormattedToday(),
-                deliveries: [...(data.deliveries || [])],
-                payments: [...(data.payments || [])],
-                oldBal: data.balance,
-                finalDue: finalDue
-            };
-            if(!data.history) data.history = [];
-            data.history.push(histEntry);
-            data.balance = finalDue;
-            data.deliveries = []; data.payments = [];
-            saveDB(); goHome();
+            let data = appData[activeParty], finalDue = parseInt(document.getElementById('invFinalDue').innerText);
+            let histEntry = { date: getFormattedToday(), deliveries: getSafeArray(data.deliveries), payments: getSafeArray(data.payments), oldBal: data.balance, finalDue: finalDue };
+            let safeHistory = getSafeArray(data.history); safeHistory.push(histEntry);
+            data.history = safeHistory; data.balance = finalDue; data.deliveries = []; data.payments = [];
+            saveDB().then(() => goHome());
         }
     }
 
     function showHistoryList() {
-        let data = appData[activeParty];
-        document.getElementById('histPartyName').innerText = activeParty;
-        let cont = document.getElementById('historyListContainer');
-        cont.innerHTML = '';
-        (data.history || []).forEach((h, idx) => {
-            let div = document.createElement('div');
-            div.className = 'history-item';
-            div.innerHTML = `<b>Cycle Closed: ${h.date}</b><br>Final Due: ₹ ${h.finalDue}`;
-            div.onclick = () => showOldInvoice(h);
-            cont.appendChild(div);
+        let data = appData[activeParty], cont = document.getElementById('historyListContainer');
+        document.getElementById('histPartyName').innerText = activeParty; cont.innerHTML = '';
+        getSafeArray(data.history).forEach((h, idx) => {
+            let div = document.createElement('div'); div.className = 'history-item';
+            div.innerHTML = `<b>📅 Billing Snapshot: ${h.date}</b><br><span style="color:var(--text-sub);">Closing Balance:</span> <b style="color:var(--text-main); font-size:15px;">₹ ${h.finalDue}</b>`;
+            div.onclick = () => showOldInvoice(h, idx); cont.appendChild(div);
         });
         switchScreen('historyScreen', 'Cycle History');
     }
 
-    function showOldInvoice(h) {
-        let invBody = document.getElementById('invItemsBody'); invBody.innerHTML = '';
-        let totalQty = 0;
-        (h.deliveries || []).forEach((d, i) => {
-            invBody.innerHTML += `<tr><td>${i+1}</td><td>${d.date}</td><td>${d.nang}</td></tr>`;
-            totalQty += d.nang;
+    function showOldInvoice(h, hIndex) {
+        let invBody = document.getElementById('invItemsBody'); invBody.innerHTML = ''; let totalQty = 0;
+        getSafeArray(h.deliveries).forEach((d, i) => { 
+            invBody.innerHTML += `<tr><td>${i+1}</td><td>${d.date}</td><td style="text-align:right;">
+                <a href="#" onclick="viewOldChitthi(${hIndex}, ${i})" style="color:var(--secondary); text-decoration:underline;">${d.nang} Dai</a>
+            </td></tr>`; 
+            totalQty += d.nang; 
         });
-        let tPay = 0; (h.payments || []).forEach(p => tPay += p.amount);
-        document.getElementById('invDate').innerText = h.date;
-        document.getElementById('invPartyName').innerText = activeParty;
-        document.getElementById('invTotalQty').innerText = totalQty;
-        document.getElementById('invCurrentAmt').innerText = Math.round(totalQty * RATE);
-        document.getElementById('invOldBal').innerText = h.oldBal;
-        document.getElementById('invTotalJama').innerText = tPay;
-        document.getElementById('invFinalDue').innerText = h.finalDue;
-        document.getElementById('closeCycleBtn').style.display = 'none'; 
+        let tPay = 0; getSafeArray(h.payments).forEach(p => tPay += p.amount);
+        document.getElementById('invDate').innerText = h.date; document.getElementById('invPartyName').innerText = activeParty;
+        document.getElementById('invTotalQty').innerText = totalQty; document.getElementById('invCurrentAmt').innerText = Math.round(totalQty * RATE);
+        document.getElementById('invOldBal').innerText = h.oldBal; document.getElementById('invTotalJama').innerText = tPay;
+        document.getElementById('invFinalDue').innerText = h.finalDue; document.getElementById('closeCycleBtn').style.display = 'none'; 
         switchScreen('invoiceScreen', 'Old Record Invoice');
     }
 
     function switchScreen(id, title) {
         document.querySelectorAll('.container > div').forEach(d => d.classList.remove('active-screen'));
-        document.getElementById(id).classList.add('active-screen');
-        document.getElementById('navTitle').innerText = title;
+        document.getElementById(id).classList.add('active-screen'); document.getElementById('navTitle').innerText = title;
         document.getElementById('backBtn').style.display = id === 'dashboardScreen' ? 'none' : 'block';
-        if(id === 'stockScreen') renderStockPage();
+        if(id === 'stockScreen') renderStockPage(); if(id === 'expenseScreen') renderExpensePage(); if(id === 'salesBookScreen') renderSalesBook();
     }
 
     function goHome() { activeParty = null; switchScreen('dashboardScreen', 'JAY MAHADEV DAI'); }
