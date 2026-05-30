@@ -9,6 +9,23 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <title>Jay Mahadev - Premium ERP</title>
+
+    <link rel="manifest" href="manifest.json">
+
+    <script>
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('sw.js')
+            .then(registration => {
+              console.log('ServiceWorker successfully registered:', registration.scope);
+            })
+            .catch(error => {
+              console.log('ServiceWorker registration failed:', error);
+            });
+        });
+      }
+    </script>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
