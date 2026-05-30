@@ -8,7 +8,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Jay Mahadev - Premium ERP</title>
+    <title>JAY MAHADEV DAI</title>
 
     <link rel="manifest" href="manifest.json">
 
@@ -503,6 +503,9 @@
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('mainAppWrapper').style.display = 'block';
         document.getElementById('currentUserBadge').innerText = getActiveUser();
+        
+        // App khule etle main history add karo jethi back button chale
+        history.replaceState({ id: 'dashboardScreen', title: 'JAY MAHADEV DAI' }, '', '#dashboardScreen');
     }
     function handleLogout() { localStorage.clear(); window.location.reload(); }
 
@@ -520,7 +523,7 @@
         });
 
         db.ref('stock_inventory').on('value', (snapshot) => {
-            stockInventory = snapshot.val() || {};
+            snapshot.val() || {};
             for(let i = 10; i <= 25; i++) { if(stockInventory[i] === undefined) stockInventory[i] = 0; }
             if (localStorage.getItem("isLoggedIn") === "true" && document.getElementById('stockScreen').classList.contains('active-screen')) {
                 renderStockPage();
@@ -635,7 +638,6 @@
         let invBody = document.getElementById('invItemsBody');
         invBody.innerHTML = '';
         sizesDeducted.forEach((sz, i) => {
-            // 🔥 FIXED: Date is centered for Direct Invoice too 🔥
             invBody.innerHTML += `<tr><td>${i+1}</td><td style="text-align: center;">${date}</td><td style="text-align:right;">${sz.val}</td></tr>`;
         });
         
@@ -1008,7 +1010,6 @@
         saveDB();
     }
 
-    // 🔥 DIRECT WHATSAPP PDF SHARE (CHITTHI) 🔥
     async function shareChitthiWhatsApp() {
         let printArea = document.getElementById('chitthiPrintArea');
         let partyName = document.getElementById('chitthiPartyName').innerText || "Party";
@@ -1047,7 +1048,7 @@
             total = d.nang;
         }
         document.getElementById('chitthiTotalQty').innerText = total;
-        document.getElementById('chitthiBackBtn').onclick = function() { switchScreen('partyDetailScreen', activeParty + ' DETAILS'); };
+        document.getElementById('chitthiBackBtn').onclick = function() { goHome(); };
         switchScreen('chitthiScreen', 'DELIVERY SLIP');
     }
 
@@ -1072,7 +1073,6 @@
         switchScreen('chitthiScreen', 'OLD DELIVERY SLIP');
     }
 
-    // 🔥 DIRECT WHATSAPP PDF SHARE (INVOICE) 🔥
     async function shareOnWhatsApp() {
         let printArea = document.getElementById('invoicePrintArea');
         let partyName = document.getElementById('invPartyName').innerText || "Cash_Customer";
@@ -1097,7 +1097,6 @@
     function showInvoice() {
         let data = appData[activeParty]; let totalQty = 0, invBody = document.getElementById('invItemsBody'); invBody.innerHTML = '';
         getSafeArray(data.deliveries).forEach((d, i) => {
-            // 🔥 FIXED DATE ALIGNMENT HERE (text-align: center) 🔥
             invBody.innerHTML += `<tr><td>${i+1}</td><td style="text-align: center;">${d.date}</td><td style="text-align:right;">${d.nang}</td></tr>`; totalQty += d.nang;
         });
         let curAmt = Math.round(totalQty * RATE), totalPaid = 0; getSafeArray(data.payments).forEach(p => totalPaid += p.amount);
@@ -1133,7 +1132,6 @@
     function showOldInvoice(h, hIndex) {
         let invBody = document.getElementById('invItemsBody'); invBody.innerHTML = ''; let totalQty = 0;
         getSafeArray(h.deliveries).forEach((d, i) => { 
-            // 🔥 FIXED DATE ALIGNMENT HERE (text-align: center) 🔥
             invBody.innerHTML += `<tr><td>${i+1}</td><td style="text-align: center;">${d.date}</td><td style="text-align:right;">
                 <a href="#" onclick="viewOldChitthi(${hIndex}, ${i})" style="color:var(--secondary); text-decoration:underline;">${d.nang} Dai</a>
             </td></tr>`; 
@@ -1147,14 +1145,30 @@
         switchScreen('invoiceScreen', 'Old Record Invoice');
     }
 
-    function switchScreen(id, title) {
+    function switchScreen(id, title, addToHistory = true) {
         document.querySelectorAll('.container > div').forEach(d => d.classList.remove('active-screen'));
         document.getElementById(id).classList.add('active-screen'); document.getElementById('navTitle').innerText = title;
         document.getElementById('backBtn').style.display = id === 'dashboardScreen' ? 'none' : 'block';
         if(id === 'stockScreen') renderStockPage(); if(id === 'expenseScreen') renderExpensePage(); if(id === 'salesBookScreen') renderSalesBook();
+
+        // Phone ni back history ma screen entry add karo
+        if (addToHistory) {
+            history.pushState({ id: id, title: title }, '', '#' + id);
+        }
     }
 
-    function goHome() { activeParty = null; switchScreen('dashboardScreen', 'JAY MAHADEV DAI'); }
+    function goHome(addToHistory = true) { activeParty = null; switchScreen('dashboardScreen', 'JAY MAHADEV DAI', addToHistory); }
+
+    // Phone nu Back Button dabavva par shu karvu teno control (Popstate Event)
+    window.addEventListener('popstate', function(event) {
+        if (event.state && event.state.id) {
+            // Jo app ni andar koi page par hoy to tya j pacha jao, loop na thay etle third param false hase
+            switchScreen(event.state.id, event.state.title, false);
+        } else {
+            // Jo state na male to default Dashboard Home screen par aavi jao
+            goHome(false);
+        }
+    });
 </script>
 </body>
 </html>
