@@ -1079,7 +1079,7 @@
     async function shareOnWhatsApp() {
         let printArea = document.getElementById('invoicePrintArea');
         let partyName = document.getElementById('invPartyName').innerText || "Cash_Customer";
-        let fileName = partyName.replace(/ /g, "_") + "_Tax_Invoice.pdf";
+        let fileName = partyName.replace(/ /g, "_") + "_Bill_Invoice.pdf";
         
         var opt = { margin: 0.5, filename: fileName, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } };
 
@@ -1088,7 +1088,7 @@
             const file = new File([pdfBlob], fileName, { type: "application/pdf" });
 
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                await navigator.share({ title: 'Tax Invoice', text: `Jay Mahadev Dai\nTax Invoice for ${partyName}.`, files: [file] });
+                await navigator.share({ title: 'Tax Invoice', text: `Jay Mahadev Dai\nBill Invoice for ${partyName}.`, files: [file] });
             } else {
                 html2pdf().set(opt).from(printArea).save();
                 alert("Mobile ma aap direct share kari shako cho. PC ma aani PDF download thai gai che, tame WhatsApp Web thi mokli shako cho.");
