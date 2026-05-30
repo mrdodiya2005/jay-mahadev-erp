@@ -1,4 +1,4 @@
-New folder (2).zip<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -231,7 +231,7 @@ New folder (2).zip<!DOCTYPE html>
 
 <div id="mainAppWrapper">
     <div class="navbar">
-        <button class="back-btn" id="backBtn" onclick="goBackScreen()">← Back</button>
+        <button class="back-btn" id="backBtn" onclick="window.history.back()">← Back</button>
         <h2 id="navTitle">JAY MAHADEV DAI</h2>
         <div style="display:flex; align-items:center;">
             <span class="user-badge" id="currentUserBadge">Admin</span>
@@ -241,15 +241,15 @@ New folder (2).zip<!DOCTYPE html>
     </div>
 
     <div class="container">
-        <div id="dashboardScreen" class="active-screen">
+        <div id="dashboardScreen">
             <div class="nav-buttons">
-                <button class="btn btn-primary" style="flex:1;" onclick="switchScreen('stockScreen', 'Manage Stock')">📦 Manage Stock</button>
-                <button class="btn btn-primary" style="flex:1; background: var(--text-sub);" onclick="switchScreen('expenseScreen', 'Business Expenses & Hisab')">💸 Expenses (Hisab)</button>
+                <button class="btn btn-primary" style="flex:1;" onclick="window.location.hash='stockScreen'">📦 Manage Stock</button>
+                <button class="btn btn-primary" style="flex:1; background: var(--text-sub);" onclick="window.location.hash='expenseScreen'">💸 Expenses (Hisab)</button>
             </div>
             
             <div class="nav-buttons" style="margin-bottom: 24px;">
                 <button class="btn btn-primary" style="flex:1; background: #f59e0b;" onclick="openDirectInvoiceScreen()">⚡ Direct Invoice</button>
-                <button class="btn btn-primary" style="flex:1; background: var(--success);" onclick="switchScreen('salesBookScreen', 'Global Sales Book')">📊 All Sales Book</button>
+                <button class="btn btn-primary" style="flex:1; background: var(--success);" onclick="window.location.hash='salesBookScreen'">📊 All Sales Book</button>
             </div>
 
             <div class="input-group" style="display: flex; gap: 10px; margin-bottom: 20px;">
@@ -278,7 +278,7 @@ New folder (2).zip<!DOCTYPE html>
 
                 <button class="btn btn-primary" style="width:100%; background: #f59e0b; margin-top: 8px;" onclick="saveDirectInvoice()">🧾 Generate Bill & Deduct Stock</button>
             </div>
-            <button class="btn btn-outline" style="width: 100%;" onclick="goBackScreen()">Cancel</button>
+            <button class="btn btn-outline" style="width: 100%;" onclick="window.history.back()">Cancel</button>
         </div>
 
         <div id="salesBookScreen">
@@ -294,7 +294,7 @@ New folder (2).zip<!DOCTYPE html>
                      <tbody id="salesBookBody"></tbody>
                  </table>
             </div>
-            <button class="btn btn-outline" style="width: 100%; margin-top:24px;" onclick="goBackScreen()">Back to Dashboard</button>
+            <button class="btn btn-outline" style="width: 100%; margin-top:24px;" onclick="window.location.hash='dashboardScreen'">Back to Dashboard</button>
         </div>
 
         <div id="stockScreen">
@@ -308,7 +308,7 @@ New folder (2).zip<!DOCTYPE html>
                 </table>
             </div>
 
-            <button class="btn btn-outline" style="width: 100%; margin-top: 24px;" onclick="goBackScreen()">Back to Dashboard</button>
+            <button class="btn btn-outline" style="width: 100%; margin-top: 24px;" onclick="window.location.hash='dashboardScreen'">Back to Dashboard</button>
         </div>
 
         <div id="expenseScreen">
@@ -326,7 +326,7 @@ New folder (2).zip<!DOCTYPE html>
             <div class="history-box" style="margin-top:0;">
                 <table><thead><tr><th>Date</th><th>Particulars</th><th>Type</th><th style="text-align:right">Amount</th><th></th></tr></thead><tbody id="expenseTableBody"></tbody></table>
             </div>
-            <button class="btn btn-outline" style="width: 100%; margin-top: 24px;" onclick="goBackScreen()">Back to Dashboard</button>
+            <button class="btn btn-outline" style="width: 100%; margin-top: 24px;" onclick="window.location.hash='dashboardScreen'">Back to Dashboard</button>
         </div>
 
         <div id="partyDetailScreen">
@@ -342,7 +342,7 @@ New folder (2).zip<!DOCTYPE html>
             
             <div class="nav-buttons">
                 <button class="btn btn-outline" onclick="showInvoice()">🧾 Generate Invoice</button>
-                <button class="btn btn-outline" onclick="showHistoryList()">🕒 View History</button>
+                <button class="btn btn-outline" onclick="window.location.hash='historyScreen'">🕒 View History</button>
             </div>
 
             <div id="entryForm" style="display:none; background: var(--card-bg); padding: 20px; border-radius: var(--radius); margin-bottom: 24px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
@@ -400,7 +400,7 @@ New folder (2).zip<!DOCTYPE html>
                     Total Delivered: <span id="chitthiTotalQty" style="color:#2563eb; font-size: 20px;">0</span> Dai
                 </div>
             </div>
-            <button class="btn btn-outline no-print" id="chitthiBackBtn" style="width: 100%; margin-top: 24px;" onclick="goBackScreen()">← Back</button>
+            <button class="btn btn-outline no-print" id="chitthiBackBtn" style="width: 100%; margin-top: 24px;" onclick="window.history.back()">← Back</button>
         </div>
 
         <div id="invoiceScreen">
@@ -460,6 +460,95 @@ New folder (2).zip<!DOCTYPE html>
     let activeParty = null, entryMode = ''; 
     let databaseInitialized = false;
 
+    // 🔥 MAIN ROUTER ENGINE: Aana lidhe back button 100% kam karse 🔥
+    window.addEventListener('hashchange', handleHashChange);
+
+    function handleHashChange() {
+        if(localStorage.getItem("isLoggedIn") !== "true") return;
+        
+        let hash = window.location.hash.replace('#', '');
+        if(!hash) {
+            window.location.replace('#dashboardScreen');
+            return;
+        }
+
+        let targetScreen = document.getElementById(hash);
+        if(!targetScreen) {
+            window.location.replace('#dashboardScreen');
+            return;
+        }
+
+        // Security check
+        const partyScreens = ['partyDetailScreen', 'historyScreen'];
+        if(partyScreens.includes(hash) && !activeParty) {
+            window.location.replace('#dashboardScreen');
+            return;
+        }
+
+        // Badhi screen chupavo, khali target dekhado
+        document.querySelectorAll('.container > div').forEach(d => d.classList.remove('active-screen'));
+        
+        let title = 'JAY MAHADEV DAI';
+        
+        // Jaroori data render karo
+        switch(hash) {
+            case 'dashboardScreen':
+                activeParty = null;
+                filterPartiesDashboard();
+                break;
+            case 'stockScreen':
+                title = 'Manage Stock';
+                renderStockPage();
+                break;
+            case 'expenseScreen':
+                title = 'Business Expenses & Hisab';
+                renderExpensePage();
+                break;
+            case 'salesBookScreen':
+                title = 'Global Sales Book';
+                renderSalesBook();
+                break;
+            case 'partyDetailScreen':
+                title = activeParty + ' DETAILS';
+                renderPartyDOM(activeParty);
+                break;
+            case 'chitthiScreen':
+                title = 'DELIVERY SLIP';
+                break;
+            case 'invoiceScreen':
+                title = 'Tax Invoice';
+                break;
+            case 'historyScreen':
+                title = 'Cycle History';
+                renderHistoryDOM();
+                break;
+            case 'directInvoiceScreen':
+                title = 'Direct Bill Generation';
+                break;
+        }
+
+        targetScreen.classList.add('active-screen');
+        document.getElementById('navTitle').innerText = title;
+        document.getElementById('backBtn').style.display = (hash === 'dashboardScreen') ? 'none' : 'block';
+    }
+
+    // App Start Thay Tyare
+    window.addEventListener('load', () => {
+        if(localStorage.getItem("isLoggedIn") === "true") {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainAppWrapper').style.display = 'block';
+            document.getElementById('currentUserBadge').innerText = getActiveUser();
+            
+            startFirebaseSync();
+            
+            if(!window.location.hash) {
+                window.location.replace('#dashboardScreen');
+            } else {
+                handleHashChange();
+            }
+        }
+    });
+
     function getActiveUser() { return localStorage.getItem("currentUser") || "Unknown"; }
 
     const firebaseConfig = {
@@ -495,17 +584,15 @@ New folder (2).zip<!DOCTYPE html>
         const user = document.getElementById('loginUser').value.trim().toLowerCase(), pass = document.getElementById('loginPass').value.trim();
         if (USERS[user] && USERS[user] === pass) {
             localStorage.setItem("isLoggedIn", "true"); localStorage.setItem("currentUser", user);
-            showAppLayout(); startFirebaseSync(); logActivity("Logged into the system");
+            
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('mainAppWrapper').style.display = 'block';
+            document.getElementById('currentUserBadge').innerText = getActiveUser();
+            
+            startFirebaseSync();
+            window.location.hash = 'dashboardScreen';
+            logActivity("Logged into the system");
         } else alert("Khooto ID ke Password! Please enter correct details.");
-    }
-
-    // 🔥 FIX 1: Sharuat ma history replace kari didhi jethi phone bhar na feki de 🔥
-    function showAppLayout() {
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('mainAppWrapper').style.display = 'block';
-        document.getElementById('currentUserBadge').innerText = getActiveUser();
-        
-        history.replaceState({ screen: 'dashboardScreen', title: 'JAY MAHADEV DAI', party: null }, '', ''); history.pushState({screen:'dashboardScreen'},'',location.href);
     }
 
     function handleLogout() { localStorage.clear(); window.location.reload(); }
@@ -518,42 +605,40 @@ New folder (2).zip<!DOCTYPE html>
             appData = snapshot.val() || {};
             if (localStorage.getItem("isLoggedIn") === "true") {
                 filterPartiesDashboard();
-                if(activeParty && document.getElementById('partyDetailScreen').classList.contains('active-screen')) renderPartyDOM(activeParty);
-                if(document.getElementById('salesBookScreen').classList.contains('active-screen')) renderSalesBook();
+                if(activeParty && window.location.hash === '#partyDetailScreen') renderPartyDOM(activeParty);
+                if(window.location.hash === '#salesBookScreen') renderSalesBook();
             }
         });
 
         db.ref('stock_inventory').on('value', (snapshot) => {
             stockInventory = snapshot.val() || {};
             for(let i = 10; i <= 25; i++) { if(stockInventory[i] === undefined) stockInventory[i] = 0; }
-            if (localStorage.getItem("isLoggedIn") === "true" && document.getElementById('stockScreen').classList.contains('active-screen')) {
+            if (localStorage.getItem("isLoggedIn") === "true" && window.location.hash === '#stockScreen') {
                 renderStockPage();
             }
         });
 
         db.ref('expense_inventory').on('value', (snapshot) => {
             expenseData = snapshot.val() || {};
-            if (localStorage.getItem("isLoggedIn") === "true" && document.getElementById('expenseScreen').classList.contains('active-screen')) {
+            if (localStorage.getItem("isLoggedIn") === "true" && window.location.hash === '#expenseScreen') {
                 renderExpensePage();
             }
         });
 
         db.ref('stock_logs').on('value', (snapshot) => {
             stockLogsData = snapshot.val() || {};
-            if (localStorage.getItem("isLoggedIn") === "true" && document.getElementById('stockScreen').classList.contains('active-screen')) {
+            if (localStorage.getItem("isLoggedIn") === "true" && window.location.hash === '#stockScreen') {
                 renderStockLogs();
             }
         });
         
         db.ref('direct_sales').on('value', (snapshot) => {
             directSalesData = snapshot.val() || {};
-            if (localStorage.getItem("isLoggedIn") === "true" && document.getElementById('salesBookScreen').classList.contains('active-screen')) {
+            if (localStorage.getItem("isLoggedIn") === "true" && window.location.hash === '#salesBookScreen') {
                 renderSalesBook();
             }
         });
     }
-
-    if(localStorage.getItem("isLoggedIn") === "true") { showAppLayout(); startFirebaseSync(); }
 
     function toggleTheme() {
         const body = document.documentElement;
@@ -568,7 +653,7 @@ New folder (2).zip<!DOCTYPE html>
     /* ============================================================
        🔥 DIRECT INVOICE LOGIC 🔥
        ============================================================ */
-    function openDirectInvoiceScreen(addToHistory = true) {
+    function openDirectInvoiceScreen() {
         document.getElementById('diDate').valueAsDate = new Date();
         let gridHtml = '';
         for(let s=10; s<=25; s++) {
@@ -586,7 +671,7 @@ New folder (2).zip<!DOCTYPE html>
             `;
         }
         document.getElementById('diSizeGrid').innerHTML = gridHtml;
-        switchScreen('directInvoiceScreen', 'Direct Bill Generation', addToHistory);
+        window.location.hash = 'directInvoiceScreen';
     }
 
     function adjustDiQty(size, amount) {
@@ -650,9 +735,7 @@ New folder (2).zip<!DOCTYPE html>
         document.getElementById('closeCycleBtn').style.display = 'none'; 
         document.getElementById('diName').value = '';
         
-        // Go back in history logic properly
-        history.back();
-        setTimeout(() => switchScreen('invoiceScreen', 'Tax Invoice (Direct)', true), 100);
+        window.location.replace('#invoiceScreen');
     }
 
     function renderSalesBook() {
@@ -958,13 +1041,12 @@ New folder (2).zip<!DOCTYPE html>
         db.ref('erp_data/' + targetParty).set(appData[targetParty]);
     }
 
-    // 🔥 FIX 2: SPAN element je kyarrey page no chotade 🔥
-    function openParty(party, addToHistory = true) {
+    function openParty(party) {
         activeParty = party;
-        renderPartyDOM(party);
-        switchScreen('partyDetailScreen', party + ' DETAILS', addToHistory);
+        window.location.hash = 'partyDetailScreen';
     }
 
+    // Party na table ma khali Total Dai ane "SPAN" tag thi click (No link error)
     function renderPartyDOM(party) {
         let data = appData[party] || { balance:0, deliveries:[], payments:[] };
         document.getElementById('pdName').innerText = party; 
@@ -974,7 +1056,6 @@ New folder (2).zip<!DOCTYPE html>
         
         getSafeArray(data.deliveries).forEach((d, index) => {
            let dispStr = `${d.nang || 0} Dai`;
-           // SPAN vagarelyo che link ni jagya par
            currBody.innerHTML += `<tr>
                 <td>${d.date}</td>
                 <td><span class="badge badge-out">Delivery</span></td>
@@ -1041,7 +1122,7 @@ New folder (2).zip<!DOCTYPE html>
         } catch(e) { alert("Error: " + e.message); }
     }
 
-    function viewChitthi(index, addToHistory = true) {
+    function viewChitthi(index) {
         let d = appData[activeParty].deliveries[index];
         document.getElementById('chitthiPartyName').innerText = activeParty;
         document.getElementById('chitthiDate').innerText = d.date;
@@ -1058,10 +1139,10 @@ New folder (2).zip<!DOCTYPE html>
             total = d.nang;
         }
         document.getElementById('chitthiTotalQty').innerText = total;
-        switchScreen('chitthiScreen', 'DELIVERY SLIP', addToHistory);
+        window.location.hash = 'chitthiScreen';
     }
 
-    function viewOldChitthi(hIndex, dIndex, addToHistory = true) {
+    function viewOldChitthi(hIndex, dIndex) {
         let d = appData[activeParty].history[hIndex].deliveries[dIndex];
         document.getElementById('chitthiPartyName').innerText = activeParty + " (Old Record)";
         document.getElementById('chitthiDate').innerText = d.date;
@@ -1078,13 +1159,13 @@ New folder (2).zip<!DOCTYPE html>
             total = d.nang;
         }
         document.getElementById('chitthiTotalQty').innerText = total;
-        switchScreen('chitthiScreen', 'OLD DELIVERY SLIP', addToHistory);
+        window.location.hash = 'chitthiScreen';
     }
 
     async function shareOnWhatsApp() {
         let printArea = document.getElementById('invoicePrintArea');
         let partyName = document.getElementById('invPartyName').innerText || "Cash_Customer";
-        let fileName = partyName.replace(/ /g, "_") + "_Bill_Invoice.pdf";
+        let fileName = partyName.replace(/ /g, "_") + "_Tax_Invoice.pdf";
         
         var opt = { margin: 0.5, filename: fileName, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } };
 
@@ -1093,7 +1174,7 @@ New folder (2).zip<!DOCTYPE html>
             const file = new File([pdfBlob], fileName, { type: "application/pdf" });
 
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                await navigator.share({ title: 'Tax Invoice', text: `Jay Mahadev Dai\nBill Invoice for ${partyName}.`, files: [file] });
+                await navigator.share({ title: 'Tax Invoice', text: `Jay Mahadev Dai\nTax Invoice for ${partyName}.`, files: [file] });
             } else {
                 html2pdf().set(opt).from(printArea).save();
                 alert("Mobile ma aap direct share kari shako cho. PC ma aani PDF download thai gai che, tame WhatsApp Web thi mokli shako cho.");
@@ -1102,7 +1183,7 @@ New folder (2).zip<!DOCTYPE html>
         } catch(e) { alert("Error in PDF generation: " + e.message); }
     }
 
-    function showInvoice(addToHistory = true) {
+    function showInvoice() {
         let data = appData[activeParty]; let totalQty = 0, invBody = document.getElementById('invItemsBody'); invBody.innerHTML = '';
         getSafeArray(data.deliveries).forEach((d, i) => {
             invBody.innerHTML += `<tr><td>${i+1}</td><td style="text-align: center;">${d.date}</td><td style="text-align:right;">${d.nang}</td></tr>`; totalQty += d.nang;
@@ -1113,7 +1194,9 @@ New folder (2).zip<!DOCTYPE html>
         document.getElementById('invTotalQty').innerText = totalQty; document.getElementById('invCurrentAmt').innerText = curAmt;
         document.getElementById('invOldBal').innerText = data.balance; document.getElementById('invTotalJama').innerText = totalPaid;
         document.getElementById('invFinalDue').innerText = (data.balance + curAmt) - totalPaid;
-        document.getElementById('closeCycleBtn').style.display = 'block'; switchScreen('invoiceScreen', 'Tax Invoice', addToHistory);
+        document.getElementById('closeCycleBtn').style.display = 'block'; 
+        
+        window.location.hash = 'invoiceScreen';
     }
 
     function closeBook() {
@@ -1122,15 +1205,12 @@ New folder (2).zip<!DOCTYPE html>
             let histEntry = { date: getFormattedToday(), deliveries: getSafeArray(data.deliveries), payments: getSafeArray(data.payments), oldBal: data.balance, finalDue: finalDue };
             let safeHistory = getSafeArray(data.history); safeHistory.push(histEntry);
             data.history = safeHistory; data.balance = finalDue; data.deliveries = []; data.payments = [];
-            saveDB().then(() => goHome());
+            saveDB().then(() => {
+                window.location.replace('#dashboardScreen');
+            });
         }
     }
 
-    function showHistoryList(addToHistory = true) {
-        renderHistoryDOM();
-        switchScreen('historyScreen', 'Cycle History', addToHistory);
-    }
-    
     function renderHistoryDOM() {
         let data = appData[activeParty], cont = document.getElementById('historyListContainer');
         document.getElementById('histPartyName').innerText = activeParty; cont.innerHTML = '';
@@ -1141,7 +1221,7 @@ New folder (2).zip<!DOCTYPE html>
         });
     }
 
-    function showOldInvoice(h, hIndex, addToHistory = true) {
+    function showOldInvoice(h, hIndex) {
         let invBody = document.getElementById('invItemsBody'); invBody.innerHTML = ''; let totalQty = 0;
         getSafeArray(h.deliveries).forEach((d, i) => { 
             invBody.innerHTML += `<tr><td>${i+1}</td><td style="text-align: center;">${d.date}</td><td style="text-align:right;">
@@ -1154,76 +1234,9 @@ New folder (2).zip<!DOCTYPE html>
         document.getElementById('invTotalQty').innerText = totalQty; document.getElementById('invCurrentAmt').innerText = Math.round(totalQty * RATE);
         document.getElementById('invOldBal').innerText = h.oldBal; document.getElementById('invTotalJama').innerText = tPay;
         document.getElementById('invFinalDue').innerText = h.finalDue; document.getElementById('closeCycleBtn').style.display = 'none'; 
-        switchScreen('invoiceScreen', 'Old Record Invoice', addToHistory);
-    }
-
-    // 🔥 FIX 3: Master Control for Phone physical back button 🔥
-    function switchScreen(id, title, addToHistory = true) {
-        document.querySelectorAll('.container > div').forEach(d => d.classList.remove('active-screen'));
-        document.getElementById(id).classList.add('active-screen'); 
-        document.getElementById('navTitle').innerText = title;
-        document.getElementById('backBtn').style.display = id === 'dashboardScreen' ? 'none' : 'block';
         
-        if(id === 'stockScreen') renderStockPage(); 
-        if(id === 'expenseScreen') renderExpensePage(); 
-        if(id === 'salesBookScreen') renderSalesBook();
-
-        // Aa check karse k tamari history saachi rite jama thay
-        if (addToHistory) {
-            history.pushState({ screen: id, title: title, party: activeParty }, '', '');
-        }
+        window.location.hash = 'invoiceScreen';
     }
-
-    
-function goBackScreen() {
-    const currentScreen = document.querySelector('.active-screen')?.id;
-
-    if (currentScreen === 'partyDetailScreen') {
-        activeParty = null;
-        switchScreen('dashboardScreen', 'JAY MAHADEV DAI', false);
-        return;
-    }
-
-    if (['stockScreen','expenseScreen','salesBookScreen','directInvoiceScreen'].includes(currentScreen)) {
-        switchScreen('dashboardScreen', 'JAY MAHADEV DAI', false);
-        return;
-    }
-
-    if (['invoiceScreen','historyScreen','chitthiScreen'].includes(currentScreen)) {
-        if (activeParty) {
-            renderPartyDOM(activeParty);
-            switchScreen('partyDetailScreen', activeParty, false);
-        } else {
-            switchScreen('dashboardScreen', 'JAY MAHADEV DAI', false);
-        }
-        return;
-    }
-
-    history.back();
-}
-
-function goHome(addToHistory = true) { 
-        activeParty = null; 
-        switchScreen('dashboardScreen', 'JAY MAHADEV DAI', addToHistory); 
-    }
-
-    // Phone nu Back Button dabavvathi page free na thay teni garantee aa chhe:
-    window.addEventListener('popstate', function(event) {
-        if (event.state && event.state.screen) {
-            activeParty = event.state.party || null;
-            
-            // Re-render specific dynamic pages if needed vagar state push karye
-            if (event.state.screen === 'partyDetailScreen' && activeParty) {
-                renderPartyDOM(activeParty);
-            } else if (event.state.screen === 'historyScreen' && activeParty) {
-                renderHistoryDOM();
-            }
-            
-            switchScreen(event.state.screen, event.state.title, false);
-        } else {
-            goHome(false);
-        }
-    });
 
 </script>
 </body>
