@@ -7,7 +7,7 @@
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <title>Jay Mahadev - Premium ERP</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     
@@ -44,9 +44,10 @@
         .login-card h2 { margin-top: 0; color: #ffffff; font-weight: 800; font-size: 24px; letter-spacing: 1.5px; }
         .login-card p { color: #94a3b8; font-size: 13px; font-weight: 500; letter-spacing: 1px; margin-bottom: 30px; text-transform: uppercase;}
         .login-card label { color: #cbd5e1; font-size: 12px; font-weight: 600; margin-bottom: 6px; display: block; text-align: left;}
+        
         .login-card input {
             background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15);
-            color: white; border-radius: 8px; padding: 12px 14px; width: 100%; box-sizing: border-box; font-size:14px;
+            color: white; border-radius: 8px; padding: 12px 14px; width: 100%; box-sizing: border-box; font-size:16px !important;
             transition: all 0.2s; outline: none; margin-bottom: 15px;
         }
         .login-card input:focus { border-color: #3b82f6; background: rgba(255, 255, 255, 0.1); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3); }
@@ -75,14 +76,15 @@
         .user-badge { background: rgba(37, 99, 235, 0.1); color: var(--secondary); padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; margin-right: 12px; }
 
         .container { max-width: 680px; margin: 30px auto; padding: 0 15px; }
-        .nav-buttons { display: flex; gap: 12px; margin-bottom: 15px; }
-        .nav-buttons .btn { flex: 1; }
+        .nav-buttons { display: flex; gap: 12px; margin-bottom: 15px; flex-wrap: wrap;}
+        .nav-buttons .btn { flex: 1; min-width: 140px; }
 
-        .input-group { margin-bottom: 16px; text-align: left; }
+        .input-group { margin-bottom: 16px; text-align: left; position: relative;}
         label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px;}
+        
         input, select { 
             width: 100%; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 10px; 
-            box-sizing: border-box; font-size: 15px; font-family: 'Inter', sans-serif; background-color: var(--card-bg); color: var(--text-main); 
+            box-sizing: border-box; font-size: 16px !important; font-family: 'Inter', sans-serif; background-color: var(--card-bg); color: var(--text-main); 
             transition: all 0.2s ease; outline: none; box-shadow: var(--shadow-sm);
         }
         input:focus, select:focus { border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
@@ -122,8 +124,8 @@
 
         .history-box { background: var(--card-bg); border-radius: var(--radius); padding: 20px; margin-top: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); overflow-x: auto;}
         table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
-        th { padding: 12px 10px; font-weight: 600; color: var(--text-sub); font-size: 12px; border-bottom: 2px solid var(--border-color); text-align: left; text-transform: uppercase; letter-spacing: 0.5px;}
-        td { padding: 14px 10px; border-bottom: 1px solid var(--border-color); font-weight: 500; }
+        th { padding: 12px 10px; font-weight: 600; color: var(--text-sub); font-size: 12px; border-bottom: 2px solid var(--border-color); text-align: left; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;}
+        td { padding: 14px 10px; border-bottom: 1px solid var(--border-color); font-weight: 500; white-space: nowrap;}
         tr:last-child td { border-bottom: none; }
         .badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.3px;}
         .badge-in { background: rgba(16, 185, 129, 0.1); color: var(--success); }
@@ -136,7 +138,7 @@
         .stock-item-card h4 { margin: 0 0 8px 0; font-size: 15px; color: var(--text-main); font-weight: 700;}
         .stock-item-card .value { font-size: 26px; font-weight: 800; color: var(--secondary); }
         
-        .expense-stats { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 24px; }
+        .expense-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 16px; margin-bottom: 24px; }
         .stat-card { background: var(--card-bg); padding: 20px; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); display:flex; flex-direction:column; justify-content:center; transition: all 0.2s;}
         .stat-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
         .stat-card h4 { margin: 0 0 6px 0; font-size: 12px; color: var(--text-sub); text-transform: uppercase; font-weight: 600; letter-spacing: 0.5px;}
@@ -148,7 +150,7 @@
         #dashboardScreen, #partyDetailScreen, #invoiceScreen, #historyScreen, #stockScreen, #expenseScreen, #chitthiScreen, #salesBookScreen, #directInvoiceScreen { display: none; }
         .active-screen { display: block !important; }
 
-        /* EXACT MATCH SCREENSHOT INVOICE STYLE - UNTOUCHED FOR PERFECT PRINTING */
+        /* EXACT MATCH SCREENSHOT INVOICE STYLE */
         .invoice-wrapper { background: #ffffff; padding: 40px; border-radius: 8px; color: #0f172a; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 6px solid #0f172a; }
         .inv-header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 25px; margin-bottom: 25px; }
         .inv-brand h1 { margin: 0; color: #0f172a; font-size: 22px; font-weight: 800; text-transform: uppercase; }
@@ -201,7 +203,11 @@
     <div class="login-card">
         <h2>JAY MAHADEV DAI</h2><p>ADMIN LOGIN</p>
         <div class="input-group"><label>Username</label><input type="text" id="loginUser" placeholder="Enter username..."></div>
-        <div class="input-group" style="margin-bottom:25px;"><label>Password</label><input type="password" id="loginPass" placeholder="Enter password..."></div>
+        <div class="input-group" style="margin-bottom:25px; position:relative;">
+            <label>Password</label>
+            <input type="password" id="loginPass" placeholder="Enter password..." style="padding-right:40px;">
+            <span onclick="togglePassword()" style="position:absolute; right:15px; top:32px; cursor:pointer; font-size:18px;">👁️</span>
+        </div>
         <button class="btn btn-primary" style="width:100%" onclick="checkLogin()">🔓 Secure Login</button>
     </div>
 </div>
@@ -373,7 +379,7 @@
                     <tbody id="chitthiItemsBody"></tbody>
                 </table>
                 
-                <div style="text-align:right; font-size:16px; font-weight:800; border-top:2px solid #e2e8f0; padding-top:16px; color: #1e293b;">
+                <div style="text-align:right; font-size:16px; font-weight:800; border-top:2px solid #e2e8f0; padding-top:16px; color: var(--text-main);">
                     Total Delivered: <span id="chitthiTotalQty" style="color:#2563eb; font-size: 20px;">0</span> Dai
                 </div>
             </div>
@@ -400,7 +406,7 @@
                     <thead>
                         <tr>
                             <th style="width: 20%;">NO.</th>
-                            <th style="width: 40%;">DATE</th>
+                            <th style="width: 40%; text-align: center;">DATE</th>
                             <th style="width: 40%; text-align:right;">QUANTITY</th>
                         </tr>
                     </thead>
@@ -430,7 +436,6 @@
 </div>
 
 <script>
-    // 🔥 NEW PASSWORDS SET HERE 🔥
     const USERS = { "parth": "pd27", "sanjaybhai": "sd01", "deep": "dd24" };
     const RATE = 0.30;
     
@@ -464,12 +469,17 @@
         db.ref('activity_logs').push({ user: getActiveUser(), timestamp: new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' }), action: actionMessage });
     }
 
+    function togglePassword() {
+        let x = document.getElementById("loginPass");
+        if (x.type === "password") { x.type = "text"; } else { x.type = "password"; }
+    }
+
     function checkLogin() {
         const user = document.getElementById('loginUser').value.trim().toLowerCase(), pass = document.getElementById('loginPass').value.trim();
         if (USERS[user] && USERS[user] === pass) {
             localStorage.setItem("isLoggedIn", "true"); localStorage.setItem("currentUser", user);
             showAppLayout(); startFirebaseSync(); logActivity("Logged into the system");
-        } else alert("Wrong id or Password");
+        } else alert("Khooto ID ke Password! Please enter correct details.");
     }
 
     function showAppLayout() {
@@ -591,12 +601,15 @@
         }
         if(totalNangToSave === 0) return alert("Koy quantity nakhi nathi!");
         
-        // Deduct from stock securely and Push Log
+        let dateKeyStr = date.replace(/\//g, '-');
+        let displayStr = sizesDeducted.map(s => `${s.size}: ${s.val}`).join(', ');
+
         sizesDeducted.forEach(item => {
             db.ref(`stock_inventory/${item.size}`).set((stockInventory[item.size]||0) - item.val);
-            db.ref('stock_logs').push({
-                date: date, size: item.size, qty: item.val, type: 'OUT', detail: `Direct Sale: ${name}`
-            });
+        });
+
+        db.ref('stock_logs').push({
+            date: date, type: 'OUT', detail: `Direct Sale: ${name}`, displayStr: displayStr, sizes: sizesDeducted, totalQty: totalNangToSave
         });
         
         db.ref('direct_sales').push({ date: date, party: name, sizes: sizesDeducted, totalNang: totalNangToSave });
@@ -605,7 +618,8 @@
         let invBody = document.getElementById('invItemsBody');
         invBody.innerHTML = '';
         sizesDeducted.forEach((sz, i) => {
-            invBody.innerHTML += `<tr><td>${i+1}</td><td>${date}</td><td style="text-align:right;">${sz.val}</td></tr>`;
+            // 🔥 FIXED: Date is centered for Direct Invoice too 🔥
+            invBody.innerHTML += `<tr><td>${i+1}</td><td style="text-align: center;">${date}</td><td style="text-align:right;">${sz.val}</td></tr>`;
         });
         
         let curAmt = Math.round(totalNangToSave * RATE);
@@ -618,13 +632,9 @@
         document.getElementById('diName').value = '';
     }
 
-    /* ============================================================
-       🔥 GLOBAL SALES BOOK LOGIC 🔥
-       ============================================================ */
     function renderSalesBook() {
         let salesArray = []; let totalGlobalSold = 0;
         
-        // Ledger
         Object.keys(appData).forEach(party => {
             let data = appData[party];
             getSafeArray(data.deliveries).forEach(d => {
@@ -637,7 +647,6 @@
             });
         });
         
-        // Direct Sales
         Object.keys(directSalesData).forEach(k => {
             let ds = directSalesData[k];
             salesArray.push({ date: ds.date, party: ds.party, nang: ds.totalNang, type: 'Direct Bill' }); totalGlobalSold += ds.totalNang;
@@ -654,10 +663,6 @@
         });
         document.getElementById('sbTotalSold').innerText = totalGlobalSold + " Dai";
     }
-
-    /* ============================================================
-       🔥 STOCK LOGIC & HISTORY 🔥
-       ============================================================ */
 
     function renderStockPage() {
         let grid = document.getElementById('stockItemsGrid'); grid.innerHTML = '';
@@ -685,7 +690,10 @@
             log.id = key;
             logsArray.push(log);
         });
-        logsArray.reverse();
+        
+        logsArray.sort((a, b) => {
+            let pa = a.date.split('/').reverse().join(''), pb = b.date.split('/').reverse().join(''); return pb.localeCompare(pa); 
+        });
         
         if(logsArray.length === 0) {
             tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:15px; color:var(--text-sub);">No stock history yet.</td></tr>';
@@ -698,32 +706,36 @@
             let sign = log.type === 'IN' ? '+' : '-';
             let color = log.type === 'IN' ? 'var(--success)' : 'var(--danger)';
 
+            let sizeDisplay = log.displayStr || `Dai No. ${log.size}`;
+            let qtyDisplay = log.totalQty || log.qty;
+
             tbody.innerHTML += `<tr>
                 <td>${log.date}</td><td style="font-weight:600; color:var(--text-main);">${log.detail}</td>
-                <td>Dai No. ${log.size}</td>
-                <td style="text-align:right; font-weight:800; color:${color};"><span class="${bClass}" style="margin-right:8px;">${bText}</span> ${sign} ${log.qty}</td>
+                <td style="font-weight:700; color:var(--secondary); font-size:12px;">${sizeDisplay}</td>
+                <td style="text-align:right; font-weight:800; color:${color};"><span class="${bClass}" style="margin-right:8px;">${bText}</span> ${sign} ${qtyDisplay}</td>
                 <td style="text-align:right;">
-                    <button onclick="deleteStockLog('${log.id}', ${log.size}, ${log.qty}, '${log.type}')" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:16px;">🗑</button>
+                    <button onclick="deleteStockLog('${log.id}')" style="background:none; border:none; color:var(--danger); cursor:pointer; font-size:16px;">🗑</button>
                 </td>
             </tr>`;
         });
     }
 
-    function deleteStockLog(logId, size, qty, type) {
+    function deleteStockLog(logId) {
+        let log = stockLogsData[logId];
+        if(!log) return;
         if(!confirm("Are you sure you want to delete this stock entry? Stock will be automatically adjusted.")) return;
         
-        let currentStock = stockInventory[size] || 0;
-        let newStock = currentStock;
+        let sizesToRevert = log.sizes || [{size: log.size, val: log.qty}];
+        
+        sizesToRevert.forEach(sz => {
+            let currentStock = stockInventory[sz.size] || 0;
+            let newStock = log.type === 'IN' ? currentStock - sz.val : currentStock + sz.val;
+            if(newStock < 0) newStock = 0;
+            db.ref(`stock_inventory/${sz.size}`).set(newStock);
+        });
 
-        if (type === 'IN') { newStock = currentStock - qty; } 
-        else if (type === 'OUT') { newStock = currentStock + qty; }
-
-        if (newStock < 0) newStock = 0;
-
-        db.ref(`stock_inventory/${size}`).set(newStock).then(() => {
-            db.ref(`stock_logs/${logId}`).remove().then(() => {
-                logActivity(`Deleted Stock Log (Size ${size}, Qty: ${qty}, Type: ${type})`);
-            });
+        db.ref(`stock_logs/${logId}`).remove().then(() => {
+            logActivity(`Deleted Stock Log (${log.detail})`);
         });
     }
 
@@ -734,17 +746,33 @@
         
         if (newQty < 0) return alert("Stock minus ma na jaay!");
         
-        db.ref(`stock_inventory/${size}`).set(newQty).then(() => {
-            logActivity(`Adjusted Stock for Dai No. ${size} (${operation === 'add' ? '+500' : '-500'})`);
-            db.ref('stock_logs').push({
-                date: getFormattedToday(), size: size, qty: amount,
-                type: operation === 'add' ? 'IN' : 'OUT',
-                detail: operation === 'add' ? 'Production / Added' : 'Manual Deduction'
-            });
+        db.ref(`stock_inventory/${size}`).set(newQty);
+        
+        let dateStr = getFormattedToday().replace(/\//g, '-');
+        let opType = operation === 'add' ? 'IN' : 'OUT';
+        let logKey = `log_manual_${dateStr}_${opType}`;
+        
+        let logRef = db.ref(`stock_logs/${logKey}`);
+        logRef.once('value', snap => {
+            let existing = snap.val();
+            if(existing) {
+                let sizes = existing.sizes || [];
+                let found = sizes.find(s => s.size === size);
+                if(found) found.val += amount;
+                else sizes.push({size: size, val: amount});
+                
+                let displayStr = sizes.map(s => `${s.size}: ${s.val}`).join(', ');
+                logRef.update({ sizes: sizes, displayStr: displayStr, totalQty: (existing.totalQty || 0) + amount });
+            } else {
+                logRef.set({
+                    date: getFormattedToday(), type: opType, detail: operation === 'add' ? 'Production / Added' : 'Manual Deduction',
+                    sizes: [{size: size, val: amount}], displayStr: `${size}: ${amount}`, totalQty: amount
+                });
+            }
         });
+        logActivity(`Adjusted Stock for Dai No. ${size} (${operation === 'add' ? '+500' : '-500'})`);
     }
 
-    // Expense Logic
     function saveExpense() {
         let desc = document.getElementById('expDesc').value.trim(), type = document.getElementById('expType').value, amt = parseFloat(document.getElementById('expAmount').value);
         if(!desc || !amt || amt <= 0) return alert("Please fill all fields!");
@@ -767,10 +795,6 @@
     }
 
     function deleteExpense(id) { if(confirm("Delete this transaction row?")) db.ref(`expense_inventory/${id}`).remove(); }
-
-    /* ============================================================
-       🔥 PARTY & GROUPED ENTRY LOGIC 🔥
-       ============================================================ */
 
     function filterPartiesDashboard() {
         let container = document.getElementById('partyListContainer'), query = document.getElementById('partySearchInput') ? document.getElementById('partySearchInput').value.trim().toUpperCase() : "";
@@ -868,27 +892,27 @@
             
             if(totalNangToSave === 0) return alert("Koy quantity nakhi nathi!");
             
-            // Deduct from stock securely and log
+            let dateKeyStr = date.replace(/\//g, '-');
+            let displayStr = sizesDeducted.map(s => `${s.size}: ${s.val}`).join(', ');
+
             sizesDeducted.forEach(item => {
                 db.ref(`stock_inventory/${item.size}`).set((stockInventory[item.size]||0) - item.val);
-                db.ref('stock_logs').push({
-                    date: date, size: item.size, qty: item.val, type: 'OUT', detail: `Sold to ${targetParty}`
-                });
             });
             
-            // Group logic: If entry for this date exists, merge it
+            db.ref('stock_logs').push({
+                date: date, type: 'OUT', detail: `Sold to ${targetParty}`, sizes: sizesDeducted, displayStr: displayStr, totalQty: totalNangToSave
+            });
+            
             let existingEntry = targetDeliveries.find(d => d.date === date);
             if(existingEntry) {
                 existingEntry.nang += totalNangToSave;
                 if(!existingEntry.sizes) existingEntry.sizes = [];
                 
-                // Merge same sizes to prevent duplicates in chitthi
                 sizesDeducted.forEach(newItem => {
                     let foundSize = existingEntry.sizes.find(sz => sz.size === newItem.size);
                     if(foundSize) foundSize.val += newItem.val;
                     else existingEntry.sizes.push(newItem);
                 });
-                
             } else {
                 targetDeliveries.push({date: date, nang: totalNangToSave, sizes: sizesDeducted});
             }
@@ -899,11 +923,9 @@
             if(!val || val <= 0) return alert("Amount nakho!");
             
             let existingEntry = targetPayments.find(p => p.date === date);
-            if(existingEntry) {
-                existingEntry.amount += val;
-            } else {
-                targetPayments.push({date: date, amount: val});
-            }
+            if(existingEntry) existingEntry.amount += val;
+            else targetPayments.push({date: date, amount: val});
+            
             logActivity(`Received ₹${val} Payment from ${targetParty}.`);
         }
         
@@ -922,12 +944,12 @@
         let safeDeliveries = getSafeArray(data.deliveries); let safePayments = getSafeArray(data.payments);
 
         safeDeliveries.forEach((d, index) => {
+           let dispStr = d.sizes ? d.sizes.map(sz => `<span style="color:var(--text-main); font-weight:800;">${sz.size}:</span> ${sz.val}`).join(', ') : `${d.nang} Dai`;
            currBody.innerHTML += `<tr>
                 <td>${d.date}</td>
                 <td><span class="badge badge-out">Delivery</span></td>
                 <td style="text-align:right; font-weight:700;">
-                    <a href="#" onclick="viewChitthi(${index})" style="color:var(--secondary); text-decoration:none; border-bottom: 2px dashed var(--secondary); font-size:15px; margin-right:12px; display:inline-block; padding-bottom:2px; transition:all 0.2s;">${d.nang} Dai</a>
-                    <button onclick="editEntry(${index}, ${d.nang}, 'deliveries')" style="background:none; border:none; color:var(--text-sub); margin-left:4px; cursor:pointer; font-size:16px; transition:color 0.2s;" onmouseover="this.style.color='var(--secondary)'" onmouseout="this.style.color='var(--text-sub)'">✎</button>
+                    <a href="#" onclick="viewChitthi(${index})" style="color:var(--secondary); text-decoration:none; border-bottom: 2px dashed var(--secondary); font-size:14px; margin-right:8px; display:inline-block; padding-bottom:2px; transition:all 0.2s;">${dispStr}</a>
                     <button onclick="deleteEntry(${index}, 'deliveries')" style="background:none; border:none; color:var(--text-sub); margin-left:4px; cursor:pointer; font-size:16px; transition:color 0.2s;" onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--text-sub)'">🗑</button>
                 </td>
             </tr>`;
@@ -938,29 +960,11 @@
                 <td>${p.date}</td>
                 <td><span class="badge badge-in">Payment</span></td>
                 <td style="text-align:right; font-weight:700; color:var(--success); font-size:15px;">₹ ${p.amount} 
-                    <button onclick="editEntry(${index}, ${p.amount}, 'payments')" style="background:none; border:none; color:var(--text-sub); margin-left:12px; cursor:pointer; font-size:16px; transition:color 0.2s;" onmouseover="this.style.color='var(--secondary)'" onmouseout="this.style.color='var(--text-sub)'">✎</button>
                     <button onclick="deleteEntry(${index}, 'payments')" style="background:none; border:none; color:var(--text-sub); margin-left:4px; cursor:pointer; font-size:16px; transition:color 0.2s;" onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--text-sub)'">🗑</button>
                 </td>
             </tr>`; 
         });
         switchScreen('partyDetailScreen', party + ' DETAILS');
-    }
-
-    function editEntry(index, currentVal, nodeType) {
-        let msg = nodeType === 'deliveries' ? "Enter new Total Quantity (Dai):" : "Enter new Payment Amount (₹):";
-        let newVal = prompt(msg, currentVal);
-        if(!newVal || isNaN(newVal) || parseFloat(newVal) <= 0) return;
-
-        if(nodeType === 'deliveries') {
-            appData[activeParty].deliveries = getSafeArray(appData[activeParty].deliveries);
-            appData[activeParty].deliveries[index].nang = parseInt(newVal);
-            logActivity(`Edited Delivery Entry for ${activeParty}`);
-        } else {
-            appData[activeParty].payments = getSafeArray(appData[activeParty].payments);
-            appData[activeParty].payments[index].amount = parseFloat(newVal);
-            logActivity(`Edited Payment Entry for ${activeParty}`);
-        }
-        saveDB();
     }
 
     function deleteEntry(index, nodeType) {
@@ -969,14 +973,14 @@
             appData[activeParty].deliveries = getSafeArray(appData[activeParty].deliveries);
             let deletedItem = appData[activeParty].deliveries[index];
             
-            // Revert back all sizes to stock securely
             if (deletedItem.sizes) { 
                 deletedItem.sizes.forEach(sz => {
                     let current = stockInventory[sz.size] || 0;
                     db.ref(`stock_inventory/${sz.size}`).set(current + sz.val);
-                    db.ref('stock_logs').push({
-                        date: getFormattedToday(), size: sz.size, qty: sz.val, type: 'IN', detail: `Entry Deleted (${activeParty})`
-                    });
+                });
+                db.ref('stock_logs').push({
+                    date: getFormattedToday(), type: 'IN', detail: `Entry Deleted (${activeParty})`,
+                    sizes: deletedItem.sizes, displayStr: deletedItem.sizes.map(s => `${s.size}: ${s.val}`).join(', '), totalQty: deletedItem.nang
                 });
             }
             appData[activeParty].deliveries.splice(index, 1);
@@ -993,35 +997,22 @@
         let partyName = document.getElementById('chitthiPartyName').innerText || "Party";
         let fileName = partyName.replace(/ /g, "_") + "_Delivery_Slip.pdf";
         
-        var opt = {
-            margin:       0.5,
-            filename:     fileName,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2 },
-            jsPDF:        { unit: 'in', format: 'a5', orientation: 'portrait' }
-        };
+        var opt = { margin: 0.5, filename: fileName, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a5', orientation: 'portrait' } };
 
         try {
             const pdfBlob = await html2pdf().set(opt).from(printArea).output('blob');
             const file = new File([pdfBlob], fileName, { type: "application/pdf" });
 
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                await navigator.share({
-                    title: 'Delivery Slip',
-                    text: `Jay Mahadev Dai\nDelivery Slip for ${partyName}.`,
-                    files: [file]
-                });
+                await navigator.share({ title: 'Delivery Slip', text: `Jay Mahadev Dai\nDelivery Slip for ${partyName}.`, files: [file] });
             } else {
                 html2pdf().set(opt).from(printArea).save();
                 alert("Mobile ma aap direct share kari shako cho. PC ma aani PDF download thai gai che, tame WhatsApp Web thi mokli shako cho.");
                 window.open(`https://wa.me/?text=${encodeURIComponent('Jay Mahadev Dai - Delivery Slip is attached.')}`, '_blank');
             }
-        } catch(e) {
-            alert("Error: " + e.message);
-        }
+        } catch(e) { alert("Error: " + e.message); }
     }
 
-    // CHITTHI (DELIVERY SLIP) VIEW
     function viewChitthi(index) {
         let d = appData[activeParty].deliveries[index];
         document.getElementById('chitthiPartyName').innerText = activeParty;
@@ -1043,7 +1034,6 @@
         switchScreen('chitthiScreen', 'DELIVERY SLIP');
     }
 
-    // OLD CHITTHI FROM HISTORY
     function viewOldChitthi(hIndex, dIndex) {
         let d = appData[activeParty].history[hIndex].deliveries[dIndex];
         document.getElementById('chitthiPartyName').innerText = activeParty + " (Old Record)";
@@ -1071,39 +1061,27 @@
         let partyName = document.getElementById('invPartyName').innerText || "Cash_Customer";
         let fileName = partyName.replace(/ /g, "_") + "_Tax_Invoice.pdf";
         
-        var opt = {
-            margin:       0.5,
-            filename:     fileName,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2 },
-            jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-        };
+        var opt = { margin: 0.5, filename: fileName, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } };
 
         try {
             const pdfBlob = await html2pdf().set(opt).from(printArea).output('blob');
             const file = new File([pdfBlob], fileName, { type: "application/pdf" });
 
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                await navigator.share({
-                    title: 'Tax Invoice',
-                    text: `Jay Mahadev Dai\nTax Invoice for ${partyName}.`,
-                    files: [file]
-                });
+                await navigator.share({ title: 'Tax Invoice', text: `Jay Mahadev Dai\nTax Invoice for ${partyName}.`, files: [file] });
             } else {
                 html2pdf().set(opt).from(printArea).save();
                 alert("Mobile ma aap direct share kari shako cho. PC ma aani PDF download thai gai che, tame WhatsApp Web thi mokli shako cho.");
                 window.open(`https://wa.me/?text=${encodeURIComponent('Jay Mahadev Dai - Invoice is attached.')}`, '_blank');
             }
-        } catch(e) {
-            alert("Error: " + e.message);
-        }
+        } catch(e) { alert("Error in PDF generation: " + e.message); }
     }
 
-    // Invoice Logic
     function showInvoice() {
         let data = appData[activeParty]; let totalQty = 0, invBody = document.getElementById('invItemsBody'); invBody.innerHTML = '';
         getSafeArray(data.deliveries).forEach((d, i) => {
-            invBody.innerHTML += `<tr><td>${i+1}</td><td>${d.date}</td><td style="text-align:right;">${d.nang}</td></tr>`; totalQty += d.nang;
+            // 🔥 FIXED DATE ALIGNMENT HERE (text-align: center) 🔥
+            invBody.innerHTML += `<tr><td>${i+1}</td><td style="text-align: center;">${d.date}</td><td style="text-align:right;">${d.nang}</td></tr>`; totalQty += d.nang;
         });
         let curAmt = Math.round(totalQty * RATE), totalPaid = 0; getSafeArray(data.payments).forEach(p => totalPaid += p.amount);
         
@@ -1138,7 +1116,8 @@
     function showOldInvoice(h, hIndex) {
         let invBody = document.getElementById('invItemsBody'); invBody.innerHTML = ''; let totalQty = 0;
         getSafeArray(h.deliveries).forEach((d, i) => { 
-            invBody.innerHTML += `<tr><td>${i+1}</td><td>${d.date}</td><td style="text-align:right;">
+            // 🔥 FIXED DATE ALIGNMENT HERE (text-align: center) 🔥
+            invBody.innerHTML += `<tr><td>${i+1}</td><td style="text-align: center;">${d.date}</td><td style="text-align:right;">
                 <a href="#" onclick="viewOldChitthi(${hIndex}, ${i})" style="color:var(--secondary); text-decoration:underline;">${d.nang} Dai</a>
             </td></tr>`; 
             totalQty += d.nang; 
