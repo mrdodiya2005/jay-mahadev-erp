@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+New folder (2).zip<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -231,7 +231,7 @@
 
 <div id="mainAppWrapper">
     <div class="navbar">
-        <button class="back-btn" id="backBtn" onclick="history.back()">← Back</button>
+        <button class="back-btn" id="backBtn" onclick="goBackScreen()">← Back</button>
         <h2 id="navTitle">JAY MAHADEV DAI</h2>
         <div style="display:flex; align-items:center;">
             <span class="user-badge" id="currentUserBadge">Admin</span>
@@ -278,7 +278,7 @@
 
                 <button class="btn btn-primary" style="width:100%; background: #f59e0b; margin-top: 8px;" onclick="saveDirectInvoice()">🧾 Generate Bill & Deduct Stock</button>
             </div>
-            <button class="btn btn-outline" style="width: 100%;" onclick="history.back()">Cancel</button>
+            <button class="btn btn-outline" style="width: 100%;" onclick="goBackScreen()">Cancel</button>
         </div>
 
         <div id="salesBookScreen">
@@ -294,7 +294,7 @@
                      <tbody id="salesBookBody"></tbody>
                  </table>
             </div>
-            <button class="btn btn-outline" style="width: 100%; margin-top:24px;" onclick="history.back()">Back to Dashboard</button>
+            <button class="btn btn-outline" style="width: 100%; margin-top:24px;" onclick="goBackScreen()">Back to Dashboard</button>
         </div>
 
         <div id="stockScreen">
@@ -308,7 +308,7 @@
                 </table>
             </div>
 
-            <button class="btn btn-outline" style="width: 100%; margin-top: 24px;" onclick="history.back()">Back to Dashboard</button>
+            <button class="btn btn-outline" style="width: 100%; margin-top: 24px;" onclick="goBackScreen()">Back to Dashboard</button>
         </div>
 
         <div id="expenseScreen">
@@ -326,7 +326,7 @@
             <div class="history-box" style="margin-top:0;">
                 <table><thead><tr><th>Date</th><th>Particulars</th><th>Type</th><th style="text-align:right">Amount</th><th></th></tr></thead><tbody id="expenseTableBody"></tbody></table>
             </div>
-            <button class="btn btn-outline" style="width: 100%; margin-top: 24px;" onclick="history.back()">Back to Dashboard</button>
+            <button class="btn btn-outline" style="width: 100%; margin-top: 24px;" onclick="goBackScreen()">Back to Dashboard</button>
         </div>
 
         <div id="partyDetailScreen">
@@ -400,7 +400,7 @@
                     Total Delivered: <span id="chitthiTotalQty" style="color:#2563eb; font-size: 20px;">0</span> Dai
                 </div>
             </div>
-            <button class="btn btn-outline no-print" id="chitthiBackBtn" style="width: 100%; margin-top: 24px;" onclick="history.back()">← Back</button>
+            <button class="btn btn-outline no-print" id="chitthiBackBtn" style="width: 100%; margin-top: 24px;" onclick="goBackScreen()">← Back</button>
         </div>
 
         <div id="invoiceScreen">
@@ -505,7 +505,7 @@
         document.getElementById('mainAppWrapper').style.display = 'block';
         document.getElementById('currentUserBadge').innerText = getActiveUser();
         
-        history.replaceState({ screen: 'dashboardScreen', title: 'JAY MAHADEV DAI', party: null }, '', '');
+        history.replaceState({ screen: 'dashboardScreen', title: 'JAY MAHADEV DAI', party: null }, '', ''); history.pushState({screen:'dashboardScreen'},'',location.href);
     }
 
     function handleLogout() { localStorage.clear(); window.location.reload(); }
@@ -1174,7 +1174,35 @@
         }
     }
 
-    function goHome(addToHistory = true) { 
+    
+function goBackScreen() {
+    const currentScreen = document.querySelector('.active-screen')?.id;
+
+    if (currentScreen === 'partyDetailScreen') {
+        activeParty = null;
+        switchScreen('dashboardScreen', 'JAY MAHADEV DAI', false);
+        return;
+    }
+
+    if (['stockScreen','expenseScreen','salesBookScreen','directInvoiceScreen'].includes(currentScreen)) {
+        switchScreen('dashboardScreen', 'JAY MAHADEV DAI', false);
+        return;
+    }
+
+    if (['invoiceScreen','historyScreen','chitthiScreen'].includes(currentScreen)) {
+        if (activeParty) {
+            renderPartyDOM(activeParty);
+            switchScreen('partyDetailScreen', activeParty, false);
+        } else {
+            switchScreen('dashboardScreen', 'JAY MAHADEV DAI', false);
+        }
+        return;
+    }
+
+    history.back();
+}
+
+function goHome(addToHistory = true) { 
         activeParty = null; 
         switchScreen('dashboardScreen', 'JAY MAHADEV DAI', addToHistory); 
     }
