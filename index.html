@@ -231,7 +231,7 @@
 
 <div id="mainAppWrapper">
     <div class="navbar">
-        <button class="back-btn" id="backBtn" onclick="goHome()">← Back</button>
+        <button class="back-btn" id="backBtn" onclick="history.back()">← Back</button>
         <h2 id="navTitle">JAY MAHADEV DAI</h2>
         <div style="display:flex; align-items:center;">
             <span class="user-badge" id="currentUserBadge">Admin</span>
@@ -278,7 +278,7 @@
 
                 <button class="btn btn-primary" style="width:100%; background: #f59e0b; margin-top: 8px;" onclick="saveDirectInvoice()">🧾 Generate Bill & Deduct Stock</button>
             </div>
-            <button class="btn btn-outline" style="width: 100%;" onclick="goHome()">Cancel</button>
+            <button class="btn btn-outline" style="width: 100%;" onclick="history.back()">Cancel</button>
         </div>
 
         <div id="salesBookScreen">
@@ -294,7 +294,7 @@
                      <tbody id="salesBookBody"></tbody>
                  </table>
             </div>
-            <button class="btn btn-outline" style="width: 100%; margin-top:24px;" onclick="goHome()">Back to Dashboard</button>
+            <button class="btn btn-outline" style="width: 100%; margin-top:24px;" onclick="history.back()">Back to Dashboard</button>
         </div>
 
         <div id="stockScreen">
@@ -308,7 +308,7 @@
                 </table>
             </div>
 
-            <button class="btn btn-outline" style="width: 100%; margin-top: 24px;" onclick="goHome()">Back to Dashboard</button>
+            <button class="btn btn-outline" style="width: 100%; margin-top: 24px;" onclick="history.back()">Back to Dashboard</button>
         </div>
 
         <div id="expenseScreen">
@@ -326,7 +326,7 @@
             <div class="history-box" style="margin-top:0;">
                 <table><thead><tr><th>Date</th><th>Particulars</th><th>Type</th><th style="text-align:right">Amount</th><th></th></tr></thead><tbody id="expenseTableBody"></tbody></table>
             </div>
-            <button class="btn btn-outline" style="width: 100%; margin-top: 24px;" onclick="goHome()">Back to Dashboard</button>
+            <button class="btn btn-outline" style="width: 100%; margin-top: 24px;" onclick="history.back()">Back to Dashboard</button>
         </div>
 
         <div id="partyDetailScreen">
@@ -499,14 +499,16 @@
         } else alert("Khooto ID ke Password! Please enter correct details.");
     }
 
+    // 🔥 FIX: Initial proper state for PWA 🔥
     function showAppLayout() {
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('mainAppWrapper').style.display = 'block';
         document.getElementById('currentUserBadge').innerText = getActiveUser();
         
-        // App khule etle main history add karo jethi back button chale
-        history.replaceState({ id: 'dashboardScreen', title: 'JAY MAHADEV DAI' }, '', '#dashboardScreen');
+        // PWA ni sharuat ma khali ek var base state fix karvani che
+        history.replaceState({ id: 'dashboardScreen', title: 'JAY MAHADEV DAI', party: null }, '', '#dashboard');
     }
+
     function handleLogout() { localStorage.clear(); window.location.reload(); }
 
     function startFirebaseSync() {
@@ -523,7 +525,7 @@
         });
 
         db.ref('stock_inventory').on('value', (snapshot) => {
-            snapshot.val() || {};
+            stockInventory = snapshot.val() || {};
             for(let i = 10; i <= 25; i++) { if(stockInventory[i] === undefined) stockInventory[i] = 0; }
             if (localStorage.getItem("isLoggedIn") === "true" && document.getElementById('stockScreen').classList.contains('active-screen')) {
                 renderStockPage();
@@ -1048,7 +1050,8 @@
             total = d.nang;
         }
         document.getElementById('chitthiTotalQty').innerText = total;
-        document.getElementById('chitthiBackBtn').onclick = function() { goHome(); };
+        // 🔥 FIX: Native history.back() logic 🔥
+        document.getElementById('chitthiBackBtn').onclick = function() { history.back(); };
         switchScreen('chitthiScreen', 'DELIVERY SLIP');
     }
 
@@ -1069,7 +1072,8 @@
             total = d.nang;
         }
         document.getElementById('chitthiTotalQty').innerText = total;
-        document.getElementById('chitthiBackBtn').onclick = function() { showOldInvoice(appData[activeParty].history[hIndex], hIndex); };
+        // 🔥 FIX: Native history.back() logic 🔥
+        document.getElementById('chitthiBackBtn').onclick = function() { history.back(); };
         switchScreen('chitthiScreen', 'OLD DELIVERY SLIP');
     }
 
@@ -1145,28 +1149,32 @@
         switchScreen('invoiceScreen', 'Old Record Invoice');
     }
 
-    function switchScreen(id, title, addToHistory = true) {
+    // 🔥 FIX: Proper history push state function 🔥
+    function switchScreen(id, title, pushState = true) {
         document.querySelectorAll('.container > div').forEach(d => d.classList.remove('active-screen'));
         document.getElementById(id).classList.add('active-screen'); document.getElementById('navTitle').innerText = title;
         document.getElementById('backBtn').style.display = id === 'dashboardScreen' ? 'none' : 'block';
         if(id === 'stockScreen') renderStockPage(); if(id === 'expenseScreen') renderExpensePage(); if(id === 'salesBookScreen') renderSalesBook();
 
-        // Phone ni back history ma screen entry add karo
-        if (addToHistory) {
-            history.pushState({ id: id, title: title }, '', '#' + id);
+        // Jo true hoy to j history ma state nakho, jethi back button perfect hale
+        if (pushState) {
+            history.pushState({ id: id, title: title, party: activeParty }, '', '#' + id);
         }
     }
 
-    function goHome(addToHistory = true) { activeParty = null; switchScreen('dashboardScreen', 'JAY MAHADEV DAI', addToHistory); }
+    // Explict home function (khali save vagere pachi vaparva)
+    function goHome() { activeParty = null; switchScreen('dashboardScreen', 'JAY MAHADEV DAI', true); }
 
-    // Phone nu Back Button dabavva par shu karvu teno control (Popstate Event)
+    // 🔥 FIX: Phone nu physical Back Button ane App nu Back Button ek j rite kam karse 🔥
     window.addEventListener('popstate', function(event) {
         if (event.state && event.state.id) {
-            // Jo app ni andar koi page par hoy to tya j pacha jao, loop na thay etle third param false hase
+            // Tya pacha jao, pan nalo loop create na thay etle pushState = false aapvu
+            activeParty = event.state.party || null;
             switchScreen(event.state.id, event.state.title, false);
         } else {
-            // Jo state na male to default Dashboard Home screen par aavi jao
-            goHome(false);
+            // Jo initial base par pacha aavi gaya hoy to khali dashboard dekharo
+            activeParty = null;
+            switchScreen('dashboardScreen', 'JAY MAHADEV DAI', false);
         }
     });
 </script>
