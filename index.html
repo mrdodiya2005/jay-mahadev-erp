@@ -400,7 +400,7 @@
                     Total Delivered: <span id="chitthiTotalQty" style="color:#2563eb; font-size: 20px;">0</span> Dai
                 </div>
             </div>
-            <button class="btn btn-outline no-print" id="chitthiBackBtn" style="width: 100%; margin-top: 24px;">← Back</button>
+            <button class="btn btn-outline no-print" id="chitthiBackBtn" style="width: 100%; margin-top: 24px;" onclick="history.back()">← Back</button>
         </div>
 
         <div id="invoiceScreen">
@@ -967,11 +967,12 @@
         safeDeliveries.forEach((d, index) => {
            // Khali total j lakhshe display par, pan chithhi ma detailed dekhashe!
            let dispStr = `${d.nang || 0} Dai`;
+           // 🔥 BUG FIXED HERE: javascript:void(0) lakhyu che, je browser ne fake history banavta rokshe 🔥
            currBody.innerHTML += `<tr>
                 <td>${d.date}</td>
                 <td><span class="badge badge-out">Delivery</span></td>
                 <td style="text-align:right; font-weight:700;">
-                    <a href="#" onclick="viewChitthi(${index})" style="color:var(--secondary); text-decoration:none; border-bottom: 2px dashed var(--secondary); font-size:14px; margin-right:8px; display:inline-block; padding-bottom:2px; transition:all 0.2s;">${dispStr}</a>
+                    <a href="javascript:void(0)" onclick="viewChitthi(${index})" style="color:var(--secondary); text-decoration:none; border-bottom: 2px dashed var(--secondary); font-size:14px; margin-right:8px; display:inline-block; padding-bottom:2px; transition:all 0.2s;">${dispStr}</a>
                     <button onclick="deleteEntry(${index}, 'deliveries')" style="background:none; border:none; color:var(--text-sub); margin-left:4px; cursor:pointer; font-size:16px; transition:color 0.2s;" onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--text-sub)'">🗑</button>
                 </td>
             </tr>`;
@@ -1051,7 +1052,6 @@
             total = d.nang;
         }
         document.getElementById('chitthiTotalQty').innerText = total;
-        // 🔥 FIX: Back button direct history API ne j command aapse 🔥
         document.getElementById('chitthiBackBtn').onclick = function() { history.back(); };
         switchScreen('chitthiScreen', 'DELIVERY SLIP', addToHistory);
     }
@@ -1136,8 +1136,9 @@
     function showOldInvoice(h, hIndex, addToHistory = true) {
         let invBody = document.getElementById('invItemsBody'); invBody.innerHTML = ''; let totalQty = 0;
         getSafeArray(h.deliveries).forEach((d, i) => { 
+            // 🔥 BUG FIXED HERE TOO: javascript:void(0) 🔥
             invBody.innerHTML += `<tr><td>${i+1}</td><td style="text-align: center;">${d.date}</td><td style="text-align:right;">
-                <a href="#" onclick="viewOldChitthi(${hIndex}, ${i})" style="color:var(--secondary); text-decoration:underline;">${d.nang} Dai</a>
+                <a href="javascript:void(0)" onclick="viewOldChitthi(${hIndex}, ${i})" style="color:var(--secondary); text-decoration:underline;">${d.nang} Dai</a>
             </td></tr>`; 
             totalQty += d.nang; 
         });
@@ -1156,7 +1157,7 @@
         document.getElementById('backBtn').style.display = id === 'dashboardScreen' ? 'none' : 'block';
         if(id === 'stockScreen') renderStockPage(); if(id === 'expenseScreen') renderExpensePage(); if(id === 'salesBookScreen') renderSalesBook();
 
-        // Phone ni back history ma party name sathe push karo jethi popstate par error nav aave
+        // Phone ni back history ma party name sathe push karo
         if (addToHistory) {
             history.pushState({ id: id, title: title, party: activeParty }, '', '#' + id);
         }
