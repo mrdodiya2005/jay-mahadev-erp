@@ -243,13 +243,13 @@
     <div class="container">
         <div id="dashboardScreen" class="active-screen">
             <div class="nav-buttons">
-                <button class="btn btn-primary" style="flex:1;" onclick="window.location.hash='stockScreen'">📦 Manage Stock</button>
-                <button class="btn btn-primary" style="flex:1; background: var(--text-sub);" onclick="window.location.hash='expenseScreen'">💸 Expenses (Hisab)</button>
+                <button class="btn btn-primary" style="flex:1;" onclick="switchScreen('stockScreen', 'Manage Stock')">📦 Manage Stock</button>
+                <button class="btn btn-primary" style="flex:1; background: var(--text-sub);" onclick="switchScreen('expenseScreen', 'Business Expenses & Hisab')">💸 Expenses (Hisab)</button>
             </div>
             
             <div class="nav-buttons" style="margin-bottom: 24px;">
                 <button class="btn btn-primary" style="flex:1; background: #f59e0b;" onclick="openDirectInvoiceScreen()">⚡ Direct Invoice</button>
-                <button class="btn btn-primary" style="flex:1; background: var(--success);" onclick="window.location.hash='salesBookScreen'">📊 All Sales Book</button>
+                <button class="btn btn-primary" style="flex:1; background: var(--success);" onclick="switchScreen('salesBookScreen', 'Global Sales Book')">📊 All Sales Book</button>
             </div>
 
             <div class="input-group" style="display: flex; gap: 10px; margin-bottom: 20px;">
@@ -499,17 +499,13 @@
         } else alert("Khooto ID ke Password! Please enter correct details.");
     }
 
-    // 🔥 FIX 1: App start thay tya Hash reset karo jethi back button safe rahe 🔥
+    // 🔥 FIX 1: Sharuat ma history replace kari didhi jethi phone bhar na feki de 🔥
     function showAppLayout() {
         document.getElementById('loginScreen').style.display = 'none';
         document.getElementById('mainAppWrapper').style.display = 'block';
         document.getElementById('currentUserBadge').innerText = getActiveUser();
         
-        if (window.location.hash !== '#dashboardScreen') {
-            window.location.hash = 'dashboardScreen';
-        } else {
-            switchScreen('dashboardScreen', 'JAY MAHADEV DAI');
-        }
+        history.replaceState({ screen: 'dashboardScreen', title: 'JAY MAHADEV DAI', party: null }, '', '');
     }
 
     function handleLogout() { localStorage.clear(); window.location.reload(); }
@@ -522,36 +518,36 @@
             appData = snapshot.val() || {};
             if (localStorage.getItem("isLoggedIn") === "true") {
                 filterPartiesDashboard();
-                if(activeParty && window.location.hash === '#partyDetailScreen') openParty(activeParty);
-                if(window.location.hash === '#salesBookScreen') renderSalesBook();
+                if(activeParty && document.getElementById('partyDetailScreen').classList.contains('active-screen')) renderPartyDOM(activeParty);
+                if(document.getElementById('salesBookScreen').classList.contains('active-screen')) renderSalesBook();
             }
         });
 
         db.ref('stock_inventory').on('value', (snapshot) => {
             stockInventory = snapshot.val() || {};
             for(let i = 10; i <= 25; i++) { if(stockInventory[i] === undefined) stockInventory[i] = 0; }
-            if (localStorage.getItem("isLoggedIn") === "true" && window.location.hash === '#stockScreen') {
+            if (localStorage.getItem("isLoggedIn") === "true" && document.getElementById('stockScreen').classList.contains('active-screen')) {
                 renderStockPage();
             }
         });
 
         db.ref('expense_inventory').on('value', (snapshot) => {
             expenseData = snapshot.val() || {};
-            if (localStorage.getItem("isLoggedIn") === "true" && window.location.hash === '#expenseScreen') {
+            if (localStorage.getItem("isLoggedIn") === "true" && document.getElementById('expenseScreen').classList.contains('active-screen')) {
                 renderExpensePage();
             }
         });
 
         db.ref('stock_logs').on('value', (snapshot) => {
             stockLogsData = snapshot.val() || {};
-            if (localStorage.getItem("isLoggedIn") === "true" && window.location.hash === '#stockScreen') {
+            if (localStorage.getItem("isLoggedIn") === "true" && document.getElementById('stockScreen').classList.contains('active-screen')) {
                 renderStockLogs();
             }
         });
         
         db.ref('direct_sales').on('value', (snapshot) => {
             directSalesData = snapshot.val() || {};
-            if (localStorage.getItem("isLoggedIn") === "true" && window.location.hash === '#salesBookScreen') {
+            if (localStorage.getItem("isLoggedIn") === "true" && document.getElementById('salesBookScreen').classList.contains('active-screen')) {
                 renderSalesBook();
             }
         });
@@ -569,7 +565,10 @@
     function saveDB() { return db.ref('erp_data').set(appData); }
     function getFormattedToday() { let d = new Date(); return String(d.getDate()).padStart(2, '0') + '/' + String(d.getMonth() + 1).padStart(2, '0') + '/' + d.getFullYear(); }
 
-    function openDirectInvoiceScreen() {
+    /* ============================================================
+       🔥 DIRECT INVOICE LOGIC 🔥
+       ============================================================ */
+    function openDirectInvoiceScreen(addToHistory = true) {
         document.getElementById('diDate').valueAsDate = new Date();
         let gridHtml = '';
         for(let s=10; s<=25; s++) {
@@ -587,7 +586,7 @@
             `;
         }
         document.getElementById('diSizeGrid').innerHTML = gridHtml;
-        window.location.hash = 'directInvoiceScreen';
+        switchScreen('directInvoiceScreen', 'Direct Bill Generation', addToHistory);
     }
 
     function adjustDiQty(size, amount) {
@@ -649,9 +648,11 @@
         document.getElementById('invOldBal').innerText = 0; document.getElementById('invTotalJama').innerText = 0;
         document.getElementById('invFinalDue').innerText = curAmt;
         document.getElementById('closeCycleBtn').style.display = 'none'; 
-        
         document.getElementById('diName').value = '';
-        window.location.replace('#invoiceScreen'); // Prevent looping back to form
+        
+        // Go back in history logic properly
+        history.back();
+        setTimeout(() => switchScreen('invoiceScreen', 'Tax Invoice (Direct)', true), 100);
     }
 
     function renderSalesBook() {
@@ -957,29 +958,34 @@
         db.ref('erp_data/' + targetParty).set(appData[targetParty]);
     }
 
-    // 🔥 FIX 2: Tame mangya mujab Total Qty sathe Clickable href="javascript:void(0)" 🔥
-    function openParty(party) {
+    // 🔥 FIX 2: SPAN element je kyarrey page no chotade 🔥
+    function openParty(party, addToHistory = true) {
         activeParty = party;
-        let data = appData[party] || { balance:0, deliveries:[], payments:[] };
-        document.getElementById('pdName').innerText = party; document.getElementById('pdOldBal').innerText = "₹ " + (data.balance || 0);
-        let currBody = document.getElementById('currentRecordBody'); currBody.innerHTML = '';
-        
-        let safeDeliveries = getSafeArray(data.deliveries); let safePayments = getSafeArray(data.payments);
+        renderPartyDOM(party);
+        switchScreen('partyDetailScreen', party + ' DETAILS', addToHistory);
+    }
 
-        safeDeliveries.forEach((d, index) => {
-           // Khali total dai j print thase, detail mate click karvu padse
+    function renderPartyDOM(party) {
+        let data = appData[party] || { balance:0, deliveries:[], payments:[] };
+        document.getElementById('pdName').innerText = party; 
+        document.getElementById('pdOldBal').innerText = "₹ " + (data.balance || 0);
+        let currBody = document.getElementById('currentRecordBody'); 
+        currBody.innerHTML = '';
+        
+        getSafeArray(data.deliveries).forEach((d, index) => {
            let dispStr = `${d.nang || 0} Dai`;
+           // SPAN vagarelyo che link ni jagya par
            currBody.innerHTML += `<tr>
                 <td>${d.date}</td>
                 <td><span class="badge badge-out">Delivery</span></td>
                 <td style="text-align:right; font-weight:700;">
-                    <a href="javascript:void(0)" onclick="viewChitthi(${index})" style="color:var(--secondary); text-decoration:none; border-bottom: 2px dashed var(--secondary); font-size:14px; margin-right:8px; display:inline-block; padding-bottom:2px; transition:all 0.2s;">${dispStr}</a>
+                    <span onclick="viewChitthi(${index})" style="color:var(--secondary); text-decoration:underline; font-size:14px; margin-right:8px; display:inline-block; padding-bottom:2px; cursor:pointer; transition:all 0.2s;">${dispStr}</span>
                     <button onclick="deleteEntry(${index}, 'deliveries')" style="background:none; border:none; color:var(--text-sub); margin-left:4px; cursor:pointer; font-size:16px; transition:color 0.2s;" onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--text-sub)'">🗑</button>
                 </td>
             </tr>`;
         });
 
-        safePayments.forEach((p, index) => {
+        getSafeArray(data.payments).forEach((p, index) => {
             currBody.innerHTML += `<tr>
                 <td>${p.date}</td>
                 <td><span class="badge badge-in">Payment</span></td>
@@ -988,7 +994,6 @@
                 </td>
             </tr>`; 
         });
-        window.location.hash = 'partyDetailScreen';
     }
 
     function deleteEntry(index, nodeType) {
@@ -1036,7 +1041,7 @@
         } catch(e) { alert("Error: " + e.message); }
     }
 
-    function viewChitthi(index) {
+    function viewChitthi(index, addToHistory = true) {
         let d = appData[activeParty].deliveries[index];
         document.getElementById('chitthiPartyName').innerText = activeParty;
         document.getElementById('chitthiDate').innerText = d.date;
@@ -1053,10 +1058,10 @@
             total = d.nang;
         }
         document.getElementById('chitthiTotalQty').innerText = total;
-        window.location.hash = 'chitthiScreen';
+        switchScreen('chitthiScreen', 'DELIVERY SLIP', addToHistory);
     }
 
-    function viewOldChitthi(hIndex, dIndex) {
+    function viewOldChitthi(hIndex, dIndex, addToHistory = true) {
         let d = appData[activeParty].history[hIndex].deliveries[dIndex];
         document.getElementById('chitthiPartyName').innerText = activeParty + " (Old Record)";
         document.getElementById('chitthiDate').innerText = d.date;
@@ -1073,7 +1078,7 @@
             total = d.nang;
         }
         document.getElementById('chitthiTotalQty').innerText = total;
-        window.location.hash = 'chitthiScreen';
+        switchScreen('chitthiScreen', 'OLD DELIVERY SLIP', addToHistory);
     }
 
     async function shareOnWhatsApp() {
@@ -1097,7 +1102,7 @@
         } catch(e) { alert("Error in PDF generation: " + e.message); }
     }
 
-    function showInvoice() {
+    function showInvoice(addToHistory = true) {
         let data = appData[activeParty]; let totalQty = 0, invBody = document.getElementById('invItemsBody'); invBody.innerHTML = '';
         getSafeArray(data.deliveries).forEach((d, i) => {
             invBody.innerHTML += `<tr><td>${i+1}</td><td style="text-align: center;">${d.date}</td><td style="text-align:right;">${d.nang}</td></tr>`; totalQty += d.nang;
@@ -1108,8 +1113,7 @@
         document.getElementById('invTotalQty').innerText = totalQty; document.getElementById('invCurrentAmt').innerText = curAmt;
         document.getElementById('invOldBal').innerText = data.balance; document.getElementById('invTotalJama').innerText = totalPaid;
         document.getElementById('invFinalDue').innerText = (data.balance + curAmt) - totalPaid;
-        document.getElementById('closeCycleBtn').style.display = 'block'; 
-        window.location.hash = 'invoiceScreen';
+        document.getElementById('closeCycleBtn').style.display = 'block'; switchScreen('invoiceScreen', 'Tax Invoice', addToHistory);
     }
 
     function closeBook() {
@@ -1118,11 +1122,16 @@
             let histEntry = { date: getFormattedToday(), deliveries: getSafeArray(data.deliveries), payments: getSafeArray(data.payments), oldBal: data.balance, finalDue: finalDue };
             let safeHistory = getSafeArray(data.history); safeHistory.push(histEntry);
             data.history = safeHistory; data.balance = finalDue; data.deliveries = []; data.payments = [];
-            saveDB().then(() => window.location.hash = 'dashboardScreen');
+            saveDB().then(() => goHome());
         }
     }
 
-    function showHistoryList() {
+    function showHistoryList(addToHistory = true) {
+        renderHistoryDOM();
+        switchScreen('historyScreen', 'Cycle History', addToHistory);
+    }
+    
+    function renderHistoryDOM() {
         let data = appData[activeParty], cont = document.getElementById('historyListContainer');
         document.getElementById('histPartyName').innerText = activeParty; cont.innerHTML = '';
         getSafeArray(data.history).forEach((h, idx) => {
@@ -1130,14 +1139,13 @@
             div.innerHTML = `<b>📅 Billing Snapshot: ${h.date}</b><br><span style="color:var(--text-sub);">Closing Balance:</span> <b style="color:var(--text-main); font-size:15px;">₹ ${h.finalDue}</b>`;
             div.onclick = () => showOldInvoice(h, idx); cont.appendChild(div);
         });
-        window.location.hash = 'historyScreen';
     }
 
-    function showOldInvoice(h, hIndex) {
+    function showOldInvoice(h, hIndex, addToHistory = true) {
         let invBody = document.getElementById('invItemsBody'); invBody.innerHTML = ''; let totalQty = 0;
         getSafeArray(h.deliveries).forEach((d, i) => { 
             invBody.innerHTML += `<tr><td>${i+1}</td><td style="text-align: center;">${d.date}</td><td style="text-align:right;">
-                <a href="javascript:void(0)" onclick="viewOldChitthi(${hIndex}, ${i})" style="color:var(--secondary); text-decoration:underline;">${d.nang} Dai</a>
+                <span onclick="viewOldChitthi(${hIndex}, ${i})" style="color:var(--secondary); text-decoration:underline; cursor:pointer;">${d.nang} Dai</span>
             </td></tr>`; 
             totalQty += d.nang; 
         });
@@ -1146,59 +1154,46 @@
         document.getElementById('invTotalQty').innerText = totalQty; document.getElementById('invCurrentAmt').innerText = Math.round(totalQty * RATE);
         document.getElementById('invOldBal').innerText = h.oldBal; document.getElementById('invTotalJama').innerText = tPay;
         document.getElementById('invFinalDue').innerText = h.finalDue; document.getElementById('closeCycleBtn').style.display = 'none'; 
-        window.location.hash = 'invoiceScreen';
+        switchScreen('invoiceScreen', 'Old Record Invoice', addToHistory);
     }
 
-    // 🔥 FIX 3: Master UI Switcher (App chotva no sawal j nathi) 🔥
-    function switchScreen(id, title) {
+    // 🔥 FIX 3: Master Control for Phone physical back button 🔥
+    function switchScreen(id, title, addToHistory = true) {
         document.querySelectorAll('.container > div').forEach(d => d.classList.remove('active-screen'));
         document.getElementById(id).classList.add('active-screen'); 
         document.getElementById('navTitle').innerText = title;
         document.getElementById('backBtn').style.display = id === 'dashboardScreen' ? 'none' : 'block';
-    }
-
-    function goHome() { 
-        activeParty = null; 
-        window.location.hash = 'dashboardScreen'; 
-    }
-
-    // 🔥 FIX 4: Native Hash Router (Physical Back button sathe direct connect) 🔥
-    window.addEventListener('hashchange', function() {
-        let hash = window.location.hash.replace('#', '');
         
-        if (!hash) return; // Ignore blank hash
+        if(id === 'stockScreen') renderStockPage(); 
+        if(id === 'expenseScreen') renderExpensePage(); 
+        if(id === 'salesBookScreen') renderSalesBook();
 
-        if (hash === 'dashboardScreen') {
-            activeParty = null;
-            switchScreen('dashboardScreen', 'JAY MAHADEV DAI');
-        } 
-        else if (hash === 'partyDetailScreen') {
-            if (activeParty) switchScreen('partyDetailScreen', activeParty + ' DETAILS');
-            else window.location.hash = 'dashboardScreen'; // Fallback
-        } 
-        else if (hash === 'chitthiScreen') {
-            if (activeParty) switchScreen('chitthiScreen', 'DELIVERY SLIP');
-            else window.location.hash = 'dashboardScreen'; // Fallback
-        } 
-        else if (hash === 'invoiceScreen') {
-            if (activeParty) switchScreen('invoiceScreen', 'Tax Invoice');
-            else window.location.hash = 'dashboardScreen'; // Fallback
-        } 
-        else if (hash === 'historyScreen') {
-            if (activeParty) switchScreen('historyScreen', 'Cycle History');
-            else window.location.hash = 'dashboardScreen'; // Fallback
-        } 
-        else if (hash === 'stockScreen') {
-            switchScreen('stockScreen', 'Manage Stock');
-        } 
-        else if (hash === 'expenseScreen') {
-            switchScreen('expenseScreen', 'Business Expenses & Hisab');
-        } 
-        else if (hash === 'salesBookScreen') {
-            switchScreen('salesBookScreen', 'Global Sales Book');
-        } 
-        else if (hash === 'directInvoiceScreen') {
-            switchScreen('directInvoiceScreen', 'Direct Bill Generation');
+        // Aa check karse k tamari history saachi rite jama thay
+        if (addToHistory) {
+            history.pushState({ screen: id, title: title, party: activeParty }, '', '');
+        }
+    }
+
+    function goHome(addToHistory = true) { 
+        activeParty = null; 
+        switchScreen('dashboardScreen', 'JAY MAHADEV DAI', addToHistory); 
+    }
+
+    // Phone nu Back Button dabavvathi page free na thay teni garantee aa chhe:
+    window.addEventListener('popstate', function(event) {
+        if (event.state && event.state.screen) {
+            activeParty = event.state.party || null;
+            
+            // Re-render specific dynamic pages if needed vagar state push karye
+            if (event.state.screen === 'partyDetailScreen' && activeParty) {
+                renderPartyDOM(activeParty);
+            } else if (event.state.screen === 'historyScreen' && activeParty) {
+                renderHistoryDOM();
+            }
+            
+            switchScreen(event.state.screen, event.state.title, false);
+        } else {
+            goHome(false);
         }
     });
 
