@@ -335,14 +335,19 @@
                 <p style="color: var(--text-sub); margin: 0; font-size: 14px; font-weight: 500;">Prev. Balance: <span id="pdOldBal" style="font-weight:800; color:var(--danger);">₹ 0</span></p>
             </div>
             
-            <div class="nav-buttons">
+            <div class="nav-buttons" style="margin-bottom: 12px;">
                 <button class="btn btn-primary" onclick="openEntryModal('qty')">Add Dai (Sell)</button>
                 <button class="btn btn-success" onclick="openEntryModal('jama')">Add Payment (Jama)</button>
             </div>
             
             <div class="nav-buttons">
-                <button class="btn btn-outline" onclick="showInvoice()">🧾 Generate Invoice</button>
-                <button class="btn btn-outline" onclick="window.location.hash='historyScreen'">🕒 View History</button>
+                <button class="btn btn-outline" style="color:#f59e0b; border-color:#f59e0b;" onclick="openEntryModal('return_dai')">Return Dai</button>
+                <button class="btn btn-outline" style="color:#8b5cf6; border-color:#8b5cf6;" onclick="openEntryModal('kacho_mal')">Add Bhangar</button>
+            </div>
+            
+            <div class="nav-buttons" style="margin-top:24px;">
+                <button class="btn btn-outline" style="flex:1;" onclick="showInvoice()">🧾 Generate Invoice</button>
+                <button class="btn btn-outline" style="flex:1;" onclick="window.location.hash='historyScreen'">🕒 View History</button>
             </div>
 
             <div id="entryForm" style="display:none; background: var(--card-bg); padding: 20px; border-radius: var(--radius); margin-bottom: 24px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
@@ -350,6 +355,11 @@
                 <div class="input-group"><label>Date:</label><input type="date" id="entryDate"></div>
                 
                 <div id="multiSizeGrid" style="display:none; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; max-height: 280px; overflow-y: auto; border: 1px solid var(--border-color); padding: 12px; border-radius: 10px; margin-bottom: 16px; background: var(--bg-main);">
+                </div>
+
+                <div id="descGroup" style="display:none;" class="input-group">
+                    <label id="descLabel">Particulars:</label>
+                    <input type="text" id="entryDesc" placeholder="Enter item details...">
                 </div>
 
                 <div id="singleValueGroup">
@@ -432,12 +442,7 @@
                 <div class="inv-footer-section">
                     <div class="inv-terms"><h4 style="color:#0f172a;">Terms & Conditions</h4><p style="color:#475569;">1. Please verify the quantities listed above.<br>2. All balances are carried forward to the<br>next billing cycle if unpaid.<br>3. Thank you for your continued business!</p></div>
                     <div class="inv-summary">
-                        <table>
-                            <tr><td style="color:#475569;">Total Qty:</td><td class="text-right" style="color:#0f172a;"><span id="invTotalQty">0</span></td></tr>
-                            <tr><td style="color:#475569;">Current Amount:</td><td class="text-right" style="color:#0f172a;">₹ <span id="invCurrentAmt">0</span></td></tr>
-                            <tr><td style="color:#475569;">Old Balance:</td><td class="text-right" style="color:#0f172a;">₹ <span id="invOldBal">0</span></td></tr>
-                            <tr class="less-received"><td style="color:#10b981;">Less Received:</td><td class="text-right" style="color:#10b981;">- ₹ <span id="invTotalJama">0</span></td></tr>
-                        </table>
+                        <table id="invSummaryTable"></table>
                         <div class="inv-total"><span class="label" style="color:#0f172a;">Final Due:</span><span class="value" style="color:#3b82f6;">₹ <span id="invFinalDue">0</span></span></div>
                     </div>
                 </div>
@@ -460,7 +465,7 @@
     let activeParty = null, entryMode = ''; 
     let databaseInitialized = false;
 
-    // 🔥 MAIN ROUTER ENGINE: Aana lidhe back button 100% kam karse 🔥
+    // 🔥 MAIN ROUTER ENGINE: Aana lidhe back button kyarrey chotse j nahi 🔥
     window.addEventListener('hashchange', handleHashChange);
 
     function handleHashChange() {
@@ -479,7 +484,7 @@
         }
 
         // Security check
-        const partyScreens = ['partyDetailScreen', 'historyScreen'];
+        const partyScreens = ['partyDetailScreen', 'historyScreen', 'chitthiScreen', 'invoiceScreen'];
         if(partyScreens.includes(hash) && !activeParty) {
             window.location.replace('#dashboardScreen');
             return;
@@ -541,7 +546,7 @@
             
             startFirebaseSync();
             
-            if(!window.location.hash) {
+            if(!window.location.hash || window.location.hash === '#') {
                 window.location.replace('#dashboardScreen');
             } else {
                 handleHashChange();
@@ -729,8 +734,13 @@
         
         let curAmt = Math.round(totalNangToSave * RATE);
         document.getElementById('invDate').innerText = date; document.getElementById('invPartyName').innerText = name;
-        document.getElementById('invTotalQty').innerText = totalNangToSave; document.getElementById('invCurrentAmt').innerText = curAmt;
-        document.getElementById('invOldBal').innerText = 0; document.getElementById('invTotalJama').innerText = 0;
+        
+        let summaryHtml = `
+            <tr><td style="color:#475569;">Total Qty:</td><td class="text-right" style="color:#0f172a;">${totalNangToSave}</td></tr>
+            <tr><td style="color:#475569;">Current Amount:</td><td class="text-right" style="color:#0f172a;">₹ ${curAmt}</td></tr>
+            <tr><td style="color:#475569;">Old Balance:</td><td class="text-right" style="color:#0f172a;">₹ 0</td></tr>
+        `;
+        document.getElementById('invSummaryTable').innerHTML = summaryHtml;
         document.getElementById('invFinalDue').innerText = curAmt;
         document.getElementById('closeCycleBtn').style.display = 'none'; 
         document.getElementById('diName').value = '';
@@ -919,15 +929,23 @@
     function addNewParty() {
         let name = document.getElementById('newPartyName').value.trim().toUpperCase(); if(!name) return;
         let oldBal = prompt("Enter Previous Due:", "0"); if(oldBal === null) return;
-        appData[name] = { balance: parseInt(oldBal) || 0, deliveries: [], payments: [], history: [] }; db.ref('erp_data').set(appData).then(() => { document.getElementById('newPartyName').value = ''; });
+        appData[name] = { balance: parseInt(oldBal) || 0, deliveries: [], payments: [], history: [], returns: [], materials: [] }; db.ref('erp_data').set(appData).then(() => { document.getElementById('newPartyName').value = ''; });
     }
     function renameParty(oldName) { let newName = prompt("Rename " + oldName + " to:", oldName); if(newName && newName.toUpperCase() !== oldName) { appData[newName.toUpperCase()] = appData[oldName]; delete appData[oldName]; db.ref('erp_data').set(appData); } }
     function deleteParty(name) { if(confirm("Delete " + name + "?")) { delete appData[name]; db.ref('erp_data').set(appData); } }
 
+    function openParty(party) {
+        activeParty = party;
+        window.location.hash = 'partyDetailScreen';
+    }
+
+    // 🔥 FIX 2: Party Entry Form Management 🔥
     function openEntryModal(mode) {
         entryMode = mode;
         document.getElementById('entryForm').style.display = 'block';
         document.getElementById('entryDate').valueAsDate = new Date();
+        document.getElementById('descGroup').style.display = 'none';
+        document.getElementById('entryDesc').value = '';
         
         if(mode === 'qty') {
             document.getElementById('entryFormTitle').innerText = "Add Dai (Sell from Stock)";
@@ -950,6 +968,32 @@
                 `;
             }
             document.getElementById('multiSizeGrid').innerHTML = gridHtml;
+        } else if(mode === 'return_dai') {
+            document.getElementById('entryFormTitle').innerText = "Return Dai (Add to Stock)";
+            document.getElementById('singleValueGroup').style.display = 'none';
+            document.getElementById('multiSizeGrid').style.display = 'grid';
+            
+            let gridHtml = '';
+            for(let s=10; s<=25; s++) {
+                gridHtml += `
+                    <div style="background:var(--card-bg); padding:12px; border-radius:10px; border:1px solid var(--border-color); text-align:center; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                        <label style="font-size:12px; font-weight:800; color:#f59e0b; margin-bottom:4px; display:block;">No. ${s}</label>
+                        <p style="font-size:11px; color:var(--text-sub); font-weight:700; margin:0 0 10px 0;">Return Entry</p>
+                        <div style="display:flex; justify-content:center; gap:6px;">
+                            <button type="button" style="background:rgba(239, 68, 68, 0.1); border:none; border-radius:6px; color:var(--danger); width:32px; height:32px; font-size:18px; font-weight:bold; cursor:pointer; transition:background 0.2s;" onclick="adjustSellQty(${s}, -500, true)">-</button>
+                            <input type="number" id="sell_size_${s}" placeholder="0" min="0" style="padding:0; font-size:15px; font-weight:700; text-align:center; width:50px; border:2px solid var(--border-color); border-radius:6px; box-sizing:border-box; box-shadow:none;">
+                            <button type="button" style="background:rgba(16, 185, 129, 0.1); border:none; border-radius:6px; color:var(--success); width:32px; height:32px; font-size:18px; font-weight:bold; cursor:pointer; transition:background 0.2s;" onclick="adjustSellQty(${s}, 500, true)">+</button>
+                        </div>
+                    </div>
+                `;
+            }
+            document.getElementById('multiSizeGrid').innerHTML = gridHtml;
+        } else if(mode === 'kacho_mal') {
+            document.getElementById('entryFormTitle').innerText = "Add Bhangar";
+            document.getElementById('singleValueGroup').style.display = 'block';
+            document.getElementById('multiSizeGrid').style.display = 'none';
+            document.getElementById('entryLabel').innerText = "Amount Value (₹):";
+            document.getElementById('descGroup').style.display = 'block';
         } else {
             document.getElementById('entryFormTitle').innerText = "Add Payment (Jama)";
             document.getElementById('singleValueGroup').style.display = 'block';
@@ -958,14 +1002,16 @@
         }
     }
 
-    function adjustSellQty(size, amount) {
+    function adjustSellQty(size, amount, isReturn = false) {
         let input = document.getElementById(`sell_size_${size}`);
         let currentVal = parseInt(input.value) || 0;
-        let maxStock = stockInventory[size] || 0;
         let newVal = currentVal + amount;
         
         if (newVal < 0) newVal = 0;
-        if (newVal > maxStock) return alert(`⚠️ Error: Dai No. ${size} no stock purto nathi! (Available: ${maxStock})`);
+        if (!isReturn) {
+            let maxStock = stockInventory[size] || 0;
+            if (newVal > maxStock) return alert(`⚠️ Error: Dai No. ${size} no stock purto nathi! (Available: ${maxStock})`);
+        }
         input.value = newVal === 0 ? '' : newVal;
     }
 
@@ -976,12 +1022,10 @@
         let targetParty = activeParty;
         if (!appData[targetParty]) appData[targetParty] = { balance: 0, deliveries: [], payments: [], history: [] };
         
-        let targetDeliveries = getSafeArray(appData[targetParty].deliveries);
-        let targetPayments = getSafeArray(appData[targetParty].payments);
-        
-        if(entryMode === 'qty') {
+        if(entryMode === 'qty' || entryMode === 'return_dai') {
             let totalNangToSave = 0;
             let sizesDeducted = [];
+            let isReturn = (entryMode === 'return_dai');
             
             for(let s=10; s<=25; s++) {
                 let el = document.getElementById(`sell_size_${s}`);
@@ -989,7 +1033,7 @@
                     let val = parseInt(el.value);
                     if(val > 0) {
                         let curStock = stockInventory[s] || 0;
-                        if(curStock < val) return alert(`⚠️ Error: Dai No. ${s} no stock o6o che! (Available: ${curStock} Dai)`);
+                        if(!isReturn && curStock < val) return alert(`⚠️ Error: Dai No. ${s} no stock o6o che! (Available: ${curStock} Dai)`);
                         sizesDeducted.push({size: s, val: val});
                         totalNangToSave += val;
                     }
@@ -1002,70 +1046,103 @@
             let displayStr = sizesDeducted.map(s => `${s.size}: ${s.val}`).join(', ');
 
             sizesDeducted.forEach(item => {
-                db.ref(`stock_inventory/${item.size}`).set((stockInventory[item.size]||0) - item.val);
+                let currStock = stockInventory[item.size] || 0;
+                db.ref(`stock_inventory/${item.size}`).set(isReturn ? currStock + item.val : currStock - item.val);
             });
             
             db.ref('stock_logs').push({
-                date: date, type: 'OUT', detail: `Sold to ${targetParty}`, sizes: sizesDeducted, displayStr: displayStr, totalQty: totalNangToSave
+                date: date, 
+                type: isReturn ? 'IN' : 'OUT', 
+                detail: isReturn ? `Return by ${targetParty}` : `Sold to ${targetParty}`, 
+                sizes: sizesDeducted, displayStr: displayStr, totalQty: totalNangToSave
             });
             
-            let existingEntry = targetDeliveries.find(d => d.date === date);
-            if(existingEntry) {
-                existingEntry.nang += totalNangToSave;
-                if(!existingEntry.sizes) existingEntry.sizes = [];
-                
-                sizesDeducted.forEach(newItem => {
-                    let foundSize = existingEntry.sizes.find(sz => sz.size === newItem.size);
-                    if(foundSize) foundSize.val += newItem.val;
-                    else existingEntry.sizes.push(newItem);
-                });
+            if(isReturn) {
+                let targetReturns = getSafeArray(appData[targetParty].returns);
+                targetReturns.push({date: date, nang: totalNangToSave, sizes: sizesDeducted});
+                appData[targetParty].returns = targetReturns;
+                logActivity(`Received return ${totalNangToSave} Dai from ${targetParty}.`);
             } else {
-                targetDeliveries.push({date: date, nang: totalNangToSave, sizes: sizesDeducted});
+                let targetDeliveries = getSafeArray(appData[targetParty].deliveries);
+                let existingEntry = targetDeliveries.find(d => d.date === date);
+                if(existingEntry) {
+                    existingEntry.nang += totalNangToSave;
+                    if(!existingEntry.sizes) existingEntry.sizes = [];
+                    sizesDeducted.forEach(newItem => {
+                        let foundSize = existingEntry.sizes.find(sz => sz.size === newItem.size);
+                        if(foundSize) foundSize.val += newItem.val;
+                        else existingEntry.sizes.push(newItem);
+                    });
+                } else {
+                    targetDeliveries.push({date: date, nang: totalNangToSave, sizes: sizesDeducted});
+                }
+                appData[targetParty].deliveries = targetDeliveries;
+                logActivity(`Sold total ${totalNangToSave} Dai to ${targetParty}.`);
             }
-            logActivity(`Sold total ${totalNangToSave} Dai to ${targetParty}.`);
+            
+        } else if(entryMode === 'kacho_mal') {
+            let val = parseFloat(document.getElementById('entryValue').value);
+            let desc = document.getElementById('entryDesc').value.trim();
+            if(!val || val <= 0) return alert("Amount nakho!");
+            
+            let targetMaterials = getSafeArray(appData[targetParty].materials);
+            targetMaterials.push({date: date, amount: val, desc: desc});
+            appData[targetParty].materials = targetMaterials;
+            logActivity(`Added Bhangar ₹${val} for ${targetParty}.`);
             
         } else {
             let val = parseFloat(document.getElementById('entryValue').value);
             if(!val || val <= 0) return alert("Amount nakho!");
             
+            let targetPayments = getSafeArray(appData[targetParty].payments);
             let existingEntry = targetPayments.find(p => p.date === date);
             if(existingEntry) existingEntry.amount += val;
             else targetPayments.push({date: date, amount: val});
             
+            appData[targetParty].payments = targetPayments;
             logActivity(`Received ₹${val} Payment from ${targetParty}.`);
         }
         
-        appData[targetParty].deliveries = targetDeliveries; appData[targetParty].payments = targetPayments;
         document.getElementById('entryForm').style.display = 'none'; 
         if(document.getElementById('entryValue')) document.getElementById('entryValue').value = '';
         db.ref('erp_data/' + targetParty).set(appData[targetParty]);
     }
 
-    function openParty(party) {
-        activeParty = party;
-        window.location.hash = 'partyDetailScreen';
-    }
-
-    // Party na table ma khali Total Dai ane "SPAN" tag thi click (No link error)
+    // Party Ledger Render with NO Link Tags, Only SPAN for safe clicks
     function renderPartyDOM(party) {
-        let data = appData[party] || { balance:0, deliveries:[], payments:[] };
+        let data = appData[party] || { balance:0, deliveries:[], payments:[], returns:[], materials:[] };
         document.getElementById('pdName').innerText = party; 
         document.getElementById('pdOldBal').innerText = "₹ " + (data.balance || 0);
         let currBody = document.getElementById('currentRecordBody'); 
         currBody.innerHTML = '';
         
+        // 1. Deliveries
         getSafeArray(data.deliveries).forEach((d, index) => {
            let dispStr = `${d.nang || 0} Dai`;
            currBody.innerHTML += `<tr>
                 <td>${d.date}</td>
                 <td><span class="badge badge-out">Delivery</span></td>
                 <td style="text-align:right; font-weight:700;">
-                    <span onclick="viewChitthi(${index})" style="color:var(--secondary); text-decoration:underline; font-size:14px; margin-right:8px; display:inline-block; padding-bottom:2px; cursor:pointer; transition:all 0.2s;">${dispStr}</span>
+                    <span onclick="viewChitthi(${index}, 'deliveries')" style="color:var(--secondary); text-decoration:underline; font-size:14px; margin-right:8px; display:inline-block; padding-bottom:2px; cursor:pointer; transition:all 0.2s;">${dispStr}</span>
                     <button onclick="deleteEntry(${index}, 'deliveries')" style="background:none; border:none; color:var(--text-sub); margin-left:4px; cursor:pointer; font-size:16px; transition:color 0.2s;" onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--text-sub)'">🗑</button>
                 </td>
             </tr>`;
         });
+        
+        // 2. Returns
+        getSafeArray(data.returns).forEach((r, index) => {
+           let dispStr = `${r.nang || 0} Dai`;
+           currBody.innerHTML += `<tr>
+                <td>${r.date}</td>
+                <td><span class="badge" style="background:rgba(245, 158, 11, 0.1); color:#f59e0b;">Return</span></td>
+                <td style="text-align:right; font-weight:700;">
+                    <span onclick="viewChitthi(${index}, 'returns')" style="color:#f59e0b; text-decoration:underline; font-size:14px; margin-right:8px; display:inline-block; padding-bottom:2px; cursor:pointer; transition:all 0.2s;">${dispStr}</span>
+                    <button onclick="deleteEntry(${index}, 'returns')" style="background:none; border:none; color:var(--text-sub); margin-left:4px; cursor:pointer; font-size:16px; transition:color 0.2s;" onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--text-sub)'">🗑</button>
+                </td>
+            </tr>`;
+        });
 
+        // 3. Payments
         getSafeArray(data.payments).forEach((p, index) => {
             currBody.innerHTML += `<tr>
                 <td>${p.date}</td>
@@ -1075,14 +1152,27 @@
                 </td>
             </tr>`; 
         });
+        
+        // 4. Materials
+        getSafeArray(data.materials).forEach((m, index) => {
+            let label = m.desc ? `Bhangar (${m.desc})` : `Bhangar`;
+            currBody.innerHTML += `<tr>
+                <td>${m.date}</td>
+                <td><span class="badge" style="background:rgba(139, 92, 246, 0.1); color:#8b5cf6;">${label}</span></td>
+                <td style="text-align:right; font-weight:700; color:#8b5cf6; font-size:15px;">₹ ${m.amount} 
+                    <button onclick="deleteEntry(${index}, 'materials')" style="background:none; border:none; color:var(--text-sub); margin-left:4px; cursor:pointer; font-size:16px; transition:color 0.2s;" onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--text-sub)'">🗑</button>
+                </td>
+            </tr>`; 
+        });
     }
 
     function deleteEntry(index, nodeType) {
         if(!confirm("Are you sure you want to delete this row?")) return;
+        
+        appData[activeParty][nodeType] = getSafeArray(appData[activeParty][nodeType]);
+        let deletedItem = appData[activeParty][nodeType][index];
+        
         if(nodeType === 'deliveries') {
-            appData[activeParty].deliveries = getSafeArray(appData[activeParty].deliveries);
-            let deletedItem = appData[activeParty].deliveries[index];
-            
             if (deletedItem.sizes) { 
                 deletedItem.sizes.forEach(sz => {
                     let current = stockInventory[sz.size] || 0;
@@ -1093,11 +1183,23 @@
                     sizes: deletedItem.sizes, displayStr: deletedItem.sizes.map(s => `${s.size}: ${s.val}`).join(', '), totalQty: deletedItem.nang
                 });
             }
-            appData[activeParty].deliveries.splice(index, 1);
-        } else {
-            appData[activeParty].payments = getSafeArray(appData[activeParty].payments);
-            appData[activeParty].payments.splice(index, 1);
         }
+         else if(nodeType === 'returns') {
+            if (deletedItem.sizes) { 
+                deletedItem.sizes.forEach(sz => {
+                    let current = stockInventory[sz.size] || 0;
+                    let newStock = current - sz.val;
+                    db.ref(`stock_inventory/${sz.size}`).set(newStock >= 0 ? newStock : 0);
+                });
+                db.ref('stock_logs').push({
+                    date: getFormattedToday(), type: 'OUT', detail: `Return Deleted (${activeParty})`,
+                    sizes: deletedItem.sizes, displayStr: deletedItem.sizes.map(s => `${s.size}: ${s.val}`).join(', '), totalQty: deletedItem.nang
+                }
+                );
+            }
+        }
+        
+        appData[activeParty][nodeType].splice(index, 1);
         saveDB();
     }
 
@@ -1122,9 +1224,10 @@
         } catch(e) { alert("Error: " + e.message); }
     }
 
-    function viewChitthi(index) {
-        let d = appData[activeParty].deliveries[index];
-        document.getElementById('chitthiPartyName').innerText = activeParty;
+    // 🔥 FIX: Return Dai ni chithhi pan joi shakashe 🔥
+    function viewChitthi(index, type = 'deliveries') {
+        let d = appData[activeParty][type][index];
+        document.getElementById('chitthiPartyName').innerText = activeParty + (type === 'returns' ? ' (RETURN)' : '');
         document.getElementById('chitthiDate').innerText = d.date;
         
         let tbody = document.getElementById('chitthiItemsBody'); tbody.innerHTML = '';
@@ -1142,9 +1245,9 @@
         window.location.hash = 'chitthiScreen';
     }
 
-    function viewOldChitthi(hIndex, dIndex) {
-        let d = appData[activeParty].history[hIndex].deliveries[dIndex];
-        document.getElementById('chitthiPartyName').innerText = activeParty + " (Old Record)";
+    function viewOldChitthi(hIndex, dIndex, type = 'deliveries') {
+        let d = appData[activeParty].history[hIndex][type][dIndex];
+        document.getElementById('chitthiPartyName').innerText = activeParty + (type === 'returns' ? ' (RETURN)' : '');
         document.getElementById('chitthiDate').innerText = d.date;
         
         let tbody = document.getElementById('chitthiItemsBody'); tbody.innerHTML = '';
@@ -1183,17 +1286,42 @@
         } catch(e) { alert("Error in PDF generation: " + e.message); }
     }
 
+    // 🔥 FIX 3: Invoice banti vakhte Returns ane Kacho mal check thase 🔥
     function showInvoice() {
-        let data = appData[activeParty]; let totalQty = 0, invBody = document.getElementById('invItemsBody'); invBody.innerHTML = '';
-        getSafeArray(data.deliveries).forEach((d, i) => {
-            invBody.innerHTML += `<tr><td>${i+1}</td><td style="text-align: center;">${d.date}</td><td style="text-align:right;">${d.nang}</td></tr>`; totalQty += d.nang;
-        });
-        let curAmt = Math.round(totalQty * RATE), totalPaid = 0; getSafeArray(data.payments).forEach(p => totalPaid += p.amount);
+        let data = appData[activeParty]; 
+        let totalQty = 0, invBody = document.getElementById('invItemsBody'); invBody.innerHTML = '';
         
-        document.getElementById('invDate').innerText = getFormattedToday(); document.getElementById('invPartyName').innerText = activeParty;
-        document.getElementById('invTotalQty').innerText = totalQty; document.getElementById('invCurrentAmt').innerText = curAmt;
-        document.getElementById('invOldBal').innerText = data.balance; document.getElementById('invTotalJama').innerText = totalPaid;
-        document.getElementById('invFinalDue').innerText = (data.balance + curAmt) - totalPaid;
+        getSafeArray(data.deliveries).forEach((d, i) => {
+            invBody.innerHTML += `<tr><td>${i+1}</td><td style="text-align: center;">${d.date}</td><td style="text-align:right;">${d.nang}</td></tr>`; 
+            totalQty += d.nang;
+        });
+        
+        let curAmt = Math.round(totalQty * RATE);
+        
+        let totalReturnQty = 0; getSafeArray(data.returns).forEach(r => totalReturnQty += r.nang);
+        let returnCredit = Math.round(totalReturnQty * RATE);
+        
+        let totalMaterial = 0; getSafeArray(data.materials).forEach(m => totalMaterial += m.amount);
+        let totalPaid = 0; getSafeArray(data.payments).forEach(p => totalPaid += p.amount);
+        
+        document.getElementById('invDate').innerText = getFormattedToday(); 
+        document.getElementById('invPartyName').innerText = activeParty;
+        
+        // Dynamically add summary rows if needed
+        let summaryHtml = `
+            <tr><td style="color:#475569;">Total Qty Billed:</td><td class="text-right" style="color:#0f172a;">${totalQty}</td></tr>
+            <tr><td style="color:#475569;">Current Amount:</td><td class="text-right" style="color:#0f172a;">₹ ${curAmt}</td></tr>
+            <tr><td style="color:#475569;">Old Balance:</td><td class="text-right" style="color:#0f172a;">₹ ${data.balance || 0}</td></tr>
+        `;
+        
+        if(returnCredit > 0) summaryHtml += `<tr class="less-received"><td style="color:#f59e0b;">Return Dai (${totalReturnQty}):</td><td class="text-right" style="color:#f59e0b;">- ₹ ${returnCredit}</td></tr>`;
+        if(totalMaterial > 0) summaryHtml += `<tr class="less-received"><td style="color:#8b5cf6;"> - Bhangar:</td><td class="text-right" style="color:#8b5cf6;">- ₹ ${totalMaterial}</td></tr>`;
+        if(totalPaid > 0) summaryHtml += `<tr class="less-received"><td style="color:#10b981;">Less Received:</td><td class="text-right" style="color:#10b981;">- ₹ ${totalPaid}</td></tr>`;
+        
+        document.getElementById('invSummaryTable').innerHTML = summaryHtml;
+        
+        let finalDue = (data.balance || 0) + curAmt - returnCredit - totalMaterial - totalPaid;
+        document.getElementById('invFinalDue').innerText = finalDue;
         document.getElementById('closeCycleBtn').style.display = 'block'; 
         
         window.location.hash = 'invoiceScreen';
@@ -1202,9 +1330,18 @@
     function closeBook() {
         if(confirm("Close cycle? This will save the full table to history.")) {
             let data = appData[activeParty], finalDue = parseInt(document.getElementById('invFinalDue').innerText);
-            let histEntry = { date: getFormattedToday(), deliveries: getSafeArray(data.deliveries), payments: getSafeArray(data.payments), oldBal: data.balance, finalDue: finalDue };
+            let histEntry = { 
+                date: getFormattedToday(), 
+                deliveries: getSafeArray(data.deliveries), 
+                returns: getSafeArray(data.returns),
+                materials: getSafeArray(data.materials),
+                payments: getSafeArray(data.payments), 
+                oldBal: data.balance, 
+                finalDue: finalDue 
+            };
             let safeHistory = getSafeArray(data.history); safeHistory.push(histEntry);
-            data.history = safeHistory; data.balance = finalDue; data.deliveries = []; data.payments = [];
+            data.history = safeHistory; data.balance = finalDue; 
+            data.deliveries = []; data.returns = []; data.materials = []; data.payments = [];
             saveDB().then(() => {
                 window.location.replace('#dashboardScreen');
             });
@@ -1223,17 +1360,38 @@
 
     function showOldInvoice(h, hIndex) {
         let invBody = document.getElementById('invItemsBody'); invBody.innerHTML = ''; let totalQty = 0;
+        
         getSafeArray(h.deliveries).forEach((d, i) => { 
             invBody.innerHTML += `<tr><td>${i+1}</td><td style="text-align: center;">${d.date}</td><td style="text-align:right;">
-                <span onclick="viewOldChitthi(${hIndex}, ${i})" style="color:var(--secondary); text-decoration:underline; cursor:pointer;">${d.nang} Dai</span>
+                <span onclick="viewOldChitthi(${hIndex}, ${i}, 'deliveries')" style="color:var(--secondary); text-decoration:underline; cursor:pointer;">${d.nang} Dai</span>
             </td></tr>`; 
             totalQty += d.nang; 
-        });
+        }
+        );
+        
+        let curAmt = Math.round(totalQty * RATE);
+        
+        let totalReturnQty = 0; getSafeArray(h.returns).forEach(r => totalReturnQty += r.nang);
+        let returnCredit = Math.round(totalReturnQty * RATE);
+        
+        let totalMaterial = 0; getSafeArray(h.materials).forEach(m => totalMaterial += m.amount);
         let tPay = 0; getSafeArray(h.payments).forEach(p => tPay += p.amount);
-        document.getElementById('invDate').innerText = h.date; document.getElementById('invPartyName').innerText = activeParty;
-        document.getElementById('invTotalQty').innerText = totalQty; document.getElementById('invCurrentAmt').innerText = Math.round(totalQty * RATE);
-        document.getElementById('invOldBal').innerText = h.oldBal; document.getElementById('invTotalJama').innerText = tPay;
-        document.getElementById('invFinalDue').innerText = h.finalDue; document.getElementById('closeCycleBtn').style.display = 'none'; 
+        
+        document.getElementById('invDate').innerText = h.date; 
+        document.getElementById('invPartyName').innerText = activeParty;
+        
+        let summaryHtml = `
+            <tr><td style="color:#475569;">Total Qty Billed:</td><td class="text-right" style="color:#0f172a;">${totalQty}</td></tr>
+            <tr><td style="color:#475569;">Current Amount:</td><td class="text-right" style="color:#0f172a;">₹ ${curAmt}</td></tr>
+            <tr><td style="color:#475569;">Old Balance:</td><td class="text-right" style="color:#0f172a;">₹ ${h.oldBal || 0}</td></tr>
+        `;
+        if(returnCredit > 0) summaryHtml += `<tr class="less-received"><td style="color:#f59e0b;">Return Dai (${totalReturnQty}):</td><td class="text-right" style="color:#f59e0b;">- ₹ ${returnCredit}</td></tr>`;
+        if(totalMaterial > 0) summaryHtml += `<tr class="less-received"><td style="color:#8b5cf6;">- bhangar:</td><td class="text-right" style="color:#8b5cf6;">- ₹ ${totalMaterial}</td></tr>`;
+        if(tPay > 0) summaryHtml += `<tr class="less-received"><td style="color:#10b981;">Less Received:</td><td class="text-right" style="color:#10b981;">- ₹ ${tPay}</td></tr>`;
+        
+        document.getElementById('invSummaryTable').innerHTML = summaryHtml;
+        document.getElementById('invFinalDue').innerText = h.finalDue; 
+        document.getElementById('closeCycleBtn').style.display = 'none'; 
         
         window.location.hash = 'invoiceScreen';
     }
