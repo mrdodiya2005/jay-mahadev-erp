@@ -59,52 +59,48 @@
         .login-card input {
             background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15);
             color: white; border-radius: 8px; padding: 12px 14px; width: 100%; box-sizing: border-box; font-size: 16px !important;
-            transition: all 0.2s; outline: none; margin-bottom: 15px;
+            transition: all 0.2s; outline: none; margin-bottom: 15px; text-align: left !important;
         }
         .login-card input:focus { border-color: #3b82f6; background: rgba(255, 255, 255, 0.1); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3); }
         
         #mainAppWrapper { display: none; }
         
+        /* 🔥 NEW PROFESSIONAL NAVBAR LAYOUT 🔥 */
         .navbar { 
-            background: #ffffff; color: var(--primary); padding: 12px 14px; border-bottom: 1px solid var(--border-color); 
-            box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between;
-            gap: 8px;
+            background: #ffffff; color: var(--primary); padding: 16px 20px; border-bottom: 1px solid var(--border-color); 
+            box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 100; display: flex; flex-direction: column;
         }
         [data-theme="dark"] .navbar { background: #1e293b; color: #f8fafc; border-bottom-color: #334155;}
         
+        /* Top Row: Title */
+        .nav-title-row { width: 100%; text-align: center; margin-bottom: 14px; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 12px; }
+        [data-theme="dark"] .nav-title-row { border-bottom: 1px solid rgba(255,255,255,0.05); }
+        
         .navbar h2 { 
-            margin: 0; font-size: 17px; font-weight: 800; letter-spacing: 0.5px; flex-grow: 1; text-align: center; color: var(--primary);
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+            margin: 0; font-size: 19px; font-weight: 900; letter-spacing: 1px; color: var(--primary);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: uppercase;
         }
         [data-theme="dark"] .navbar h2 { color: #ffffff; }
 
+        /* Bottom Row: Actions */
+        .nav-actions-row { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+
         .back-btn, .theme-btn, .logout-btn { 
             background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); 
-            padding: 6px 10px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;
-            touch-action: manipulation; white-space: nowrap;
+            padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+            touch-action: manipulation; white-space: nowrap; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
         .back-btn:hover, .theme-btn:hover { background: #e2e8f0; }
         [data-theme="dark"] .back-btn:hover, [data-theme="dark"] .theme-btn:hover { background: #334155; }
         
-        .logout-btn { color: var(--danger); border-color: #fca5a5; background: #fef2f2; margin-left: 6px;}
+        .logout-btn { color: var(--danger); border-color: #fca5a5; background: #fef2f2; margin-left: 8px;}
         .logout-btn:hover { background: #fee2e2; }
         [data-theme="dark"] .logout-btn { background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.2); }
-        .back-btn { display: none; margin-right: 6px;}
+        .back-btn { display: none; }
         
-        .user-badge { background: rgba(37, 99, 235, 0.1); color: var(--secondary); padding: 6px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; margin-right: 6px; }
+        .user-badge { background: rgba(37, 99, 235, 0.1); color: var(--secondary); padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: 800; text-transform: uppercase; margin-right: 8px; border: 1px solid rgba(37, 99, 235, 0.2);}
 
-        /* Mobile specific adjustments for Navbar Header */
-        @media (max-width: 600px) {
-            /* Hide the title completely on screens other than the home dashboard */
-            body:not([data-screen="dashboardScreen"]) #navTitle { display: none !important; }
-            body:not([data-screen="dashboardScreen"]) .navbar { justify-content: flex-end; }
-            body:not([data-screen="dashboardScreen"]) .navbar .back-btn { margin-right: auto; } /* Push back button left */
-            
-            /* Make Dashboard Title fit correctly */
-            body[data-screen="dashboardScreen"] #navTitle { font-size: 15px; white-space: normal; line-height: 1.2; }
-        }
-
-        .container { max-width: 680px; margin: 30px auto; padding: 0 15px; box-sizing: border-box; }
+        .container { max-width: 680px; margin: 24px auto 40px auto; padding: 0 15px; box-sizing: border-box; }
         
         .nav-buttons { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; width: 100%; box-sizing: border-box;}
         .nav-buttons .btn { flex: 1 1 calc(50% - 12px); box-sizing: border-box; min-width: 140px; margin: 0 !important; }
@@ -112,16 +108,18 @@
         .input-group { margin-bottom: 16px; text-align: left; position: relative;}
         label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px;}
         
+        /* 🔥 FIX FOR PLACEHOLDER SPACING ISSUE 🔥 */
         input, select { 
             width: 100%; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 10px; 
             box-sizing: border-box; font-size: 16px !important; font-family: 'Inter', sans-serif; background-color: var(--card-bg); color: var(--text-main); 
             transition: all 0.2s ease; outline: none; box-shadow: var(--shadow-sm);
+            text-align: left !important; word-spacing: normal !important; letter-spacing: normal !important;
         }
+        input::placeholder { color: var(--text-sub); opacity: 0.7; text-align: left !important; }
         input:focus, select:focus { border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
 
-        /* Search spacing adjustments */
-        .search-group { margin-bottom: 12px; }
-        h3.section-title { color: var(--text-sub); border-bottom: 2px solid var(--border-color); padding-bottom: 8px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; margin-top: 10px; margin-bottom: 12px;}
+        .search-group { margin-bottom: 10px; }
+        h3.section-title { color: var(--text-sub); border-bottom: 2px solid var(--border-color); padding-bottom: 8px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; margin-top: 14px; margin-bottom: 12px;}
         
         .party-card { 
             background: var(--card-bg); padding: 18px 20px; border-radius: var(--radius); margin-bottom: 12px; 
@@ -184,7 +182,7 @@
         .active-screen { display: block !important; }
 
         /* Dynamic Theme Compatible Invoice Styling */
-        .invoice-wrapper { background: var(--card-bg); padding: 40px; border-radius: 8px; color: var(--text-main); margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 6px solid var(--primary); transition: all 0.3s ease; }
+        .invoice-wrapper { background: var(--card-bg); padding: 40px; border-radius: 8px; color: var(--text-main); margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 6px solid var(--primary); transition: all 0.3s ease; box-sizing: border-box;}
         .inv-header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 25px; margin-bottom: 25px; }
         .inv-brand h1 { margin: 0; color: var(--primary); font-size: 22px; font-weight: 800; text-transform: uppercase; }
         .inv-brand p { margin: 4px 0 0 0; font-size: 11px; color: var(--text-sub); font-weight: 500; }
@@ -200,11 +198,9 @@
         .inv-rate p.label { margin: 0; font-size: 11px; color: var(--text-sub); font-weight: 600; }
         .inv-rate p.value { margin: 4px 0 0 0; font-size: 14px; font-weight: 800; color: var(--primary); }
 
-        /* Delivery Slip / Invoice Table - Color Fixes */
         .inv-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 30px; }
         .inv-table thead th { 
-            background-color: rgba(15, 23, 42, 0.05); /* Soft transparent background */
-            color: var(--text-main); 
+            background-color: rgba(15, 23, 42, 0.05); color: var(--text-main); 
             padding: 12px 15px; font-size: 11px; text-transform: uppercase; text-align: left; 
             border-bottom: 2px solid var(--border-color);
         }
@@ -233,8 +229,8 @@
         @media print {
             body { background: #ffffff !important; }
             .navbar, .no-print, .nav-buttons, .search-group { display: none !important; }
-            .container { margin: 0; padding: 0; max-width: 100%; }
-            .invoice-wrapper { background: #ffffff !important; box-shadow: none !important; border-top: 6px solid #0f172a !important; padding: 10px !important;}
+            .container { margin: 0; padding: 0; max-width: 100%; width: 100%;}
+            .invoice-wrapper { background: #ffffff !important; box-shadow: none !important; border-top: 6px solid #0f172a !important; padding: 20px !important; width: 100% !important;}
             .invoice-wrapper h1, .invoice-wrapper h2, .invoice-wrapper h3, .invoice-wrapper h4, 
             .invoice-wrapper p, .invoice-wrapper span, .invoice-wrapper td { color: #0f172a !important; -webkit-text-stroke: 0px !important; }
             .inv-table thead th { background-color: #f8fafc !important; color: #0f172a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -266,14 +262,21 @@
 
         <div id="mainAppWrapper">
             <div class="navbar">
-                <button class="back-btn" id="backBtn"
-                    onclick="window.history.back()">← Back</button>
-                <h2 id="navTitle">JAY MAHADEV DAI</h2>
-                <div style="display:flex; align-items:center;">
-                    <span class="user-badge" id="currentUserBadge">Admin</span>
-                    <button class="theme-btn" onclick="toggleTheme()">🌓 Theme</button>
-                    <button class="logout-btn" onclick="handleLogout()">🔒
-                        Logout</button>
+                <div class="nav-title-row">
+                    <h2 id="navTitle">JAY MAHADEV DAI</h2>
+                </div>
+                <div class="nav-actions-row">
+                    <div>
+                        <button class="back-btn" id="backBtn"
+                            onclick="window.history.back()">← Back</button>
+                    </div>
+                    <div style="display:flex; align-items:center;">
+                        <span class="user-badge" id="currentUserBadge">Admin</span>
+                        <button class="theme-btn" onclick="toggleTheme()">🌓
+                            Theme</button>
+                        <button class="logout-btn" onclick="handleLogout()">🔒
+                            Logout</button>
+                    </div>
                 </div>
             </div>
 
@@ -300,16 +303,19 @@
                     </div>
 
                     <div class="input-group" style="display: flex; gap: 10px;
-                        margin-bottom: 20px;">
+                        margin-bottom: 12px;">
                         <input type="text" id="newPartyName" placeholder="Enter
                             new party name...">
                         <button class="btn btn-primary" style="margin:0;
                             min-width: 120px;" onclick="addNewParty()">+ Add
                             Party</button>
                     </div>
-                    <div class="search-group"><input type="text"
-                            id="partySearchInput" placeholder="🔍 Search party
-                            name here..." oninput="filterPartiesDashboard()"></div>
+                    <div class="search-group">
+                        <input type="text" id="partySearchInput" placeholder="🔍
+                            Search party name here..."
+                            oninput="filterPartiesDashboard()">
+                    </div>
+
                     <h3 class="section-title">ACTIVE CLIENTS</h3>
                     <div id="partyListContainer"><p style="text-align:center;
                             padding: 20px; font-weight: 500; color:
@@ -661,7 +667,7 @@
         
         let hash = window.location.hash.replace('#', '') || 'dashboardScreen';
         
-        // Setup data-attribute to hide/show Nav elements elegantly via CSS
+        // Setup data-attribute for robust screen management
         document.body.setAttribute('data-screen', hash);
 
         let targetScreen = document.getElementById(hash);
@@ -678,6 +684,7 @@
 
         document.querySelectorAll('.container > div').forEach(d => d.classList.remove('active-screen'));
         
+        // Change title text contextually for the new header layout
         let title = 'JAY MAHADEV DAI';
         
         if(hash === 'dashboardScreen') {
@@ -688,37 +695,38 @@
 
         switch(hash) {
             case 'dashboardScreen':
+                title = 'JAY MAHADEV DAI';
                 activeParty = null;
                 filterPartiesDashboard();
                 break;
             case 'stockScreen':
-                title = 'Manage Stock';
+                title = 'MANAGE STOCK';
                 renderStockPage();
                 break;
             case 'expenseScreen':
-                title = 'Business Expenses & Hisab';
+                title = 'EXPENSES / HISAB';
                 renderExpensePage();
                 break;
             case 'salesBookScreen':
-                title = 'Global Sales Book';
+                title = 'SALES BOOK';
                 renderSalesBook();
                 break;
             case 'partyDetailScreen':
-                title = activeParty + ' DETAILS';
+                title = activeParty;
                 renderPartyDOM(activeParty);
                 break;
             case 'chitthiScreen':
                 title = 'DELIVERY SLIP';
                 break;
             case 'invoiceScreen':
-                title = 'Tax Invoice';
+                title = 'TAX INVOICE';
                 break;
             case 'historyScreen':
-                title = 'Cycle History';
+                title = 'CYCLE HISTORY';
                 renderHistoryDOM();
                 break;
             case 'directInvoiceScreen':
-                title = 'Direct Bill Generation';
+                title = 'DIRECT INVOICE';
                 break;
         }
 
@@ -1447,9 +1455,16 @@
     async function shareOnWhatsApp() {
         let printArea = document.getElementById('invoicePrintArea');
         let partyName = document.getElementById('invPartyName').innerText || "Cash_Customer";
-        let fileName = partyName.replace(/ /g, "_") + "_Bill_Invoice.pdf";
+        let fileName = partyName.replace(/ /g, "_") + "_Tax_Invoice.pdf";
         
-        var opt = { margin: 0.5, filename: fileName, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' } };
+        // 🔥 PDF Full Page Scaling Setting 🔥
+        var opt = { 
+            margin: 0.3, 
+            filename: fileName, 
+            image: { type: 'jpeg', quality: 1.0 }, 
+            html2canvas: { scale: 2, windowWidth: 800 }, 
+            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } 
+        };
 
         try {
             const pdfBlob = await html2pdf().set(opt).from(printArea).output('blob');
