@@ -55,21 +55,23 @@
         .login-card p { color: #94a3b8; font-size: 13px; font-weight: 500; letter-spacing: 1px; margin-bottom: 30px; text-transform: uppercase;}
         .login-card label { color: #cbd5e1; font-size: 12px; font-weight: 600; margin-bottom: 6px; display: block; text-align: left;}
         
+        /* 🔥 FIXED PLACEHOLDER SPACING BUG 🔥 */
         .login-card input {
             background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15);
-            color: white; border-radius: 8px; padding: 12px 14px; width: 100%; box-sizing: border-box; font-size: 16px !important;
-            transition: all 0.2s; outline: none; margin-bottom: 15px; text-align: left !important;
+            color: white; border-radius: 8px; padding: 14px 16px; width: 100%; box-sizing: border-box; font-size: 16px !important;
+            transition: all 0.2s; outline: none; margin-bottom: 15px; text-align: left;
         }
+        .login-card input::placeholder { color: rgba(255,255,255,0.6); }
         .login-card input:focus { border-color: #3b82f6; background: rgba(255, 255, 255, 0.1); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3); }
         
         #mainAppWrapper { display: none; }
         
-        /* 🔥 NEW DUAL-ROW HEADER 🔥 */
+        /* 🔥 NEW PROFESSIONAL 2-ROW HEADER 🔥 */
         .navbar { 
-            background: var(--card-bg); color: var(--primary); padding: 14px 16px; border-bottom: 1px solid var(--border-color); 
+            background: var(--card-bg); padding: 14px 16px; border-bottom: 1px solid var(--border-color); 
             box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 100; display: flex; flex-direction: column; gap: 12px;
         }
-        .nav-top { text-align: center; width: 100%; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; }
+        .nav-top { text-align: center; width: 100%; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; }
         .nav-top h2 { 
             margin: 0; font-size: 18px; font-weight: 900; letter-spacing: 1px; color: var(--primary);
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-transform: uppercase;
@@ -81,7 +83,7 @@
 
         .back-btn, .theme-btn, .logout-btn { 
             background: var(--bg-main); border: 1px solid var(--border-color); color: var(--text-main); 
-            padding: 8px 14px; border-radius: 8px; font-size: 12px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+            padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s;
             touch-action: manipulation; white-space: nowrap; box-shadow: 0 1px 2px rgba(0,0,0,0.05);
         }
         .back-btn:hover, .theme-btn:hover { background: #e2e8f0; }
@@ -101,21 +103,17 @@
 
         .input-group { margin-bottom: 16px; text-align: left; position: relative;}
         .flex-group { display: flex; gap: 10px; align-items: center; width: 100%; }
-        .flex-group input { flex: 1; min-width: 0; } /* Prevents flex items from breaking text alignment */
+        .flex-group input { flex: 1; min-width: 0; } 
         
         label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px;}
         
-        /* 🔥 FIX FOR PLACEHOLDER SPACING ISSUE 🔥 */
+        /* 🔥 NORMALIZED INPUTS TO FIX SPACING BUG 🔥 */
         input, select { 
-            width: 100%; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 10px; 
+            width: 100%; padding: 14px 16px; border: 1px solid var(--border-color); border-radius: 10px; 
             box-sizing: border-box; font-size: 16px !important; font-family: 'Inter', sans-serif; background-color: var(--card-bg); color: var(--text-main); 
-            transition: all 0.2s ease; outline: none; box-shadow: var(--shadow-sm);
-            text-align: left !important; text-align-last: left !important; letter-spacing: normal !important; word-spacing: normal !important;
+            transition: all 0.2s ease; outline: none; box-shadow: var(--shadow-sm); text-align: left;
         }
-        input::-webkit-input-placeholder { color: var(--text-sub); text-align: left !important; opacity: 0.7; }
-        input::-moz-placeholder { color: var(--text-sub); text-align: left !important; opacity: 0.7; }
-        input:-ms-input-placeholder { color: var(--text-sub); text-align: left !important; opacity: 0.7; }
-        
+        input::placeholder { color: var(--text-sub); opacity: 0.8; }
         input:focus, select:focus { border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
 
         .search-group { margin-bottom: 10px; width: 100%; }
@@ -178,53 +176,56 @@
         .detail-header { background: var(--card-bg); padding: 24px; border-radius: var(--radius); text-align: center; margin-bottom: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); }
         .detail-header h2 { font-size: 22px; font-weight: 800; color: var(--text-main); margin:0 0 8px 0; text-transform:uppercase;}
 
-        #dashboardScreen, #partyDetailScreen, #invoiceScreen, #historyScreen, #stockScreen, #expenseScreen, #chitthiScreen, #salesBookScreen, #directInvoiceScreen { display: none; }
+        /* Safe routing classes */
+        .screen { display: none; }
         .active-screen { display: block !important; }
 
-        /* EXACT MATCH SCREENSHOT INVOICE STYLE */
-        .invoice-wrapper { background: #ffffff; padding: 40px; border-radius: 8px; color: #0f172a; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 6px solid #0f172a; }
+        /* 🔥 STRICT LIGHT MODE FOR INVOICE AND SLIP (Fixes Dark Mode Print Issue) 🔥 */
+        .invoice-wrapper { background: #ffffff !important; padding: 40px; border-radius: 8px; color: #0f172a !important; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 6px solid #0f172a !important; box-sizing: border-box;}
         .inv-header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 25px; margin-bottom: 25px; }
-        .inv-brand h1 { margin: 0; color: #0f172a; font-size: 22px; font-weight: 800; text-transform: uppercase; }
-        .inv-brand p { margin: 4px 0 0 0; font-size: 11px; color: #64748b; font-weight: 500; }
+        .inv-brand h1 { margin: 0; color: #0f172a !important; font-size: 22px; font-weight: 800; text-transform: uppercase; }
+        .inv-brand p { margin: 4px 0 0 0; font-size: 11px; color: #64748b !important; font-weight: 500; }
         .inv-meta { text-align: right; }
         .inv-meta h2 { margin: 0 0 10px 0; color: transparent; -webkit-text-stroke: 1px #cbd5e1; font-size: 32px; letter-spacing: 2px; text-transform: uppercase; }
-        .inv-meta p { margin: 0; font-size: 12px; color: #0f172a; font-weight: 700; }
+        .inv-meta p { margin: 0; font-size: 12px; color: #0f172a !important; font-weight: 700; }
         
         .inv-party-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
-        .inv-party { background: #f8fafc; border-left: 4px solid #3b82f6; padding: 12px 20px; border-radius: 6px; width: 45%; }
-        .inv-party p { margin: 0 0 4px 0; font-size: 10px; color: #64748b; font-weight: 700; text-transform: uppercase; }
-        .inv-party h3 { margin: 0; font-size: 15px; color: #0f172a; font-weight: 800; text-transform: uppercase;}
+        .inv-party { background: #f8fafc !important; border-left: 4px solid #3b82f6 !important; padding: 12px 20px; border-radius: 6px; width: 45%; }
+        .inv-party p { margin: 0 0 4px 0; font-size: 10px; color: #64748b !important; font-weight: 700; text-transform: uppercase; }
+        .inv-party h3 { margin: 0; font-size: 15px; color: #0f172a !important; font-weight: 800; text-transform: uppercase;}
         .inv-rate { text-align: right; }
-        .inv-rate p.label { margin: 0; font-size: 11px; color: #64748b; font-weight: 600; }
-        .inv-rate p.value { margin: 4px 0 0 0; font-size: 14px; font-weight: 800; color: #0f172a; }
+        .inv-rate p.label { margin: 0; font-size: 11px; color: #64748b !important; font-weight: 600; }
+        .inv-rate p.value { margin: 4px 0 0 0; font-size: 14px; font-weight: 800; color: #0f172a !important; }
 
+        /* FIXED TABLE COLORS FOR SLIP AND INVOICE */
         .inv-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 30px; }
-        .inv-table thead th { background-color: #0f172a; color: #ffffff; padding: 12px 15px; font-size: 11px; text-transform: uppercase; text-align: left; }
+        .inv-table thead th { background-color: #0f172a !important; color: #ffffff !important; padding: 12px 15px; font-size: 11px; text-transform: uppercase; text-align: left; }
         .inv-table thead th:first-child { border-top-left-radius: 6px; border-bottom-left-radius: 6px; }
         .inv-table thead th:last-child { border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
-        .inv-table tbody td { padding: 12px 15px; color: #1e293b; font-weight: 600; font-size: 12px; border-bottom: 1px solid #f1f5f9; }
+        .inv-table tbody td { padding: 12px 15px; color: #1e293b !important; font-weight: 600; font-size: 12px; border-bottom: 1px solid #f1f5f9 !important; }
         
         .inv-footer-section { display: flex; justify-content: space-between; gap: 40px; margin-top: 10px; }
         .inv-terms { flex: 1.2; }
-        .inv-terms h4 { margin: 0 0 10px 0; font-size: 10px; font-weight: 700; color: #64748b; text-transform: uppercase; }
-        .inv-terms p { margin: 0; font-size: 10px; color: #64748b; line-height: 1.6; }
+        .inv-terms h4 { margin: 0 0 10px 0; font-size: 10px; font-weight: 700; color: #64748b !important; text-transform: uppercase; }
+        .inv-terms p { margin: 0; font-size: 10px; color: #64748b !important; line-height: 1.6; }
         
-        .inv-summary { width: 300px; background: #ffffff; padding: 15px 20px; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .inv-summary { width: 300px; background: #ffffff !important; padding: 15px 20px; border-radius: 8px; border: 1px solid #e2e8f0 !important; }
         .inv-summary table { width: 100%; border-collapse: collapse; }
-        .inv-summary td { padding: 10px 0; font-weight: 500; font-size: 12px; }
-        .inv-summary td.text-right { text-align: right; font-weight: 600;}
-        .inv-summary tr:not(:last-child) td { border-bottom: 1px dashed #cbd5e1; }
-        .inv-summary tr.less-received td { color: #10b981; }
-        .inv-total { margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0; display: flex; justify-content: space-between; font-weight: 800;}
+        .inv-summary td { padding: 10px 0; font-weight: 500; font-size: 12px; color: #475569 !important;}
+        .inv-summary td.text-right { text-align: right; font-weight: 600; color: #0f172a !important;}
+        .inv-summary tr:not(:last-child) td { border-bottom: 1px dashed #cbd5e1 !important; }
+        .inv-total { margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0 !important; display: flex; justify-content: space-between; font-weight: 800;}
+        .inv-total .label { color: #0f172a !important; } .inv-total .value { color: #3b82f6 !important; }
         .auth-sign { text-align: right; margin-top: 40px; }
+        .auth-sign h4 { color: #0f172a !important; margin-bottom: 2px; } .auth-sign p { color: #64748b !important; margin-top:0; font-size: 11px;}
 
         @media print {
             body { background: #ffffff !important; }
             .navbar, .no-print, .nav-buttons, .search-group { display: none !important; }
-            .container { margin: 0; padding: 0; max-width: 100%; }
-            .invoice-wrapper { box-shadow: none !important; border-top: 6px solid #0f172a !important; padding: 10px !important;}
-            .inv-table thead th { background-color: #0f172a !important; color: #ffffff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-            .inv-party { background: #f8fafc !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .container { margin: 0; padding: 0; max-width: 100%; width: 100%;}
+            .invoice-wrapper { box-shadow: none !important; border-top: 6px solid #0f172a !important; padding: 20px !important; width: 100% !important;}
+            .inv-table thead th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .inv-party { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
     </style>
     </head>
@@ -242,10 +243,10 @@
                     <input type="password" id="loginPass" placeholder="Enter
                         password..." style="padding-right:40px;">
                     <span onclick="togglePassword()" style="position:absolute;
-                        right:15px; top:32px; cursor:pointer; font-size:18px;">👁️</span>
+                        right:15px; top:34px; cursor:pointer; font-size:18px;">👁️</span>
                 </div>
-                <button class="btn btn-primary" style="width:100%"
-                    onclick="checkLogin()">🔓 Secure Login</button>
+                <button class="btn btn-primary" style="width:100%; font-size:
+                    15px; padding: 14px;" onclick="checkLogin()">🔓 Secure Login</button>
             </div>
         </div>
 
@@ -269,7 +270,7 @@
             </div>
 
             <div class="container">
-                <div id="dashboardScreen">
+                <div id="dashboardScreen" class="screen">
                     <div class="nav-buttons">
                         <button class="btn btn-primary" style="flex:1;"
                             onclick="window.location.hash='stockScreen'">📦
@@ -295,8 +296,8 @@
                         <input type="text" id="newPartyName" placeholder="Enter
                             new party name...">
                         <button class="btn btn-primary" style="margin:0; width:
-                            120px; flex-shrink: 0;" onclick="addNewParty()">+
-                            Add Party</button>
+                            120px; flex-shrink: 0; padding: 14px;"
+                            onclick="addNewParty()">+ Add Party</button>
                     </div>
                     <div class="search-group">
                         <input type="text" id="partySearchInput" placeholder="🔍
@@ -310,7 +311,7 @@
                             var(--text-sub);">⏳ Loading Data...</p></div>
                 </div>
 
-                <div id="directInvoiceScreen">
+                <div id="directInvoiceScreen" class="screen">
                     <div class="detail-header">
                         <h2>⚡ Direct Invoice</h2>
                         <p style="color: var(--text-sub); margin: 0; font-size:
@@ -347,7 +348,7 @@
                         onclick="window.history.back()">Cancel</button>
                 </div>
 
-                <div id="salesBookScreen">
+                <div id="salesBookScreen" class="screen">
                     <div class="expense-stats">
                         <div class="stat-card" style="border-top-color:
                             var(--secondary);">
@@ -372,7 +373,7 @@
                         Dashboard</button>
                 </div>
 
-                <div id="stockScreen">
+                <div id="stockScreen" class="screen">
                     <div class="stock-grid" id="stockItemsGrid"></div>
 
                     <div class="history-box" style="margin-top: 30px;">
@@ -392,7 +393,7 @@
                         Dashboard</button>
                 </div>
 
-                <div id="expenseScreen">
+                <div id="expenseScreen" class="screen">
                     <div class="expense-stats">
                         <div class="stat-card" style="border-top-color:
                             var(--success);"><h4>Total Cash In</h4><div
@@ -434,7 +435,7 @@
                         Dashboard</button>
                 </div>
 
-                <div id="partyDetailScreen">
+                <div id="partyDetailScreen" class="screen">
                     <div class="detail-header">
                         <h2 id="pdName" style="margin:0 0 8px 0;">Party Name</h2>
                         <p style="color: var(--text-sub); margin: 0; font-size:
@@ -513,7 +514,7 @@
                     </div>
                 </div>
 
-                <div id="chitthiScreen">
+                <div id="chitthiScreen" class="screen">
                     <div class="no-print" style="margin-bottom: 20px; display:
                         flex; gap: 12px;">
                         <button class="btn btn-success" style="flex:1; padding:
@@ -532,17 +533,18 @@
                             20px;">
                             <h2 style="margin:0; font-size:22px;
                                 font-weight:900; letter-spacing: 0.5px;
-                                color:#0f172a;">DELIVERY SLIP</h2>
+                                color:#0f172a !important;">DELIVERY SLIP</h2>
                             <p style="margin:4px 0 0 0; font-size:12px;
-                                color:#64748b; font-weight:700;">JAY MAHADEV DAI</p>
+                                color:#64748b !important; font-weight:700;">JAY
+                                MAHADEV DAI</p>
                         </div>
 
                         <div style="display:flex; justify-content:space-between;
-                            margin-bottom: 20px; font-size:14px;
-                            color:#1e293b;">
+                            margin-bottom: 20px; font-size:14px; color:#1e293b
+                            !important;">
                             <div><strong>Party:</strong> <span
-                                    id="chitthiPartyName" style="color:#2563eb;
-                                    font-weight:800;"></span></div>
+                                    id="chitthiPartyName" style="color:#2563eb
+                                    !important; font-weight:800;"></span></div>
                             <div><strong>Date:</strong> <span id="chitthiDate"
                                     style="font-weight:600;"></span></div>
                         </div>
@@ -560,10 +562,10 @@
 
                         <div style="text-align:right; font-size:16px;
                             font-weight:800; border-top:2px solid #e2e8f0;
-                            padding-top:16px; color: var(--text-main);">
+                            padding-top:16px; color: #0f172a !important;">
                             Total Delivered: <span id="chitthiTotalQty"
-                                style="color:#2563eb; font-size: 20px;">0</span>
-                            Dai
+                                style="color:#2563eb !important; font-size:
+                                20px;">0</span> Dai
                         </div>
                     </div>
                     <button class="btn btn-outline no-print" id="chitthiBackBtn"
@@ -571,14 +573,14 @@
                         onclick="window.history.back()">← Back</button>
                 </div>
 
-                <div id="invoiceScreen">
+                <div id="invoiceScreen" class="screen">
                     <div class="no-print" style="margin-bottom: 20px; display:
                         flex; gap: 12px;">
                         <button class="btn btn-success" style="flex: 1;"
                             onclick="window.print()">🖨️ PDF / Print</button>
                         <button class="btn btn-primary" style="flex: 1;
                             background: #25D366; color:white; border:none;"
-                            onclick="shareOnWhatsApp()">💬 WhatsApp PDF</button>
+                            onclick="shareOnWhatsApp()">💬 WhatsApp</button>
                         <button class="btn btn-primary" style="flex: 1;
                             background: var(--danger);" id="closeCycleBtn"
                             onclick="closeBook()">✅ Close Cycle</button>
@@ -586,21 +588,25 @@
 
                     <div id="invoicePrintArea" class="invoice-wrapper">
                         <div class="inv-header">
-                            <div class="inv-brand"><h1 style="color:#0f172a;">JAY
-                                    MAHADEV DAI</h1><p style="color:#64748b;">Premium
+                            <div class="inv-brand"><h1 style="color:#0f172a
+                                    !important;">JAY MAHADEV DAI</h1><p
+                                    style="color:#64748b !important;">Premium
                                     Dai Manufacturing</p></div>
-                            <div class="inv-meta"><h2 style="color:#3b82f6;">INVOICE</h2><p
-                                    style="color:#0f172a;">Date: <span
-                                        id="invDate"></span></p></div>
+                            <div class="inv-meta"><h2 style="color:#3b82f6
+                                    !important;">INVOICE</h2><p
+                                    style="color:#0f172a !important;">Date:
+                                    <span id="invDate"></span></p></div>
                         </div>
                         <div class="inv-party-section">
-                            <div class="inv-party"><p style="color:#64748b;">Billed
-                                    To:</p><h3 id="invPartyName"
-                                    style="color:#0f172a;"></h3></div>
+                            <div class="inv-party"><p style="color:#64748b
+                                    !important;">Billed To:</p><h3
+                                    id="invPartyName" style="color:#0f172a
+                                    !important;"></h3></div>
                             <div class="inv-rate"><p class="label"
-                                    style="color:#64748b;">Rate Applied:</p><p
-                                    class="value" style="color:#3b82f6;">₹ 0.30
-                                    / Unit</p></div>
+                                    style="color:#64748b !important;">Rate
+                                    Applied:</p><p class="value"
+                                    style="color:#3b82f6 !important;">₹ 0.30 /
+                                    Unit</p></div>
                         </div>
                         <table class="inv-table">
                             <thead>
@@ -613,27 +619,30 @@
                             <tbody id="invItemsBody"></tbody>
                         </table>
                         <div class="inv-footer-section">
-                            <div class="inv-terms"><h4 style="color:#0f172a;">Terms
-                                    & Conditions</h4><p style="color:#475569;">1.
-                                    Please verify the quantities listed above.<br>2.
+                            <div class="inv-terms"><h4 style="color:#0f172a
+                                    !important;">Terms & Conditions</h4><p
+                                    style="color:#475569 !important;">1. Please
+                                    verify the quantities listed above.<br>2.
                                     All balances are carried forward to the<br>next
                                     billing cycle if unpaid.<br>3. Thank you for
                                     your continued business!</p></div>
                             <div class="inv-summary">
                                 <table id="invSummaryTable"></table>
                                 <div class="inv-total"><span class="label"
-                                        style="color:#0f172a;">Final Due:</span><span
-                                        class="value" style="color:#3b82f6;">₹
+                                        style="color:#0f172a !important;">Final
+                                        Due:</span><span class="value"
+                                        style="color:#3b82f6 !important;">₹
                                         <span id="invFinalDue">0</span></span></div>
                             </div>
                         </div>
-                        <div class="auth-sign"><h4 style="color:#0f172a;">SANJAYBHAI
-                                DODIYA</h4><p style="color:#64748b;">(Authorized
+                        <div class="auth-sign"><h4 style="color:#0f172a
+                                !important;">SANJAYBHAI DODIYA</h4><p
+                                style="color:#64748b !important;">(Authorized
                                 Person)</p></div>
                     </div>
                 </div>
 
-                <div id="historyScreen">
+                <div id="historyScreen" class="screen">
                     <h3 style="font-weight:800; color: var(--text-main);">Cycle
                         History for <span id="histPartyName"
                             style="color:var(--secondary)"></span></h3>
@@ -650,32 +659,37 @@
     let activeParty = null, entryMode = ''; 
     let databaseInitialized = false;
 
+    // 🔥 FAIL-SAFE ROUTING (Fixes Blank Screen) 🔥
     window.addEventListener('hashchange', handleHashChange);
 
     function handleHashChange() {
         if(localStorage.getItem("isLoggedIn") !== "true") return;
         
         let hash = window.location.hash.replace('#', '');
+        
+        // If no hash or invalid state, force dashboard
         if(!hash) {
-            window.location.replace('#dashboardScreen');
+            window.location.hash = 'dashboardScreen';
             return;
         }
 
         let targetScreen = document.getElementById(hash);
         if(!targetScreen) {
-            window.location.replace('#dashboardScreen');
+            window.location.hash = 'dashboardScreen';
             return;
         }
 
         const partyScreens = ['partyDetailScreen', 'historyScreen', 'chitthiScreen', 'invoiceScreen'];
         if(partyScreens.includes(hash) && !activeParty) {
-            window.location.replace('#dashboardScreen');
+            window.location.hash = 'dashboardScreen';
             return;
         }
 
-        document.querySelectorAll('.container > div').forEach(d => d.classList.remove('active-screen'));
+        // Hide all screens explicitly
+        document.querySelectorAll('.container > .screen').forEach(d => {
+            d.classList.remove('active-screen');
+        });
         
-        // Dynamic Title assignment based on screen
         let title = 'JAY MAHADEV DAI';
         
         if(hash === 'dashboardScreen') {
@@ -721,6 +735,7 @@
                 break;
         }
 
+        // Show target screen explicitly
         targetScreen.classList.add('active-screen');
         document.getElementById('navTitle').innerText = title;
         document.getElementById('backBtn').style.display = (hash === 'dashboardScreen') ? 'none' : 'inline-block';
@@ -735,7 +750,7 @@
             startFirebaseSync();
             
             if(!window.location.hash || window.location.hash === '#') {
-                window.location.replace('#dashboardScreen');
+                window.location.hash = 'dashboardScreen';
             } else {
                 handleHashChange();
             }
@@ -921,9 +936,9 @@
         document.getElementById('invDate').innerText = date; document.getElementById('invPartyName').innerText = name;
         
         let summaryHtml = `
-            <tr><td style="color:#475569;">Total Qty:</td><td class="text-right" style="color:#0f172a;">${totalNangToSave}</td></tr>
-            <tr><td style="color:#475569;">Current Amount:</td><td class="text-right" style="color:#0f172a;">₹ ${curAmt}</td></tr>
-            <tr><td style="color:#475569;">Old Balance:</td><td class="text-right" style="color:#0f172a;">₹ 0</td></tr>
+            <tr><td style="color:#475569 !important;">Total Qty:</td><td class="text-right" style="color:#0f172a !important;">${totalNangToSave}</td></tr>
+            <tr><td style="color:#475569 !important;">Current Amount:</td><td class="text-right" style="color:#0f172a !important;">₹ ${curAmt}</td></tr>
+            <tr><td style="color:#475569 !important;">Old Balance:</td><td class="text-right" style="color:#0f172a !important;">₹ 0</td></tr>
         `;
         document.getElementById('invSummaryTable').innerHTML = summaryHtml;
         document.getElementById('invFinalDue').innerText = curAmt;
@@ -1412,11 +1427,11 @@
         let total = 0;
         if (d.sizes && d.sizes.length > 0) {
             d.sizes.forEach((sz, i) => {
-                tbody.innerHTML += `<tr><td>${i+1}</td><td style="font-weight:700; color:var(--text-main);">Dai No. ${sz.size}</td><td style="text-align:right; font-weight:800; color:var(--text-main);">${sz.val}</td></tr>`;
+                tbody.innerHTML += `<tr><td>${i+1}</td><td style="font-weight:700; color:#1e293b !important;">Dai No. ${sz.size}</td><td style="text-align:right; font-weight:800; color:#1e293b !important;">${sz.val}</td></tr>`;
                 total += sz.val;
             });
         } else {
-            tbody.innerHTML += `<tr><td>1</td><td style="font-weight:700; color:var(--text-main);">Mixed Size (Auto)</td><td style="text-align:right; font-weight:800; color:var(--text-main);">${d.nang}</td></tr>`;
+            tbody.innerHTML += `<tr><td>1</td><td style="font-weight:700; color:#1e293b !important;">Mixed Size (Auto)</td><td style="text-align:right; font-weight:800; color:#1e293b !important;">${d.nang}</td></tr>`;
             total = d.nang;
         }
         document.getElementById('chitthiTotalQty').innerText = total;
@@ -1432,11 +1447,11 @@
         let total = 0;
         if (d.sizes && d.sizes.length > 0) {
             d.sizes.forEach((sz, i) => {
-                tbody.innerHTML += `<tr><td>${i+1}</td><td style="font-weight:700; color:var(--text-main);">Dai No. ${sz.size}</td><td style="text-align:right; font-weight:800; color:var(--text-main);">${sz.val}</td></tr>`;
+                tbody.innerHTML += `<tr><td>${i+1}</td><td style="font-weight:700; color:#1e293b !important;">Dai No. ${sz.size}</td><td style="text-align:right; font-weight:800; color:#1e293b !important;">${sz.val}</td></tr>`;
                 total += sz.val;
             });
         } else {
-            tbody.innerHTML += `<tr><td>1</td><td style="font-weight:700; color:var(--text-main);">Mixed Size (Auto)</td><td style="text-align:right; font-weight:800; color:var(--text-main);">${d.nang}</td></tr>`;
+            tbody.innerHTML += `<tr><td>1</td><td style="font-weight:700; color:#1e293b !important;">Mixed Size (Auto)</td><td style="text-align:right; font-weight:800; color:#1e293b !important;">${d.nang}</td></tr>`;
             total = d.nang;
         }
         document.getElementById('chitthiTotalQty').innerText = total;
@@ -1446,9 +1461,8 @@
     async function shareOnWhatsApp() {
         let printArea = document.getElementById('invoicePrintArea');
         let partyName = document.getElementById('invPartyName').innerText || "Cash_Customer";
-        let fileName = partyName.replace(/ /g, "_") + "_Bill_Invoice.pdf";
+        let fileName = partyName.replace(/ /g, "_") + "_bill_Invoice.pdf";
         
-        // Full Page Export Settings
         var opt = { 
             margin: 0.3, 
             filename: fileName, 
@@ -1492,14 +1506,14 @@
         document.getElementById('invPartyName').innerText = activeParty;
         
         let summaryHtml = `
-            <tr><td style="color:#475569;">Total Qty Billed:</td><td class="text-right" style="color:#0f172a;">${totalQty}</td></tr>
-            <tr><td style="color:#475569;">Current Amount:</td><td class="text-right" style="color:#0f172a;">₹ ${curAmt}</td></tr>
-            <tr><td style="color:#475569;">Old Balance:</td><td class="text-right" style="color:#0f172a;">₹ ${data.balance || 0}</td></tr>
+            <tr><td style="color:#475569 !important;">Total Qty Billed:</td><td class="text-right" style="color:#0f172a !important;">${totalQty}</td></tr>
+            <tr><td style="color:#475569 !important;">Current Amount:</td><td class="text-right" style="color:#0f172a !important;">₹ ${curAmt}</td></tr>
+            <tr><td style="color:#475569 !important;">Old Balance:</td><td class="text-right" style="color:#0f172a !important;">₹ ${data.balance || 0}</td></tr>
         `;
         
-        if(returnCredit > 0) summaryHtml += `<tr class="less-received"><td style="color:#f59e0b;">Return Dai (${totalReturnQty}):</td><td class="text-right" style="color:#f59e0b;">- ₹ ${returnCredit}</td></tr>`;
-        if(totalMaterial > 0) summaryHtml += `<tr class="less-received"><td style="color:#8b5cf6;"> - Bhangar:</td><td class="text-right" style="color:#8b5cf6;">- ₹ ${totalMaterial}</td></tr>`;
-        if(totalPaid > 0) summaryHtml += `<tr class="less-received"><td style="color:#10b981;">Less Received:</td><td class="text-right" style="color:#10b981;">- ₹ ${totalPaid}</td></tr>`;
+        if(returnCredit > 0) summaryHtml += `<tr class="less-received"><td style="color:#f59e0b !important;">Return Dai (${totalReturnQty}):</td><td class="text-right" style="color:#f59e0b !important;">- ₹ ${returnCredit}</td></tr>`;
+        if(totalMaterial > 0) summaryHtml += `<tr class="less-received"><td style="color:#8b5cf6 !important;"> - Bhangar:</td><td class="text-right" style="color:#8b5cf6 !important;">- ₹ ${totalMaterial}</td></tr>`;
+        if(totalPaid > 0) summaryHtml += `<tr class="less-received"><td style="color:#10b981 !important;">Less Received:</td><td class="text-right" style="color:#10b981 !important;">- ₹ ${totalPaid}</td></tr>`;
         
         document.getElementById('invSummaryTable').innerHTML = summaryHtml;
         
@@ -1526,8 +1540,9 @@
             data.history = safeHistory; data.balance = finalDue; 
             data.deliveries = []; data.returns = []; data.materials = []; data.payments = [];
             saveDB().then(() => {
-                window.location.replace('#dashboardScreen');
-            });
+                window.location.hash = 'dashboardScreen';
+            }
+          );
         }
     }
 
@@ -1539,7 +1554,8 @@
             div.style.cssText = "padding: 15px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px; cursor: pointer; background: var(--card-bg); color: var(--text-main);";
             div.innerHTML = `<b>📅 Billing Snapshot: ${h.date}</b><br><span style="color:var(--text-sub);">Closing Balance:</span> <b style="font-size:15px; color:var(--primary);">₹ ${h.finalDue}</b>`;
             div.onclick = () => showOldInvoice(h, idx); cont.appendChild(div);
-        });
+        }
+      );
     }
 
     function showOldInvoice(h, hIndex) {
@@ -1565,13 +1581,13 @@
         document.getElementById('invPartyName').innerText = activeParty;
         
         let summaryHtml = `
-            <tr><td style="color:#475569;">Total Qty Billed:</td><td class="text-right" style="color:#0f172a;">${totalQty}</td></tr>
-            <tr><td style="color:#475569;">Current Amount:</td><td class="text-right" style="color:#0f172a;">₹ ${curAmt}</td></tr>
-            <tr><td style="color:#475569;">Old Balance:</td><td class="text-right" style="color:#0f172a;">₹ ${h.oldBal || 0}</td></tr>
+            <tr><td style="color:#475569 !important;">Total Qty Billed:</td><td class="text-right" style="color:#0f172a !important;">${totalQty}</td></tr>
+            <tr><td style="color:#475569 !important;">Current Amount:</td><td class="text-right" style="color:#0f172a !important;">₹ ${curAmt}</td></tr>
+            <tr><td style="color:#475569 !important;">Old Balance:</td><td class="text-right" style="color:#0f172a !important;">₹ ${h.oldBal || 0}</td></tr>
         `;
-        if(returnCredit > 0) summaryHtml += `<tr class="less-received"><td style="color:#f59e0b;">Return Dai (${totalReturnQty}):</td><td class="text-right" style="color:#f59e0b;">- ₹ ${returnCredit}</td></tr>`;
-        if(totalMaterial > 0) summaryHtml += `<tr class="less-received"><td style="color:#8b5cf6;">- bhangar:</td><td class="text-right" style="color:#8b5cf6;">- ₹ ${totalMaterial}</td></tr>`;
-        if(tPay > 0) summaryHtml += `<tr class="less-received"><td style="color:#10b981;">Less Received:</td><td class="text-right" style="color:#10b981;">- ₹ ${tPay}</td></tr>`;
+        if(returnCredit > 0) summaryHtml += `<tr class="less-received"><td style="color:#f59e0b !important;">Return Dai (${totalReturnQty}):</td><td class="text-right" style="color:#f59e0b !important;">- ₹ ${returnCredit}</td></tr>`;
+        if(totalMaterial > 0) summaryHtml += `<tr class="less-received"><td style="color:#8b5cf6 !important;">- bhangar:</td><td class="text-right" style="color:#8b5cf6 !important;">- ₹ ${totalMaterial}</td></tr>`;
+        if(tPay > 0) summaryHtml += `<tr class="less-received"><td style="color:#10b981 !important;">Less Received:</td><td class="text-right" style="color:#10b981 !important;">- ₹ ${tPay}</td></tr>`;
         
         document.getElementById('invSummaryTable').innerHTML = summaryHtml;
         document.getElementById('invFinalDue').innerText = h.finalDue; 
