@@ -35,13 +35,11 @@
             --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.4);
         }
         
-        /* Added overflow-x: hidden to strictly prevent left/right swiping */
         html, body { 
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
             background: var(--bg-main); background-attachment: fixed;
             margin: 0; padding: 0; color: var(--text-main); transition: background 0.3s ease, color 0.3s ease;
-            -webkit-font-smoothing: antialiased;
-            overflow-x: hidden; width: 100%; position: relative;
+            -webkit-font-smoothing: antialiased; overflow-x: hidden; width: 100%; position: relative;
         }
 
         #loginScreen {
@@ -57,7 +55,6 @@
         .login-card p { color: #94a3b8; font-size: 13px; font-weight: 500; letter-spacing: 1px; margin-bottom: 30px; text-transform: uppercase;}
         .login-card label { color: #cbd5e1; font-size: 12px; font-weight: 600; margin-bottom: 6px; display: block; text-align: left;}
         
-        /* Force 16px to prevent iOS auto-zoom */
         .login-card input {
             background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15);
             color: white; border-radius: 8px; padding: 12px 14px; width: 100%; box-sizing: border-box; font-size: 16px !important;
@@ -67,7 +64,6 @@
         
         #mainAppWrapper { display: none; }
         
-        /* Navbar adjusted to prevent button overflow */
         .navbar { 
             background: #ffffff; color: var(--primary); padding: 12px 14px; border-bottom: 1px solid var(--border-color); 
             box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 100; display: flex; align-items: center; justify-content: space-between;
@@ -76,7 +72,7 @@
         [data-theme="dark"] .navbar { background: #1e293b; color: #f8fafc; border-bottom-color: #334155;}
         
         .navbar h2 { 
-            margin: 0; font-size: 16px; font-weight: 800; letter-spacing: 0.5px; flex-grow: 1; text-align: center; color: var(--primary);
+            margin: 0; font-size: 17px; font-weight: 800; letter-spacing: 0.5px; flex-grow: 1; text-align: center; color: var(--primary);
             white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
         [data-theme="dark"] .navbar h2 { color: #ffffff; }
@@ -96,16 +92,25 @@
         
         .user-badge { background: rgba(37, 99, 235, 0.1); color: var(--secondary); padding: 6px 10px; border-radius: 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; margin-right: 6px; }
 
+        /* Mobile specific adjustments for Navbar Header */
+        @media (max-width: 600px) {
+            /* Hide the title completely on screens other than the home dashboard */
+            body:not([data-screen="dashboardScreen"]) #navTitle { display: none !important; }
+            body:not([data-screen="dashboardScreen"]) .navbar { justify-content: flex-end; }
+            body:not([data-screen="dashboardScreen"]) .navbar .back-btn { margin-right: auto; } /* Push back button left */
+            
+            /* Make Dashboard Title fit correctly */
+            body[data-screen="dashboardScreen"] #navTitle { font-size: 15px; white-space: normal; line-height: 1.2; }
+        }
+
         .container { max-width: 680px; margin: 30px auto; padding: 0 15px; box-sizing: border-box; }
         
-        /* Unified Button Sizing */
         .nav-buttons { display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; width: 100%; box-sizing: border-box;}
         .nav-buttons .btn { flex: 1 1 calc(50% - 12px); box-sizing: border-box; min-width: 140px; margin: 0 !important; }
 
         .input-group { margin-bottom: 16px; text-align: left; position: relative;}
         label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px;}
         
-        /* Forcing 16px to prevent zoom */
         input, select { 
             width: 100%; padding: 12px 16px; border: 1px solid var(--border-color); border-radius: 10px; 
             box-sizing: border-box; font-size: 16px !important; font-family: 'Inter', sans-serif; background-color: var(--card-bg); color: var(--text-main); 
@@ -113,7 +118,9 @@
         }
         input:focus, select:focus { border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
 
-        .search-group { margin-bottom: 24px; }
+        /* Search spacing adjustments */
+        .search-group { margin-bottom: 12px; }
+        h3.section-title { color: var(--text-sub); border-bottom: 2px solid var(--border-color); padding-bottom: 8px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; margin-top: 10px; margin-bottom: 12px;}
         
         .party-card { 
             background: var(--card-bg); padding: 18px 20px; border-radius: var(--radius); margin-bottom: 12px; 
@@ -192,11 +199,18 @@
         .inv-rate p.label { margin: 0; font-size: 11px; color: var(--text-sub); font-weight: 600; }
         .inv-rate p.value { margin: 4px 0 0 0; font-size: 14px; font-weight: 800; color: var(--primary); }
 
+        /* Delivery Slip / Invoice Table - Color Fixes */
         .inv-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 30px; }
-        .inv-table thead th { background-color: var(--primary); color: var(--card-bg); padding: 12px 15px; font-size: 11px; text-transform: uppercase; text-align: left; }
-        .inv-table thead th:first-child { border-top-left-radius: 6px; border-bottom-left-radius: 6px; }
-        .inv-table thead th:last-child { border-top-right-radius: 6px; border-bottom-right-radius: 6px; }
-        .inv-table tbody td { padding: 12px 15px; color: var(--text-main); font-weight: 600; font-size: 12px; border-bottom: 1px solid var(--bg-main); }
+        .inv-table thead th { 
+            background-color: rgba(15, 23, 42, 0.05); /* Soft transparent background */
+            color: var(--text-main); 
+            padding: 12px 15px; font-size: 11px; text-transform: uppercase; text-align: left; 
+            border-bottom: 2px solid var(--border-color);
+        }
+        [data-theme="dark"] .inv-table thead th { background-color: rgba(255, 255, 255, 0.05); }
+        .inv-table thead th:first-child { border-top-left-radius: 6px; }
+        .inv-table thead th:last-child { border-top-right-radius: 6px; }
+        .inv-table tbody td { padding: 12px 15px; color: var(--text-main); font-weight: 600; font-size: 12px; border-bottom: 1px solid var(--border-color); }
         
         .inv-footer-section { display: flex; justify-content: space-between; gap: 40px; margin-top: 10px; }
         .inv-terms { flex: 1.2; }
@@ -222,7 +236,7 @@
             .invoice-wrapper { background: #ffffff !important; box-shadow: none !important; border-top: 6px solid #0f172a !important; padding: 10px !important;}
             .invoice-wrapper h1, .invoice-wrapper h2, .invoice-wrapper h3, .invoice-wrapper h4, 
             .invoice-wrapper p, .invoice-wrapper span, .invoice-wrapper td { color: #0f172a !important; -webkit-text-stroke: 0px !important; }
-            .inv-table thead th { background-color: #0f172a !important; color: #ffffff !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+            .inv-table thead th { background-color: #f8fafc !important; color: #0f172a !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .inv-party { background: #f8fafc !important; border-color:#3b82f6 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .inv-summary td.text-right, .inv-total .value { color: #0f172a !important; }
         }
@@ -295,10 +309,7 @@
                     <div class="search-group"><input type="text"
                             id="partySearchInput" placeholder="🔍 Search party
                             name here..." oninput="filterPartiesDashboard()"></div>
-                    <h3 style="color: var(--text-sub); border-bottom: 2px solid
-                        var(--border-color); padding-bottom: 8px; font-size:
-                        12px; font-weight: 700; letter-spacing: 0.5px;">ACTIVE
-                        CLIENTS</h3>
+                    <h3 class="section-title">ACTIVE CLIENTS</h3>
                     <div id="partyListContainer"><p style="text-align:center;
                             padding: 20px; font-weight: 500; color:
                             var(--text-sub);">⏳ Loading Data...</p></div>
@@ -647,11 +658,10 @@
     function handleHashChange() {
         if(localStorage.getItem("isLoggedIn") !== "true") return;
         
-        let hash = window.location.hash.replace('#', '');
-        if(!hash) {
-            window.location.replace('#dashboardScreen');
-            return;
-        }
+        let hash = window.location.hash.replace('#', '') || 'dashboardScreen';
+        
+        // Setup data-attribute to hide/show Nav elements elegantly via CSS
+        document.body.setAttribute('data-screen', hash);
 
         let targetScreen = document.getElementById(hash);
         if(!targetScreen) {
@@ -669,7 +679,6 @@
         
         let title = 'JAY MAHADEV DAI';
         
-        // Show Name Badge ONLY on Dashboard to save space
         if(hash === 'dashboardScreen') {
             document.getElementById('currentUserBadge').style.display = 'inline-block';
         } else {
@@ -1564,5 +1573,5 @@
         window.location.hash = 'invoiceScreen';
     }
 </script>
-    </body>
+</body>
 </html>
