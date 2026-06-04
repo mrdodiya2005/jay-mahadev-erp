@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -179,7 +180,7 @@
         .screen { display: none; }
         .active-screen { display: block !important; }
 
-        /* Invoice & Slip Base CSS */
+        /* Original Invoice & Slip Base CSS */
         .invoice-wrapper { background: #ffffff !important; padding: 40px; border-radius: 8px; color: #0f172a !important; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 6px solid #0f172a !important; box-sizing: border-box;}
         .inv-header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 25px; margin-bottom: 25px; }
         .inv-brand h1 { margin: 0; color: #0f172a !important; font-size: 22px; font-weight: 800; text-transform: uppercase; }
@@ -216,21 +217,6 @@
         .inv-total .label { color: #0f172a !important; } .inv-total .value { color: #3b82f6 !important; }
         .auth-sign { text-align: right; margin-top: 40px; }
         .auth-sign h4 { color: #0f172a !important; margin-bottom: 2px; } .auth-sign p { color: #64748b !important; margin-top:0; font-size: 11px;}
-
-        /* Mobile Adjustments (Will be bypassed during PDF generation) */
-        @media (max-width: 600px) {
-            .invoice-wrapper { padding: 15px !important; border-top: 4px solid #0f172a !important; }
-            .inv-header { flex-direction: column; align-items: flex-start; gap: 10px; padding-bottom: 15px; margin-bottom: 15px;}
-            .inv-meta { text-align: left; }
-            .inv-party-section { flex-direction: column; gap: 15px; align-items: flex-start;}
-            .inv-party { width: 100%; box-sizing: border-box; }
-            .inv-rate { text-align: left; margin-top: 5px;}
-            .inv-footer-section { flex-direction: column; gap: 20px;}
-            .inv-summary { width: 100%; box-sizing: border-box; }
-            .inv-table { font-size: 11px; }
-            .inv-table thead th { padding: 10px; }
-            .inv-table tbody td { padding: 10px; }
-        }
 
         @media print {
             body { background: #ffffff !important; }
@@ -760,8 +746,6 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    
-    // 🔥 FIX FOR BLANK PC SCREEN: Removed db.ref().keepSynced(true) which throws error on Web SDK
 
     function getSafeArray(fbData) {
         if (!fbData) return [];
@@ -1402,43 +1386,29 @@
         saveDB();
     }
 
-    // 🔥 FIX FOR DELIVERY SLIP (A5 PDF) FULL WIDTH 🔥
     async function shareChitthiWhatsApp() {
+        if (typeof html2pdf === 'undefined') { alert("PDF library load nathi thai. App no Data/Cache clear kari pachi try karo."); return; }
+
         let printArea = document.getElementById('chitthiPrintArea');
         let partyName = document.getElementById('chitthiPartyName').innerText || "Party";
         let fileName = partyName.replace(/ /g, "_") + "_Delivery_Slip.pdf";
         
-        let originalCss = printArea.style.cssText;
-        printArea.style.width = '500px';
-        printArea.style.maxWidth = '500px';
-        printArea.style.padding = '25px';
-        printArea.style.margin = '0';
-        
-        var opt = { 
-            margin: 0.2, 
-            filename: fileName, 
-            image: { type: 'jpeg', quality: 0.98 }, 
-            html2canvas: { scale: 2, useCORS: true, windowWidth: 800 }, 
-            jsPDF: { unit: 'in', format: 'a5', orientation: 'portrait' } 
-        };
+        var opt = { margin: 0.5, filename: fileName, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a5', orientation: 'portrait' } };
 
         try {
             const pdfBlob = await html2pdf().set(opt).from(printArea).output('blob');
-            printArea.style.cssText = originalCss; 
-
             const file = new File([pdfBlob], fileName, { type: "application/pdf" });
 
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 await navigator.share({ title: 'Delivery Slip', text: `Jay Mahadev Dai\nDelivery Slip for ${partyName}.`, files: [file] });
             } else {
-                html2pdf().set(opt).from(printArea).save();
-                alert("Mobile ma aap direct share kari shako cho. PC ma aani PDF download thai gai che, tame WhatsApp Web thi mokli shako cho.");
-                window.open(`https://wa.me/?text=${encodeURIComponent('Jay Mahadev Dai - Delivery Slip is attached.')}`, '_blank');
+                const url = URL.createObjectURL(pdfBlob);
+                const a = document.createElement('a');
+                a.href = url; a.download = fileName;
+                document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+                alert("Mobile ma share function support nathi kartu. PDF download thai gai che.");
             }
-        } catch(e) { 
-            printArea.style.cssText = originalCss;
-            alert("Error: " + e.message); 
-        }
+        } catch(e) { alert("Error: " + e.message); }
     }
 
     function viewChitthi(index, type = 'deliveries') {
@@ -1481,43 +1451,35 @@
         window.location.hash = 'chitthiScreen';
     }
 
-    // 🔥 FIX FOR INVOICE (A4 PDF) FULL WIDTH 🔥
     async function shareOnWhatsApp() {
+        if (typeof html2pdf === 'undefined') { alert("PDF library load nathi thai. App no Data/Cache clear kari pachi try karo."); return; }
+
         let printArea = document.getElementById('invoicePrintArea');
         let partyName = document.getElementById('invPartyName').innerText || "Cash_Customer";
         let fileName = partyName.replace(/ /g, "_") + "_bill_Invoice.pdf";
         
-        let originalCss = printArea.style.cssText;
-        printArea.style.width = '750px';
-        printArea.style.maxWidth = '750px';
-        printArea.style.padding = '40px';
-        printArea.style.margin = '0';
-        
         var opt = { 
-            margin: 0.2, 
+            margin: 0.3, 
             filename: fileName, 
             image: { type: 'jpeg', quality: 1.0 }, 
-            html2canvas: { scale: 2, useCORS: true, windowWidth: 1024 }, // forces desktop view
+            html2canvas: { scale: 2, windowWidth: 800 }, 
             jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } 
         };
 
         try {
             const pdfBlob = await html2pdf().set(opt).from(printArea).output('blob');
-            printArea.style.cssText = originalCss; 
-
             const file = new File([pdfBlob], fileName, { type: "application/pdf" });
 
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                await navigator.share({ title: 'Tax Invoice', text: `Jay Mahadev Dai\nBill Invoice for ${partyName}`, files: [file] });
+                await navigator.share({ title: 'Tax Invoice', text: `Jay Mahadev Dai\nBill Invoice for ${partyName}.`, files: [file] });
             } else {
-                html2pdf().set(opt).from(printArea).save();
-                alert("Mobile ma aap direct share kari shako cho. PC ma aani PDF download thai gai che, tame WhatsApp Web thi mokli shako cho.");
-                window.open(`https://wa.me/?text=${encodeURIComponent('Jay Mahadev Dai - Invoice is attached.')}`, '_blank');
+                const url = URL.createObjectURL(pdfBlob);
+                const a = document.createElement('a');
+                a.href = url; a.download = fileName;
+                document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
+                alert("Mobile ma share function support nathi kartu. PDF download thai gai che.");
             }
-        } catch(e) { 
-            printArea.style.cssText = originalCss; 
-            alert("Error in PDF generation: " + e.message); 
-        }
+        } catch(e) { alert("Error in PDF generation: " + e.message); }
     }
 
     function showInvoice() {
