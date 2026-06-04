@@ -8,14 +8,17 @@
 
         <link rel="manifest" href="manifest.json">
 
+        <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+        <script
+            src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
         <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('sw.js')
-            .then(registration => console.log('ServiceWorker successfully registered:', registration.scope))
-            .catch(error => console.log('ServiceWorker registration failed:', error));
-        });
-      }
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(registration => console.log('ServiceWorker successfully registered:', registration.scope))
+                    .catch(error => console.log('ServiceWorker registration failed:', error));
+            });
+        }
     </script>
         <link
             href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
@@ -55,18 +58,23 @@
         .login-card p { color: #94a3b8; font-size: 13px; font-weight: 500; letter-spacing: 1px; margin-bottom: 30px; text-transform: uppercase;}
         .login-card label { color: #cbd5e1; font-size: 12px; font-weight: 600; margin-bottom: 6px; display: block; text-align: left;}
         
-        /* 🔥 FIXED PLACEHOLDER SPACING BUG 🔥 */
-        .login-card input {
-            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15);
-            color: white; border-radius: 8px; padding: 14px 16px; width: 100%; box-sizing: border-box; font-size: 16px !important;
-            transition: all 0.2s; outline: none; margin-bottom: 15px; text-align: left;
+        /* 🔥 PERMANENT FIX FOR ALL INPUTS & PLACEHOLDERS 🔥 */
+        input, select { 
+            width: 100%; padding: 14px 16px; border: 1px solid var(--border-color); border-radius: 10px; 
+            box-sizing: border-box; font-size: 16px !important; font-family: 'Inter', sans-serif; 
+            background-color: var(--card-bg); color: var(--text-main); transition: all 0.2s ease; 
+            outline: none; box-shadow: var(--shadow-sm); text-align: left !important; text-indent: 0 !important;
         }
+        .login-card input {
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.15); color: white;
+        }
+        input::placeholder { color: var(--text-sub); opacity: 0.8; text-align: left !important; white-space: nowrap !important; }
         .login-card input::placeholder { color: rgba(255,255,255,0.6); }
+        input:focus, select:focus { border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
         .login-card input:focus { border-color: #3b82f6; background: rgba(255, 255, 255, 0.1); box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3); }
         
         #mainAppWrapper { display: none; }
         
-        /* 🔥 NEW PROFESSIONAL 2-ROW HEADER 🔥 */
         .navbar { 
             background: var(--card-bg); padding: 14px 16px; border-bottom: 1px solid var(--border-color); 
             box-shadow: var(--shadow-sm); position: sticky; top: 0; z-index: 100; display: flex; flex-direction: column; gap: 12px;
@@ -107,15 +115,6 @@
         
         label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px; color: var(--text-sub); text-transform: uppercase; letter-spacing: 0.5px;}
         
-        /* 🔥 NORMALIZED INPUTS TO FIX SPACING BUG 🔥 */
-        input, select { 
-            width: 100%; padding: 14px 16px; border: 1px solid var(--border-color); border-radius: 10px; 
-            box-sizing: border-box; font-size: 16px !important; font-family: 'Inter', sans-serif; background-color: var(--card-bg); color: var(--text-main); 
-            transition: all 0.2s ease; outline: none; box-shadow: var(--shadow-sm); text-align: left;
-        }
-        input::placeholder { color: var(--text-sub); opacity: 0.8; }
-        input:focus, select:focus { border-color: var(--secondary); box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
-
         .search-group { margin-bottom: 10px; width: 100%; }
         h3.section-title { color: var(--text-sub); border-bottom: 2px solid var(--border-color); padding-bottom: 8px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; margin-top: 14px; margin-bottom: 12px;}
         
@@ -176,11 +175,9 @@
         .detail-header { background: var(--card-bg); padding: 24px; border-radius: var(--radius); text-align: center; margin-bottom: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); }
         .detail-header h2 { font-size: 22px; font-weight: 800; color: var(--text-main); margin:0 0 8px 0; text-transform:uppercase;}
 
-        /* Safe routing classes */
         .screen { display: none; }
         .active-screen { display: block !important; }
 
-        /* 🔥 STRICT LIGHT MODE FOR INVOICE AND SLIP (Fixes Dark Mode Print Issue) 🔥 */
         .invoice-wrapper { background: #ffffff !important; padding: 40px; border-radius: 8px; color: #0f172a !important; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 6px solid #0f172a !important; box-sizing: border-box;}
         .inv-header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 25px; margin-bottom: 25px; }
         .inv-brand h1 { margin: 0; color: #0f172a !important; font-size: 22px; font-weight: 800; text-transform: uppercase; }
@@ -197,7 +194,6 @@
         .inv-rate p.label { margin: 0; font-size: 11px; color: #64748b !important; font-weight: 600; }
         .inv-rate p.value { margin: 4px 0 0 0; font-size: 14px; font-weight: 800; color: #0f172a !important; }
 
-        /* FIXED TABLE COLORS FOR SLIP AND INVOICE */
         .inv-table { width: 100%; border-collapse: separate; border-spacing: 0; margin-bottom: 30px; }
         .inv-table thead th { background-color: #0f172a !important; color: #ffffff !important; padding: 12px 15px; font-size: 11px; text-transform: uppercase; text-align: left; }
         .inv-table thead th:first-child { border-top-left-radius: 6px; border-bottom-left-radius: 6px; }
@@ -234,9 +230,11 @@
         <div id="loginScreen">
             <div class="login-card">
                 <h2>JAY MAHADEV DAI</h2><p>ADMIN LOGIN</p>
-                <div class="input-group"><label>Username</label><input
-                        type="text" id="loginUser" placeholder="Enter
-                        username..."></div>
+                <div class="input-group">
+                    <label>Username</label>
+                    <input type="text" id="loginUser" placeholder="Enter
+                        username...">
+                </div>
                 <div class="input-group" style="margin-bottom:25px;
                     position:relative;">
                     <label>Password</label>
@@ -323,11 +321,15 @@
                         border-radius: var(--radius); border: 1px solid
                         var(--border-color); margin-bottom: 24px; box-shadow:
                         var(--shadow-sm);">
-                        <div class="input-group"><label>Customer / Party Name:</label><input
-                                type="text" id="diName" placeholder="Enter
-                                customer name..."></div>
-                        <div class="input-group"><label>Date:</label><input
-                                type="date" id="diDate"></div>
+                        <div class="input-group">
+                            <label>Customer / Party Name:</label>
+                            <input type="text" id="diName" placeholder="Enter
+                                customer name...">
+                        </div>
+                        <div class="input-group">
+                            <label>Date:</label>
+                            <input type="date" id="diDate">
+                        </div>
 
                         <label style="margin-top:10px;">Select Quantities (Dai):</label>
                         <div id="diSizeGrid" style="display:grid;
@@ -352,9 +354,9 @@
                     <div class="expense-stats">
                         <div class="stat-card" style="border-top-color:
                             var(--secondary);">
-                            <h4>Total Global Sales</h4><div id="sbTotalSold"
-                                style="color: var(--secondary);
-                                font-size:24px;">0 Dai</div>
+                            <h4>Total Global Sales</h4>
+                            <div id="sbTotalSold" style="color:
+                                var(--secondary); font-size:24px;">0 Dai</div>
                         </div>
                     </div>
                     <div class="history-box" style="margin-top:0;">
@@ -396,13 +398,15 @@
                 <div id="expenseScreen" class="screen">
                     <div class="expense-stats">
                         <div class="stat-card" style="border-top-color:
-                            var(--success);"><h4>Total Cash In</h4><div
-                                id="expTotalIn" style="color: var(--success);">₹
-                                0</div></div>
+                            var(--success);">
+                            <h4>Total Cash In</h4><div id="expTotalIn"
+                                style="color: var(--success);">₹ 0</div>
+                        </div>
                         <div class="stat-card" style="border-top-color:
-                            var(--danger);"><h4>Total Kharcha</h4><div
-                                id="expTotalOut" style="color: var(--danger);">₹
-                                0</div></div>
+                            var(--danger);">
+                            <h4>Total Kharcha</h4><div id="expTotalOut"
+                                style="color: var(--danger);">₹ 0</div>
+                        </div>
                     </div>
                     <div style="background: var(--card-bg); padding: 20px;
                         border-radius: var(--radius); border: 1px solid
@@ -411,23 +415,33 @@
                         <h4 style="margin-top:0; margin-bottom:16px;
                             font-size:16px; color: var(--text-main);">Add New
                             Ledger Entry</h4>
-                        <div class="input-group"><label>Particulars (Vigat):</label><input
-                                type="text" id="expDesc" placeholder="e.g. Light
-                                bill, Kacho Mal..."></div>
-                        <div class="input-group"><label>Type:</label><select
-                                id="expType"><option value="IN">Cash In (Aavya)</option><option
-                                    value="OUT">Cash Out (Kharcha)</option></select></div>
-                        <div class="input-group"><label>Amount (₹):</label><input
-                                type="number" id="expAmount" placeholder="Enter
-                                amount..."></div>
+                        <div class="input-group">
+                            <label>Particulars (Vigat):</label>
+                            <input type="text" id="expDesc" placeholder="e.g.
+                                Light bill, Kacho Mal...">
+                        </div>
+                        <div class="input-group">
+                            <label>Type:</label>
+                            <select id="expType">
+                                <option value="IN">Cash In (Aavya)</option>
+                                <option value="OUT">Cash Out (Kharcha)</option>
+                            </select>
+                        </div>
+                        <div class="input-group">
+                            <label>Amount (₹):</label>
+                            <input type="number" id="expAmount"
+                                placeholder="Enter amount...">
+                        </div>
                         <button class="btn btn-success" style="width: 100%;
                             margin-top: 8px;" onclick="saveExpense()">Save
                             Expense</button>
                     </div>
                     <div class="history-box" style="margin-top:0;">
-                        <table><thead><tr><th>Date</th><th>Particulars</th><th>Type</th><th
-                                        style="text-align:right">Amount</th><th></th></tr></thead><tbody
-                                id="expenseTableBody"></tbody></table>
+                        <table>
+                            <thead><tr><th>Date</th><th>Particulars</th><th>Type</th><th
+                                        style="text-align:right">Amount</th><th></th></tr></thead>
+                            <tbody id="expenseTableBody"></tbody>
+                        </table>
                     </div>
                     <button class="btn btn-outline" style="width: 100%;
                         margin-top: 24px;"
@@ -659,7 +673,6 @@
     let activeParty = null, entryMode = ''; 
     let databaseInitialized = false;
 
-    // 🔥 FAIL-SAFE ROUTING (Fixes Blank Screen) 🔥
     window.addEventListener('hashchange', handleHashChange);
 
     function handleHashChange() {
@@ -667,7 +680,6 @@
         
         let hash = window.location.hash.replace('#', '');
         
-        // If no hash or invalid state, force dashboard
         if(!hash) {
             window.location.hash = 'dashboardScreen';
             return;
@@ -685,7 +697,6 @@
             return;
         }
 
-        // Hide all screens explicitly
         document.querySelectorAll('.container > .screen').forEach(d => {
             d.classList.remove('active-screen');
         });
@@ -735,7 +746,6 @@
                 break;
         }
 
-        // Show target screen explicitly
         targetScreen.classList.add('active-screen');
         document.getElementById('navTitle').innerText = title;
         document.getElementById('backBtn').style.display = (hash === 'dashboardScreen') ? 'none' : 'inline-block';
