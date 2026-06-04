@@ -1,20 +1,18 @@
-
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0,
-            maximum-scale=1.0, user-scalable=no">
-        <title>JAY MAHADEV DAI</title>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>JAY MAHADEV DAI</title>
 
-        <link rel="manifest" href="manifest.json">
+    <link rel="manifest" href="manifest.json">
 
-        <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-        <script
-            src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-        <script
-            src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-        <script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
@@ -23,11 +21,10 @@
             });
         }
     </script>
-        <link
-            href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-            rel="stylesheet">
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
-        <style>
+    <style>
         :root { 
             --primary: #0f172a; --primary-light: #1e293b; --secondary: #2563eb; --secondary-hover: #1d4ed8;
             --success: #10b981; --danger: #ef4444; --bg-main: #f8fafc; --text-main: #334155; 
@@ -180,6 +177,7 @@
         .screen { display: none; }
         .active-screen { display: block !important; }
 
+        /* Invoice & Slip Base CSS */
         .invoice-wrapper { background: #ffffff !important; padding: 40px; border-radius: 8px; color: #0f172a !important; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 6px solid #0f172a !important; box-sizing: border-box;}
         .inv-header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 25px; margin-bottom: 25px; }
         .inv-brand h1 { margin: 0; color: #0f172a !important; font-size: 22px; font-weight: 800; text-transform: uppercase; }
@@ -217,6 +215,7 @@
         .auth-sign { text-align: right; margin-top: 40px; }
         .auth-sign h4 { color: #0f172a !important; margin-bottom: 2px; } .auth-sign p { color: #64748b !important; margin-top:0; font-size: 11px;}
 
+        /* Mobile Adjustments (Will be bypassed during PDF generation) */
         @media (max-width: 600px) {
             .invoice-wrapper { padding: 15px !important; border-top: 4px solid #0f172a !important; }
             .inv-header { flex-direction: column; align-items: flex-start; gap: 10px; padding-bottom: 15px; margin-bottom: 15px;}
@@ -240,451 +239,288 @@
             .inv-party { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
     </style>
-    </head>
-    <body>
+</head>
+<body>
 
-        <div id="loginScreen">
-            <div class="login-card">
-                <h2>JAY MAHADEV DAI</h2><p>ADMIN LOGIN</p>
-                <div class="input-group">
-                    <label>Username</label>
-                    <input type="text" id="loginUser" placeholder="Enter
-                        username...">
-                </div>
-                <div class="input-group" style="margin-bottom:25px;
-                    position:relative;">
-                    <label>Password</label>
-                    <input type="password" id="loginPass" placeholder="Enter
-                        password..." style="padding-right:40px;">
-                    <span onclick="togglePassword()" style="position:absolute;
-                        right:15px; top:34px; cursor:pointer; font-size:18px;">👁️</span>
-                </div>
-                <button class="btn btn-primary" style="width:100%; font-size:
-                    15px; padding: 14px;" onclick="checkLogin()">🔓 Secure Login</button>
+    <div id="loginScreen">
+        <div class="login-card">
+            <h2>JAY MAHADEV DAI</h2><p>ADMIN LOGIN</p>
+            <div class="input-group">
+                <label>Username</label>
+                <input type="text" id="loginUser" placeholder="Enter username...">
             </div>
+            <div class="input-group" style="margin-bottom:25px; position:relative;">
+                <label>Password</label>
+                <input type="password" id="loginPass" placeholder="Enter password..." style="padding-right:40px;">
+                <span onclick="togglePassword()" style="position:absolute; right:15px; top:34px; cursor:pointer; font-size:18px;">👁️</span>
+            </div>
+            <button class="btn btn-primary" style="width:100%; font-size: 15px; padding: 14px;" onclick="checkLogin()">🔓 Secure Login</button>
         </div>
+    </div>
 
-        <div id="mainAppWrapper">
-            <div class="navbar">
-                <div class="nav-top">
-                    <h2 id="navTitle">JAY MAHADEV DAI</h2>
-                </div>
-                <div class="nav-bottom">
-                    <button class="back-btn" id="backBtn"
-                        onclick="window.history.back()">← Back</button>
-                    <div style="flex-grow: 1;"></div>
-                    <div class="nav-actions">
-                        <span class="user-badge" id="currentUserBadge">Admin</span>
-                        <button class="theme-btn" onclick="toggleTheme()">🌓
-                            Theme</button>
-                        <button class="logout-btn" onclick="handleLogout()">🔒
-                            Logout</button>
-                    </div>
-                </div>
+    <div id="mainAppWrapper">
+        <div class="navbar">
+            <div class="nav-top">
+                <h2 id="navTitle">JAY MAHADEV DAI</h2>
             </div>
-
-            <div class="container">
-                <div id="dashboardScreen" class="screen">
-                    <div class="nav-buttons">
-                        <button class="btn btn-primary" style="flex:1;"
-                            onclick="window.location.hash='stockScreen'">📦
-                            Manage Stock</button>
-                        <button class="btn btn-primary" style="flex:1;
-                            background: var(--text-sub);"
-                            onclick="window.location.hash='expenseScreen'">💸
-                            Expenses (Hisab)</button>
-                    </div>
-
-                    <div class="nav-buttons" style="margin-bottom: 24px;">
-                        <button class="btn btn-primary" style="flex:1;
-                            background: #f59e0b;"
-                            onclick="openDirectInvoiceScreen()">⚡ Direct Invoice</button>
-                        <button class="btn btn-primary" style="flex:1;
-                            background: var(--success);"
-                            onclick="window.location.hash='salesBookScreen'">📊
-                            All Sales Book</button>
-                    </div>
-
-                    <div class="input-group flex-group" style="margin-bottom:
-                        20px;">
-                        <input type="text" id="newPartyName" placeholder="Enter
-                            new party name...">
-                        <button class="btn btn-primary" style="margin:0; width:
-                            120px; flex-shrink: 0; padding: 14px;"
-                            onclick="addNewParty()">+ Add Party</button>
-                    </div>
-                    <div class="search-group">
-                        <input type="text" id="partySearchInput" placeholder="🔍
-                            Search party name here..."
-                            oninput="filterPartiesDashboard()">
-                    </div>
-
-                    <h3 class="section-title">ACTIVE CLIENTS</h3>
-                    <div id="partyListContainer"><p style="text-align:center;
-                            padding: 20px; font-weight: 500; color:
-                            var(--text-sub);">⏳ Loading Data...</p></div>
-                </div>
-
-                <div id="directInvoiceScreen" class="screen">
-                    <div class="detail-header">
-                        <h2>⚡ Direct Invoice</h2>
-                        <p style="color: var(--text-sub); margin: 0; font-size:
-                            14px;">Quick Bill without adding to Ledger (Deducts
-                            Stock)</p>
-                    </div>
-
-                    <div style="background: var(--card-bg); padding: 20px;
-                        border-radius: var(--radius); border: 1px solid
-                        var(--border-color); margin-bottom: 24px; box-shadow:
-                        var(--shadow-sm);">
-                        <div class="input-group">
-                            <label>Customer / Party Name:</label>
-                            <input type="text" id="diName" placeholder="Enter
-                                customer name...">
-                        </div>
-                        <div class="input-group">
-                            <label>Date:</label>
-                            <input type="date" id="diDate">
-                        </div>
-
-                        <label style="margin-top:10px;">Select Quantities (Dai):</label>
-                        <div id="diSizeGrid" style="display:grid;
-                            grid-template-columns: repeat(auto-fill,
-                            minmax(110px, 1fr)); gap: 12px; max-height: 280px;
-                            overflow-y: auto; border: 1px solid
-                            var(--border-color); padding: 12px; border-radius:
-                            10px; margin-bottom: 16px; background:
-                            var(--bg-main);">
-                        </div>
-
-                        <button class="btn btn-primary" style="width:100%;
-                            background: #f59e0b; margin-top: 8px;"
-                            onclick="saveDirectInvoice()">🧾 Generate Bill &
-                            Deduct Stock</button>
-                    </div>
-                    <button class="btn btn-outline" style="width: 100%;"
-                        onclick="window.history.back()">Cancel</button>
-                </div>
-
-                <div id="salesBookScreen" class="screen">
-                    <div class="expense-stats">
-                        <div class="stat-card" style="border-top-color:
-                            var(--secondary);">
-                            <h4>Total Global Sales</h4>
-                            <div id="sbTotalSold" style="color:
-                                var(--secondary); font-size:24px;">0 Dai</div>
-                        </div>
-                    </div>
-                    <div class="history-box" style="margin-top:0;">
-                        <h4 style="margin-top:0; text-transform:uppercase;
-                            font-size:12px; color:var(--text-main);">📊 All
-                            Sales Ledger</h4>
-                        <table>
-                            <thead><tr><th>Date</th><th>Party / Customer</th><th>Type</th><th
-                                        style="text-align:right">Total Dai</th></tr></thead>
-                            <tbody id="salesBookBody"></tbody>
-                        </table>
-                    </div>
-                    <button class="btn btn-outline" style="width: 100%;
-                        margin-top:24px;"
-                        onclick="window.location.hash='dashboardScreen'">Back to
-                        Dashboard</button>
-                </div>
-
-                <div id="stockScreen" class="screen">
-                    <div class="stock-grid" id="stockItemsGrid"></div>
-
-                    <div class="history-box" style="margin-top: 30px;">
-                        <h4 style="margin-top:0; font-size: 14px; color:
-                            var(--text-main); font-weight: 800; text-transform:
-                            uppercase;">🔄 Stock History (Ledger)</h4>
-                        <table id="stockLogsTable">
-                            <thead><tr><th>Date</th><th>Detail</th><th>Size</th><th
-                                        style="text-align:right">Action & Qty</th><th></th></tr></thead>
-                            <tbody id="stockLogsBody"></tbody>
-                        </table>
-                    </div>
-
-                    <button class="btn btn-outline" style="width: 100%;
-                        margin-top: 24px;"
-                        onclick="window.location.hash='dashboardScreen'">Back to
-                        Dashboard</button>
-                </div>
-
-                <div id="expenseScreen" class="screen">
-                    <div class="expense-stats">
-                        <div class="stat-card" style="border-top-color:
-                            var(--success);">
-                            <h4>Total Cash In</h4><div id="expTotalIn"
-                                style="color: var(--success);">₹ 0</div>
-                        </div>
-                        <div class="stat-card" style="border-top-color:
-                            var(--danger);">
-                            <h4>Total Kharcha</h4><div id="expTotalOut"
-                                style="color: var(--danger);">₹ 0</div>
-                        </div>
-                    </div>
-                    <div style="background: var(--card-bg); padding: 20px;
-                        border-radius: var(--radius); border: 1px solid
-                        var(--border-color); margin-bottom: 24px; box-shadow:
-                        var(--shadow-sm);">
-                        <h4 style="margin-top:0; margin-bottom:16px;
-                            font-size:16px; color: var(--text-main);">Add New
-                            Ledger Entry</h4>
-                        <div class="input-group">
-                            <label>Particulars (Vigat):</label>
-                            <input type="text" id="expDesc" placeholder="e.g.
-                                Light bill, Kacho Mal...">
-                        </div>
-                        <div class="input-group">
-                            <label>Type:</label>
-                            <select id="expType">
-                                <option value="IN">Cash In (Aavya)</option>
-                                <option value="OUT">Cash Out (Kharcha)</option>
-                            </select>
-                        </div>
-                        <div class="input-group">
-                            <label>Amount (₹):</label>
-                            <input type="number" id="expAmount"
-                                placeholder="Enter amount...">
-                        </div>
-                        <button class="btn btn-success" style="width: 100%;
-                            margin-top: 8px;" onclick="saveExpense()">Save
-                            Expense</button>
-                    </div>
-                    <div class="history-box" style="margin-top:0;">
-                        <table>
-                            <thead><tr><th>Date</th><th>Particulars</th><th>Type</th><th
-                                        style="text-align:right">Amount</th><th></th></tr></thead>
-                            <tbody id="expenseTableBody"></tbody>
-                        </table>
-                    </div>
-                    <button class="btn btn-outline" style="width: 100%;
-                        margin-top: 24px;"
-                        onclick="window.location.hash='dashboardScreen'">Back to
-                        Dashboard</button>
-                </div>
-
-                <div id="partyDetailScreen" class="screen">
-                    <div class="detail-header">
-                        <h2 id="pdName" style="margin:0 0 4px 0;">Party Name</h2>
-                        <p style="color: var(--text-sub); margin: 0; font-size:
-                            15px; font-weight: 500;">Live Balance: <span
-                                id="pdLiveBal" style="font-weight:800;
-                                font-size:18px;">₹ 0</span></p>
-                        <p style="color: var(--text-sub); margin: 4px 0 0 0;
-                            font-size: 11px;">Prev. Cycle Balance: <span
-                                id="pdOldBal">₹ 0</span></p>
-                    </div>
-
-                    <div class="nav-buttons" style="margin-bottom: 12px;">
-                        <button class="btn btn-primary"
-                            onclick="openEntryModal('qty')">Add Dai (Sell)</button>
-                        <button class="btn btn-success"
-                            onclick="openEntryModal('jama')">Add Payment (Jama)</button>
-                    </div>
-
-                    <div class="nav-buttons">
-                        <button class="btn btn-outline" style="color:#f59e0b;
-                            border-color:#f59e0b;"
-                            onclick="openEntryModal('return_dai')">Return Dai</button>
-                        <button class="btn btn-outline" style="color:#8b5cf6;
-                            border-color:#8b5cf6;"
-                            onclick="openEntryModal('kacho_mal')">Add Bhangar</button>
-                    </div>
-
-                    <div class="nav-buttons" style="margin-top:24px;">
-                        <button class="btn btn-outline" style="flex:1;"
-                            onclick="showInvoice()">🧾 Generate Invoice</button>
-                        <button class="btn btn-outline" style="flex:1;"
-                            onclick="window.location.hash='historyScreen'">🕒
-                            View History</button>
-                    </div>
-
-                    <div id="entryForm" style="display:none; background:
-                        var(--card-bg); padding: 20px; border-radius:
-                        var(--radius); margin-bottom: 24px; border: 1px solid
-                        var(--border-color); box-shadow: var(--shadow-sm);">
-                        <h4 id="entryFormTitle" style="margin:0 0 16px 0;
-                            font-size: 16px; color: var(--text-main);">Add Entry</h4>
-                        <div class="input-group"><label>Date:</label><input
-                                type="date" id="entryDate"></div>
-
-                        <div id="multiSizeGrid" style="display:none;
-                            grid-template-columns: repeat(auto-fill,
-                            minmax(110px, 1fr)); gap: 12px; max-height: 280px;
-                            overflow-y: auto; border: 1px solid
-                            var(--border-color); padding: 12px; border-radius:
-                            10px; margin-bottom: 16px; background:
-                            var(--bg-main);">
-                        </div>
-
-                        <div id="descGroup" style="display:none;"
-                            class="input-group">
-                            <label id="descLabel">Particulars:</label>
-                            <input type="text" id="entryDesc" placeholder="Enter
-                                item details...">
-                        </div>
-
-                        <div id="singleValueGroup">
-                            <div class="input-group"><label id="entryLabel">Value:</label><input
-                                    type="number" id="entryValue"></div>
-                        </div>
-
-                        <button class="btn btn-primary" style="width:100%;
-                            margin-top: 8px;" onclick="saveData()">Save Entry</button>
-                        <button class="btn btn-outline" style="width: 100%;
-                            margin-top: 12px; border: none; box-shadow: none;"
-                            onclick="document.getElementById('entryForm').style.display='none'">Cancel</button>
-                    </div>
-
-                    <div class="history-box" style="margin-top: 0;">
-                        <table id="currentRecordTable">
-                            <thead><tr><th>Date</th><th>Type</th><th
-                                        style="text-align:right">Total Qty/Amt</th></tr></thead>
-                            <tbody id="currentRecordBody"></tbody>
-                        </table>
-                    </div>
-                </div>
-
-                <div id="chitthiScreen" class="screen">
-                    <div class="no-print" style="margin-bottom: 20px; display:
-                        flex; gap: 12px;">
-                        <button class="btn btn-success" style="flex:1; padding:
-                            15px; font-size: 15px;" onclick="window.print()">🖨️
-                            PDF / Print</button>
-                        <button class="btn btn-primary" style="flex:1; padding:
-                            15px; font-size: 15px; background:#25D366;
-                            color:white; border:none;"
-                            onclick="shareChitthiWhatsApp()">💬 WhatsApp PDF</button>
-                    </div>
-
-                    <div id="chitthiPrintArea" class="invoice-wrapper"
-                        style="max-width: 420px; padding: 25px;">
-                        <div style="text-align:center; border-bottom: 2px solid
-                            #0f172a; padding-bottom: 12px; margin-bottom:
-                            20px;">
-                            <h2 style="margin:0; font-size:22px;
-                                font-weight:900; letter-spacing: 0.5px;
-                                color:#0f172a !important;">DELIVERY SLIP</h2>
-                            <p style="margin:4px 0 0 0; font-size:12px;
-                                color:#64748b !important; font-weight:700;">JAY
-                                MAHADEV DAI</p>
-                        </div>
-
-                        <div style="display:flex; justify-content:space-between;
-                            margin-bottom: 20px; font-size:14px; color:#1e293b
-                            !important;">
-                            <div><strong>Party:</strong> <span
-                                    id="chitthiPartyName" style="color:#2563eb
-                                    !important; font-weight:800;"></span></div>
-                            <div><strong>Date:</strong> <span id="chitthiDate"
-                                    style="font-weight:600;"></span></div>
-                        </div>
-
-                        <table class="inv-table" style="margin-bottom:20px;">
-                            <thead>
-                                <tr>
-                                    <th style="width:20%">NO.</th>
-                                    <th style="width:50%">DAI SIZE</th>
-                                    <th style="width:30%; text-align:right;">DAI</th>
-                                </tr>
-                            </thead>
-                            <tbody id="chitthiItemsBody"></tbody>
-                        </table>
-
-                        <div style="text-align:right; font-size:16px;
-                            font-weight:800; border-top:2px solid #e2e8f0;
-                            padding-top:16px; color: #0f172a !important;">
-                            Total Delivered: <span id="chitthiTotalQty"
-                                style="color:#2563eb !important; font-size:
-                                20px;">0</span> Dai
-                        </div>
-                    </div>
-                    <button class="btn btn-outline no-print" id="chitthiBackBtn"
-                        style="width: 100%; margin-top: 24px;"
-                        onclick="window.history.back()">← Back</button>
-                </div>
-
-                <div id="invoiceScreen" class="screen">
-                    <div class="no-print" style="margin-bottom: 20px; display:
-                        flex; gap: 12px;">
-                        <button class="btn btn-success" style="flex: 1;"
-                            onclick="window.print()">🖨️ PDF / Print</button>
-                        <button class="btn btn-primary" style="flex: 1;
-                            background: #25D366; color:white; border:none;"
-                            onclick="shareOnWhatsApp()">💬 WhatsApp</button>
-                        <button class="btn btn-primary" style="flex: 1;
-                            background: var(--danger);" id="closeCycleBtn"
-                            onclick="closeBook()">✅ Close Cycle</button>
-                    </div>
-
-                    <div id="invoicePrintArea" class="invoice-wrapper">
-                        <div class="inv-header">
-                            <div class="inv-brand"><h1 style="color:#0f172a
-                                    !important;">JAY MAHADEV DAI</h1><p
-                                    style="color:#64748b !important;">Premium
-                                    Dai Manufacturing</p></div>
-                            <div class="inv-meta"><h2 style="color:#3b82f6
-                                    !important;">INVOICE</h2><p
-                                    style="color:#0f172a !important;">Date:
-                                    <span id="invDate"></span></p></div>
-                        </div>
-                        <div class="inv-party-section">
-                            <div class="inv-party"><p style="color:#64748b
-                                    !important;">Billed To:</p><h3
-                                    id="invPartyName" style="color:#0f172a
-                                    !important;"></h3></div>
-                            <div class="inv-rate"><p class="label"
-                                    style="color:#64748b !important;">Rate
-                                    Applied:</p><p class="value"
-                                    style="color:#3b82f6 !important;">₹ 0.30 /
-                                    Unit</p></div>
-                        </div>
-                        <table class="inv-table">
-                            <thead>
-                                <tr>
-                                    <th style="width: 20%;">NO.</th>
-                                    <th style="width: 40%; text-align: center;">DATE</th>
-                                    <th style="width: 40%; text-align:right;">QUANTITY</th>
-                                </tr>
-                            </thead>
-                            <tbody id="invItemsBody"></tbody>
-                        </table>
-                        <div class="inv-footer-section">
-                            <div class="inv-terms"><h4 style="color:#0f172a
-                                    !important;">Terms & Conditions</h4><p
-                                    style="color:#475569 !important;">1. Please
-                                    verify the quantities listed above.<br>2.
-                                    All balances are carried forward to the<br>next
-                                    billing cycle if unpaid.<br>3. Thank you for
-                                    your continued business!</p></div>
-                            <div class="inv-summary">
-                                <table id="invSummaryTable"></table>
-                                <div class="inv-total"><span class="label"
-                                        style="color:#0f172a !important;">Final
-                                        Due:</span><span class="value"
-                                        style="color:#3b82f6 !important;">₹
-                                        <span id="invFinalDue">0</span></span></div>
-                            </div>
-                        </div>
-                        <div class="auth-sign"><h4 style="color:#0f172a
-                                !important;">SANJAYBHAI DODIYA</h4><p
-                                style="color:#64748b !important;">(Authorized
-                                Person)</p></div>
-                    </div>
-                </div>
-
-                <div id="historyScreen" class="screen">
-                    <h3 style="font-weight:800; color: var(--text-main);">Cycle
-                        History for <span id="histPartyName"
-                            style="color:var(--secondary)"></span></h3>
-                    <div id="historyListContainer"></div>
+            <div class="nav-bottom">
+                <button class="back-btn" id="backBtn" onclick="window.history.back()">← Back</button>
+                <div style="flex-grow: 1;"></div>
+                <div class="nav-actions">
+                    <span class="user-badge" id="currentUserBadge">Admin</span>
+                    <button class="theme-btn" onclick="toggleTheme()">🌓 Theme</button>
+                    <button class="logout-btn" onclick="handleLogout()">🔒 Logout</button>
                 </div>
             </div>
         </div>
 
-        <script>
+        <div class="container">
+            <div id="dashboardScreen" class="screen">
+                <div class="nav-buttons">
+                    <button class="btn btn-primary" style="flex:1;" onclick="window.location.hash='stockScreen'">📦 Manage Stock</button>
+                    <button class="btn btn-primary" style="flex:1; background: var(--text-sub);" onclick="window.location.hash='expenseScreen'">💸 Expenses (Hisab)</button>
+                </div>
+
+                <div class="nav-buttons" style="margin-bottom: 24px;">
+                    <button class="btn btn-primary" style="flex:1; background: #f59e0b;" onclick="openDirectInvoiceScreen()">⚡ Direct Invoice</button>
+                    <button class="btn btn-primary" style="flex:1; background: var(--success);" onclick="window.location.hash='salesBookScreen'">📊 All Sales Book</button>
+                </div>
+
+                <div class="input-group flex-group" style="margin-bottom: 20px;">
+                    <input type="text" id="newPartyName" placeholder="Enter new party name...">
+                    <button class="btn btn-primary" style="margin:0; width: 120px; flex-shrink: 0; padding: 14px;" onclick="addNewParty()">+ Add Party</button>
+                </div>
+                <div class="search-group">
+                    <input type="text" id="partySearchInput" placeholder="🔍 Search party name here..." oninput="filterPartiesDashboard()">
+                </div>
+
+                <h3 class="section-title">ACTIVE CLIENTS</h3>
+                <div id="partyListContainer"><p style="text-align:center; padding: 20px; font-weight: 500; color: var(--text-sub);">⏳ Loading Data...</p></div>
+            </div>
+
+            <div id="directInvoiceScreen" class="screen">
+                <div class="detail-header">
+                    <h2>⚡ Direct Invoice</h2>
+                    <p style="color: var(--text-sub); margin: 0; font-size: 14px;">Quick Bill without adding to Ledger (Deducts Stock)</p>
+                </div>
+
+                <div style="background: var(--card-bg); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 24px; box-shadow: var(--shadow-sm);">
+                    <div class="input-group">
+                        <label>Customer / Party Name:</label>
+                        <input type="text" id="diName" placeholder="Enter customer name...">
+                    </div>
+                    <div class="input-group">
+                        <label>Date:</label>
+                        <input type="date" id="diDate">
+                    </div>
+
+                    <label style="margin-top:10px;">Select Quantities (Dai):</label>
+                    <div id="diSizeGrid" style="display:grid; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; max-height: 280px; overflow-y: auto; border: 1px solid var(--border-color); padding: 12px; border-radius: 10px; margin-bottom: 16px; background: var(--bg-main);">
+                    </div>
+
+                    <button class="btn btn-primary" style="width:100%; background: #f59e0b; margin-top: 8px;" onclick="saveDirectInvoice()">🧾 Generate Bill & Deduct Stock</button>
+                </div>
+                <button class="btn btn-outline" style="width: 100%;" onclick="window.history.back()">Cancel</button>
+            </div>
+
+            <div id="salesBookScreen" class="screen">
+                <div class="expense-stats">
+                    <div class="stat-card" style="border-top-color: var(--secondary);">
+                        <h4>Total Global Sales</h4>
+                        <div id="sbTotalSold" style="color: var(--secondary); font-size:24px;">0 Dai</div>
+                    </div>
+                </div>
+                <div class="history-box" style="margin-top:0;">
+                    <h4 style="margin-top:0; text-transform:uppercase; font-size:12px; color:var(--text-main);">📊 All Sales Ledger</h4>
+                    <table>
+                        <thead><tr><th>Date</th><th>Party / Customer</th><th>Type</th><th style="text-align:right">Total Dai</th></tr></thead>
+                        <tbody id="salesBookBody"></tbody>
+                    </table>
+                </div>
+                <button class="btn btn-outline" style="width: 100%; margin-top:24px;" onclick="window.location.hash='dashboardScreen'">Back to Dashboard</button>
+            </div>
+
+            <div id="stockScreen" class="screen">
+                <div class="stock-grid" id="stockItemsGrid"></div>
+
+                <div class="history-box" style="margin-top: 30px;">
+                    <h4 style="margin-top:0; font-size: 14px; color: var(--text-main); font-weight: 800; text-transform: uppercase;">🔄 Stock History (Ledger)</h4>
+                    <table id="stockLogsTable">
+                        <thead><tr><th>Date</th><th>Detail</th><th>Size</th><th style="text-align:right">Action & Qty</th><th></th></tr></thead>
+                        <tbody id="stockLogsBody"></tbody>
+                    </table>
+                </div>
+
+                <button class="btn btn-outline" style="width: 100%; margin-top: 24px;" onclick="window.location.hash='dashboardScreen'">Back to Dashboard</button>
+            </div>
+
+            <div id="expenseScreen" class="screen">
+                <div class="expense-stats">
+                    <div class="stat-card" style="border-top-color: var(--success);">
+                        <h4>Total Cash In</h4><div id="expTotalIn" style="color: var(--success);">₹ 0</div>
+                    </div>
+                    <div class="stat-card" style="border-top-color: var(--danger);">
+                        <h4>Total Kharcha</h4><div id="expTotalOut" style="color: var(--danger);">₹ 0</div>
+                    </div>
+                </div>
+                <div style="background: var(--card-bg); padding: 20px; border-radius: var(--radius); border: 1px solid var(--border-color); margin-bottom: 24px; box-shadow: var(--shadow-sm);">
+                    <h4 style="margin-top:0; margin-bottom:16px; font-size:16px; color: var(--text-main);">Add New Ledger Entry</h4>
+                    <div class="input-group">
+                        <label>Particulars (Vigat):</label>
+                        <input type="text" id="expDesc" placeholder="e.g. Light bill, Kacho Mal...">
+                    </div>
+                    <div class="input-group">
+                        <label>Type:</label>
+                        <select id="expType">
+                            <option value="IN">Cash In (Aavya)</option>
+                            <option value="OUT">Cash Out (Kharcha)</option>
+                        </select>
+                    </div>
+                    <div class="input-group">
+                        <label>Amount (₹):</label>
+                        <input type="number" id="expAmount" placeholder="Enter amount...">
+                    </div>
+                    <button class="btn btn-success" style="width: 100%; margin-top: 8px;" onclick="saveExpense()">Save Expense</button>
+                </div>
+                <div class="history-box" style="margin-top:0;">
+                    <table>
+                        <thead><tr><th>Date</th><th>Particulars</th><th>Type</th><th style="text-align:right">Amount</th><th></th></tr></thead>
+                        <tbody id="expenseTableBody"></tbody>
+                    </table>
+                </div>
+                <button class="btn btn-outline" style="width: 100%; margin-top: 24px;" onclick="window.location.hash='dashboardScreen'">Back to Dashboard</button>
+            </div>
+
+            <div id="partyDetailScreen" class="screen">
+                <div class="detail-header">
+                    <h2 id="pdName" style="margin:0 0 4px 0;">Party Name</h2>
+                    <p style="color: var(--text-sub); margin: 0; font-size: 15px; font-weight: 500;">Live Balance: <span id="pdLiveBal" style="font-weight:800; font-size:18px;">₹ 0</span></p>
+                    <p style="color: var(--text-sub); margin: 4px 0 0 0; font-size: 11px;">Prev. Cycle Balance: <span id="pdOldBal">₹ 0</span></p>
+                </div>
+
+                <div class="nav-buttons" style="margin-bottom: 12px;">
+                    <button class="btn btn-primary" onclick="openEntryModal('qty')">Add Dai (Sell)</button>
+                    <button class="btn btn-success" onclick="openEntryModal('jama')">Add Payment (Jama)</button>
+                </div>
+
+                <div class="nav-buttons">
+                    <button class="btn btn-outline" style="color:#f59e0b; border-color:#f59e0b;" onclick="openEntryModal('return_dai')">Return Dai</button>
+                    <button class="btn btn-outline" style="color:#8b5cf6; border-color:#8b5cf6;" onclick="openEntryModal('kacho_mal')">Add Bhangar</button>
+                </div>
+
+                <div class="nav-buttons" style="margin-top:24px;">
+                    <button class="btn btn-outline" style="flex:1;" onclick="showInvoice()">🧾 Generate Invoice</button>
+                    <button class="btn btn-outline" style="flex:1;" onclick="window.location.hash='historyScreen'">🕒 View History</button>
+                </div>
+
+                <div id="entryForm" style="display:none; background: var(--card-bg); padding: 20px; border-radius: var(--radius); margin-bottom: 24px; border: 1px solid var(--border-color); box-shadow: var(--shadow-sm);">
+                    <h4 id="entryFormTitle" style="margin:0 0 16px 0; font-size: 16px; color: var(--text-main);">Add Entry</h4>
+                    <div class="input-group"><label>Date:</label><input type="date" id="entryDate"></div>
+
+                    <div id="multiSizeGrid" style="display:none; grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); gap: 12px; max-height: 280px; overflow-y: auto; border: 1px solid var(--border-color); padding: 12px; border-radius: 10px; margin-bottom: 16px; background: var(--bg-main);">
+                    </div>
+
+                    <div id="descGroup" style="display:none;" class="input-group">
+                        <label id="descLabel">Particulars:</label>
+                        <input type="text" id="entryDesc" placeholder="Enter item details...">
+                    </div>
+
+                    <div id="singleValueGroup">
+                        <div class="input-group"><label id="entryLabel">Value:</label><input type="number" id="entryValue"></div>
+                    </div>
+
+                    <button class="btn btn-primary" style="width:100%; margin-top: 8px;" onclick="saveData()">Save Entry</button>
+                    <button class="btn btn-outline" style="width: 100%; margin-top: 12px; border: none; box-shadow: none;" onclick="document.getElementById('entryForm').style.display='none'">Cancel</button>
+                </div>
+
+                <div class="history-box" style="margin-top: 0;">
+                    <table id="currentRecordTable">
+                        <thead><tr><th>Date</th><th>Type</th><th style="text-align:right">Total Qty/Amt</th></tr></thead>
+                        <tbody id="currentRecordBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div id="chitthiScreen" class="screen">
+                <div class="no-print" style="margin-bottom: 20px; display: flex; gap: 12px;">
+                    <button class="btn btn-success" style="flex:1; padding: 15px; font-size: 15px;" onclick="window.print()">🖨️ PDF / Print</button>
+                    <button class="btn btn-primary" style="flex:1; padding: 15px; font-size: 15px; background:#25D366; color:white; border:none;" onclick="shareChitthiWhatsApp()">💬 WhatsApp PDF</button>
+                </div>
+
+                <div id="chitthiPrintArea" class="invoice-wrapper" style="max-width: 420px; padding: 25px;">
+                    <div style="text-align:center; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 20px;">
+                        <h2 style="margin:0; font-size:22px; font-weight:900; letter-spacing: 0.5px; color:#0f172a !important;">DELIVERY SLIP</h2>
+                        <p style="margin:4px 0 0 0; font-size:12px; color:#64748b !important; font-weight:700;">JAY MAHADEV DAI</p>
+                    </div>
+
+                    <div style="display:flex; justify-content:space-between; margin-bottom: 20px; font-size:14px; color:#1e293b !important;">
+                        <div><strong>Party:</strong> <span id="chitthiPartyName" style="color:#2563eb !important; font-weight:800;"></span></div>
+                        <div><strong>Date:</strong> <span id="chitthiDate" style="font-weight:600;"></span></div>
+                    </div>
+
+                    <table class="inv-table" style="margin-bottom:20px;">
+                        <thead>
+                            <tr>
+                                <th style="width:20%">NO.</th>
+                                <th style="width:50%">DAI SIZE</th>
+                                <th style="width:30%; text-align:right;">DAI</th>
+                            </tr>
+                        </thead>
+                        <tbody id="chitthiItemsBody"></tbody>
+                    </table>
+
+                    <div style="text-align:right; font-size:16px; font-weight:800; border-top:2px solid #e2e8f0; padding-top:16px; color: #0f172a !important;">
+                        Total Delivered: <span id="chitthiTotalQty" style="color:#2563eb !important; font-size: 20px;">0</span> Dai
+                    </div>
+                </div>
+                <button class="btn btn-outline no-print" id="chitthiBackBtn" style="width: 100%; margin-top: 24px;" onclick="window.history.back()">← Back</button>
+            </div>
+
+            <div id="invoiceScreen" class="screen">
+                <div class="no-print" style="margin-bottom: 20px; display: flex; gap: 12px;">
+                    <button class="btn btn-success" style="flex: 1;" onclick="window.print()">🖨️ PDF / Print</button>
+                    <button class="btn btn-primary" style="flex: 1; background: #25D366; color:white; border:none;" onclick="shareOnWhatsApp()">💬 WhatsApp</button>
+                    <button class="btn btn-primary" style="flex: 1; background: var(--danger);" id="closeCycleBtn" onclick="closeBook()">✅ Close Cycle</button>
+                </div>
+
+                <div id="invoicePrintArea" class="invoice-wrapper">
+                    <div class="inv-header">
+                        <div class="inv-brand"><h1 style="color:#0f172a !important;">JAY MAHADEV DAI</h1><p style="color:#64748b !important;">Premium Dai Manufacturing</p></div>
+                        <div class="inv-meta"><h2 style="color:#3b82f6 !important;">INVOICE</h2><p style="color:#0f172a !important;">Date: <span id="invDate"></span></p></div>
+                    </div>
+                    <div class="inv-party-section">
+                        <div class="inv-party"><p style="color:#64748b !important;">Billed To:</p><h3 id="invPartyName" style="color:#0f172a !important;"></h3></div>
+                        <div class="inv-rate"><p class="label" style="color:#64748b !important;">Rate Applied:</p><p class="value" style="color:#3b82f6 !important;">₹ 0.30 / Unit</p></div>
+                    </div>
+                    <table class="inv-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 20%;">NO.</th>
+                                <th style="width: 40%; text-align: center;">DATE</th>
+                                <th style="width: 40%; text-align:right;">QUANTITY</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invItemsBody"></tbody>
+                    </table>
+                    <div class="inv-footer-section">
+                        <div class="inv-terms"><h4 style="color:#0f172a !important;">Terms & Conditions</h4><p style="color:#475569 !important;">1. Please verify the quantities listed above.<br>2. All balances are carried forward to the<br>next billing cycle if unpaid.<br>3. Thank you for your continued business!</p></div>
+                        <div class="inv-summary">
+                            <table id="invSummaryTable"></table>
+                            <div class="inv-total"><span class="label" style="color:#0f172a !important;">Final Due:</span><span class="value" style="color:#3b82f6 !important;">₹ <span id="invFinalDue">0</span></span></div>
+                        </div>
+                    </div>
+                    <div class="auth-sign"><h4 style="color:#0f172a !important;">SANJAYBHAI DODIYA</h4><p style="color:#64748b !important;">(Authorized Person)</p></div>
+                </div>
+            </div>
+
+            <div id="historyScreen" class="screen">
+                <h3 style="font-weight:800; color: var(--text-main);">Cycle History for <span id="histPartyName" style="color:var(--secondary)"></span></h3>
+                <div id="historyListContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
     const USERS = { "parth": "pd27", "sanjaybhai": "sd01", "deep": "dd24" };
     const RATE = 0.30;
     
@@ -698,71 +534,31 @@
         if(localStorage.getItem("isLoggedIn") !== "true") return;
         
         let hash = window.location.hash.replace('#', '');
-        
-        if(!hash) {
-            window.location.hash = 'dashboardScreen';
-            return;
-        }
+        if(!hash) { window.location.hash = 'dashboardScreen'; return; }
 
         let targetScreen = document.getElementById(hash);
-        if(!targetScreen) {
-            window.location.hash = 'dashboardScreen';
-            return;
-        }
+        if(!targetScreen) { window.location.hash = 'dashboardScreen'; return; }
 
         const partyScreens = ['partyDetailScreen', 'historyScreen', 'chitthiScreen', 'invoiceScreen'];
-        if(partyScreens.includes(hash) && !activeParty) {
-            window.location.hash = 'dashboardScreen';
-            return;
-        }
+        if(partyScreens.includes(hash) && !activeParty) { window.location.hash = 'dashboardScreen'; return; }
 
-        document.querySelectorAll('.container > .screen').forEach(d => {
-            d.classList.remove('active-screen');
-        });
+        document.querySelectorAll('.container > .screen').forEach(d => { d.classList.remove('active-screen'); });
         
         let title = 'JAY MAHADEV DAI';
         
-        if(hash === 'dashboardScreen') {
-            document.getElementById('currentUserBadge').style.display = 'inline-block';
-        } else {
-            document.getElementById('currentUserBadge').style.display = 'none';
-        }
+        if(hash === 'dashboardScreen') { document.getElementById('currentUserBadge').style.display = 'inline-block'; } 
+        else { document.getElementById('currentUserBadge').style.display = 'none'; }
 
         switch(hash) {
-            case 'dashboardScreen':
-                title = 'JAY MAHADEV DAI';
-                activeParty = null;
-                filterPartiesDashboard();
-                break;
-            case 'stockScreen':
-                title = 'MANAGE STOCK';
-                renderStockPage();
-                break;
-            case 'expenseScreen':
-                title = 'EXPENSES / HISAB';
-                renderExpensePage();
-                break;
-            case 'salesBookScreen':
-                title = 'SALES BOOK';
-                renderSalesBook();
-                break;
-            case 'partyDetailScreen':
-                title = activeParty;
-                renderPartyDOM(activeParty);
-                break;
-            case 'chitthiScreen':
-                title = 'DELIVERY SLIP';
-                break;
-            case 'invoiceScreen':
-                title = 'TAX INVOICE';
-                break;
-            case 'historyScreen':
-                title = 'CYCLE HISTORY';
-                renderHistoryDOM();
-                break;
-            case 'directInvoiceScreen':
-                title = 'DIRECT INVOICE';
-                break;
+            case 'dashboardScreen': title = 'JAY MAHADEV DAI'; activeParty = null; filterPartiesDashboard(); break;
+            case 'stockScreen': title = 'MANAGE STOCK'; renderStockPage(); break;
+            case 'expenseScreen': title = 'EXPENSES / HISAB'; renderExpensePage(); break;
+            case 'salesBookScreen': title = 'SALES BOOK'; renderSalesBook(); break;
+            case 'partyDetailScreen': title = activeParty; renderPartyDOM(activeParty); break;
+            case 'chitthiScreen': title = 'DELIVERY SLIP'; break;
+            case 'invoiceScreen': title = 'TAX INVOICE'; break;
+            case 'historyScreen': title = 'CYCLE HISTORY'; renderHistoryDOM(); break;
+            case 'directInvoiceScreen': title = 'DIRECT INVOICE'; break;
         }
 
         targetScreen.classList.add('active-screen');
@@ -799,7 +595,8 @@
     };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
-    db.ref().keepSynced(true); 
+    
+    // 🔥 FIX FOR BLANK PC SCREEN: Removed db.ref().keepSynced(true) which throws error on Web SDK
 
     function getSafeArray(fbData) {
         if (!fbData) return [];
@@ -1340,7 +1137,6 @@
         let data = appData[party] || { balance:0, deliveries:[], payments:[], returns:[], materials:[] };
         document.getElementById('pdName').innerText = party; 
         
-        // 🔥 CALC AND SHOW LIVE BALANCE 🔥
         let liveBalance = data.balance || 0;
         let tQty = 0, tRet = 0, tPay = 0, tMat = 0;
         getSafeArray(data.deliveries).forEach(d => tQty += d.nang);
@@ -1441,26 +1237,29 @@
         saveDB();
     }
 
+    // 🔥 FIX FOR DELIVERY SLIP (A5 PDF) FULL WIDTH 🔥
     async function shareChitthiWhatsApp() {
         let printArea = document.getElementById('chitthiPrintArea');
         let partyName = document.getElementById('chitthiPartyName').innerText || "Party";
         let fileName = partyName.replace(/ /g, "_") + "_Delivery_Slip.pdf";
         
-        // 🔥 FORCED DESKTOP WIDTH FOR PERFECT PDF SHARE 🔥
         let originalCss = printArea.style.cssText;
         printArea.style.width = '500px';
         printArea.style.maxWidth = '500px';
-        printArea.style.padding = '30px';
+        printArea.style.padding = '25px';
         printArea.style.margin = '0';
         
         var opt = { 
-            margin: 0.5, filename: fileName, image: { type: 'jpeg', quality: 0.98 }, 
-            html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'a5', orientation: 'portrait' } 
+            margin: 0.2, 
+            filename: fileName, 
+            image: { type: 'jpeg', quality: 0.98 }, 
+            html2canvas: { scale: 2, useCORS: true, windowWidth: 800 }, 
+            jsPDF: { unit: 'in', format: 'a5', orientation: 'portrait' } 
         };
 
         try {
             const pdfBlob = await html2pdf().set(opt).from(printArea).output('blob');
-            printArea.style.cssText = originalCss; // Restore view
+            printArea.style.cssText = originalCss; 
 
             const file = new File([pdfBlob], fileName, { type: "application/pdf" });
 
@@ -1517,29 +1316,29 @@
         window.location.hash = 'chitthiScreen';
     }
 
+    // 🔥 FIX FOR INVOICE (A4 PDF) FULL WIDTH 🔥
     async function shareOnWhatsApp() {
         let printArea = document.getElementById('invoicePrintArea');
         let partyName = document.getElementById('invPartyName').innerText || "Cash_Customer";
         let fileName = partyName.replace(/ /g, "_") + "_bill_Invoice.pdf";
         
-        // 🔥 FORCED DESKTOP WIDTH FOR PERFECT A4 PDF SHARE 🔥
         let originalCss = printArea.style.cssText;
-        printArea.style.width = '800px';
-        printArea.style.maxWidth = '800px';
+        printArea.style.width = '750px';
+        printArea.style.maxWidth = '750px';
         printArea.style.padding = '40px';
         printArea.style.margin = '0';
         
         var opt = { 
-            margin: 0.3, 
+            margin: 0.2, 
             filename: fileName, 
             image: { type: 'jpeg', quality: 1.0 }, 
-            html2canvas: { scale: 2, useCORS: true }, 
+            html2canvas: { scale: 2, useCORS: true, windowWidth: 1024 }, // forces desktop view
             jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } 
         };
 
         try {
             const pdfBlob = await html2pdf().set(opt).from(printArea).output('blob');
-            printArea.style.cssText = originalCss; // Restore immediately
+            printArea.style.cssText = originalCss; 
 
             const file = new File([pdfBlob], fileName, { type: "application/pdf" });
 
@@ -1551,7 +1350,7 @@
                 window.open(`https://wa.me/?text=${encodeURIComponent('Jay Mahadev Dai - Invoice is attached.')}`, '_blank');
             }
         } catch(e) { 
-            printArea.style.cssText = originalCss; // Restore view on fail
+            printArea.style.cssText = originalCss; 
             alert("Error in PDF generation: " + e.message); 
         }
     }
@@ -1597,18 +1396,17 @@
 
     function closeBook() {
         if(confirm("Close cycle? This will save the full table to history.")) {
-            // 🔥 ASK FOR CYCLE MONTH/NAME 🔥
             let d = new Date();
             let monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
             let defaultMonth = monthNames[d.getMonth()] + " " + d.getFullYear();
             
             let cycleName = prompt("Billing cycle no Mahino nakho (e.g., Jun 2026):", defaultMonth);
-            if(!cycleName) return; // Cancelled
+            if(!cycleName) return; 
 
             let data = appData[activeParty], finalDue = parseInt(document.getElementById('invFinalDue').innerText);
             let histEntry = { 
                 date: getFormattedToday(),
-                cycleMonth: cycleName, // Saving custom month name
+                cycleMonth: cycleName, 
                 deliveries: getSafeArray(data.deliveries), 
                 returns: getSafeArray(data.returns),
                 materials: getSafeArray(data.materials),
@@ -1632,7 +1430,6 @@
             let div = document.createElement('div'); div.className = 'history-item';
             div.style.cssText = "padding: 15px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px; cursor: pointer; background: var(--card-bg); color: var(--text-main);";
             
-            // 🔥 DISPLAY CYCLE MONTH INSTEAD OF JUST DATE 🔥
             let cycleTitle = h.cycleMonth || h.date;
             
             div.innerHTML = `<b>📅 ${cycleTitle}</b><br><span style="color:var(--text-sub);">Closed on: ${h.date} | Bal: </span> <b style="font-size:15px; color:var(--primary);">₹ ${h.finalDue}</b>`;
@@ -1678,6 +1475,6 @@
         window.location.hash = 'invoiceScreen';
     }
 
-</script>
+    </script>
 </body>
 </html>
