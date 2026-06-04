@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -186,8 +185,7 @@
         .inv-brand h1 { margin: 0; color: #0f172a !important; font-size: 22px; font-weight: 800; text-transform: uppercase; }
         .inv-brand p { margin: 4px 0 0 0; font-size: 11px; color: #64748b !important; font-weight: 500; }
         .inv-meta { text-align: right; }
-        .inv-meta h2 { margin: 0 0 10px 0; color: transparent; -webkit-text-stroke: 1px #cbd5e1; font-size: 32px; letter-spacing: 2px; text-transform: uppercase; }
-        .inv-meta p { margin: 0; font-size: 12px; color: #0f172a !important; font-weight: 700; }
+        .inv-meta p { margin: 0; font-size: 14px; color: #0f172a !important; font-weight: 800; }
         
         .inv-party-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         .inv-party { background: #f8fafc !important; border-left: 4px solid #3b82f6 !important; padding: 12px 20px; border-radius: 6px; width: 45%; }
@@ -205,8 +203,10 @@
         
         .inv-footer-section { display: flex; justify-content: space-between; gap: 40px; margin-top: 10px; }
         .inv-terms { flex: 1.2; }
-        .inv-terms h4 { margin: 0 0 10px 0; font-size: 10px; font-weight: 700; color: #64748b !important; text-transform: uppercase; }
-        .inv-terms p { margin: 0; font-size: 10px; color: #64748b !important; line-height: 1.6; }
+        
+        /* 🔥 TERMS AND CONDITIONS BLACK & GHATU (BOLD) KARYA 🔥 */
+        .inv-terms h4 { margin: 0 0 10px 0; font-size: 11px; font-weight: 900; color: #000000 !important; text-transform: uppercase; }
+        .inv-terms p { margin: 0; font-size: 11px; color: #000000 !important; font-weight: 800; line-height: 1.6; }
         
         .inv-summary { width: 300px; background: #ffffff !important; padding: 15px 20px; border-radius: 8px; border: 1px solid #e2e8f0 !important; }
         .inv-summary table { width: 100%; border-collapse: collapse; }
@@ -214,7 +214,10 @@
         .inv-summary td.text-right { text-align: right; font-weight: 600; color: #0f172a !important;}
         .inv-summary tr:not(:last-child) td { border-bottom: 1px dashed #cbd5e1 !important; }
         .inv-total { margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0 !important; display: flex; justify-content: space-between; font-weight: 800;}
-        .inv-total .label { color: #0f172a !important; } .inv-total .value { color: #3b82f6 !important; }
+        
+        /* 🔥 FINAL DUE FULL BLACK COLOR KARYU 🔥 */
+        .inv-total .label { color: #000000 !important; } .inv-total .value { color: #000000 !important; }
+        
         .auth-sign { text-align: right; margin-top: 40px; }
         .auth-sign h4 { color: #0f172a !important; margin-bottom: 2px; } .auth-sign p { color: #64748b !important; margin-top:0; font-size: 11px;}
 
@@ -612,10 +615,11 @@
                                     !important;">JAY MAHADEV DAI</h1><p
                                     style="color:#64748b !important;">Premium
                                     Dai Manufacturing</p></div>
-                            <div class="inv-meta"><h2 style="color:#3b82f6
-                                    !important;">INVOICE</h2><p
-                                    style="color:#0f172a !important;">Date:
-                                    <span id="invDate"></span></p></div>
+                            <div class="inv-meta">
+                                <p style="margin: 0; font-size: 14px; color:
+                                    #0f172a !important; font-weight: 800;">Date:
+                                    <span id="invDate"></span></p>
+                            </div>
                         </div>
                         <div class="inv-party-section">
                             <div class="inv-party"><p style="color:#64748b
@@ -641,7 +645,7 @@
                         <div class="inv-footer-section">
                             <div class="inv-terms"><h4 style="color:#0f172a
                                     !important;">Terms & Conditions</h4><p
-                                    style="color:#475569 !important;">1. Please
+                                    style="color:#0f172a !important;">1. Please
                                     verify the quantities listed above.<br>2.
                                     All balances are carried forward to the<br>next
                                     billing cycle if unpaid.<br>3. Thank you for
@@ -651,7 +655,7 @@
                                 <div class="inv-total"><span class="label"
                                         style="color:#0f172a !important;">Final
                                         Due:</span><span class="value"
-                                        style="color:#3b82f6 !important;">₹
+                                        style="color:#0f172a !important;">₹
                                         <span id="invFinalDue">0</span></span></div>
                             </div>
                         </div>
@@ -904,7 +908,8 @@
         let invBody = document.getElementById('invItemsBody');
         invBody.innerHTML = '';
         sizesDeducted.forEach((sz, i) => {
-            invBody.innerHTML += `<tr><td>${i+1}</td><td style="text-align: center;">${date}</td><td style="text-align:right;">${sz.val}</td></tr>`;
+            // 🔥 REMOVED "DAI" WORD AND SET TO BLACK 🔥
+            invBody.innerHTML += `<tr><td>${i+1}</td><td style="text-align: center;">${date}</td><td style="text-align:right; font-weight:700; color:#0f172a !important;">${sz.val}</td></tr>`;
         });
         
         let curAmt = Math.round(totalNangToSave * RATE);
@@ -1387,8 +1392,6 @@
     }
 
     async function shareChitthiWhatsApp() {
-        if (typeof html2pdf === 'undefined') { alert("PDF library load nathi thai. App no Data/Cache clear kari pachi try karo."); return; }
-
         let printArea = document.getElementById('chitthiPrintArea');
         let partyName = document.getElementById('chitthiPartyName').innerText || "Party";
         let fileName = partyName.replace(/ /g, "_") + "_Delivery_Slip.pdf";
@@ -1402,11 +1405,9 @@
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
                 await navigator.share({ title: 'Delivery Slip', text: `Jay Mahadev Dai\nDelivery Slip for ${partyName}.`, files: [file] });
             } else {
-                const url = URL.createObjectURL(pdfBlob);
-                const a = document.createElement('a');
-                a.href = url; a.download = fileName;
-                document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-                alert("Mobile ma share function support nathi kartu. PDF download thai gai che.");
+                html2pdf().set(opt).from(printArea).save();
+                alert("Mobile ma aap direct share kari shako cho. PC ma aani PDF download thai gai che, tame WhatsApp Web thi mokli shako cho.");
+                window.open(`https://wa.me/?text=${encodeURIComponent('Jay Mahadev Dai - Delivery Slip is attached.')}`, '_blank');
             }
         } catch(e) { alert("Error: " + e.message); }
     }
@@ -1452,8 +1453,6 @@
     }
 
     async function shareOnWhatsApp() {
-        if (typeof html2pdf === 'undefined') { alert("PDF library load nathi thai. App no Data/Cache clear kari pachi try karo."); return; }
-
         let printArea = document.getElementById('invoicePrintArea');
         let partyName = document.getElementById('invPartyName').innerText || "Cash_Customer";
         let fileName = partyName.replace(/ /g, "_") + "_bill_Invoice.pdf";
@@ -1462,7 +1461,7 @@
             margin: 0.3, 
             filename: fileName, 
             image: { type: 'jpeg', quality: 1.0 }, 
-            html2canvas: { scale: 2, windowWidth: 800 }, 
+            html2canvas: { scale: 2 }, 
             jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } 
         };
 
@@ -1471,13 +1470,11 @@
             const file = new File([pdfBlob], fileName, { type: "application/pdf" });
 
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
-                await navigator.share({ title: 'Tax Invoice', text: `Jay Mahadev Dai\nBill Invoice for ${partyName}.`, files: [file] });
+                await navigator.share({ title: 'Tax Invoice', text: `Jay Mahadev Dai\nBill Invoice for ${partyName}`, files: [file] });
             } else {
-                const url = URL.createObjectURL(pdfBlob);
-                const a = document.createElement('a');
-                a.href = url; a.download = fileName;
-                document.body.appendChild(a); a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
-                alert("Mobile ma share function support nathi kartu. PDF download thai gai che.");
+                html2pdf().set(opt).from(printArea).save();
+                alert("Mobile ma aap direct share kari shako cho. PC ma aani PDF download thai gai che, tame WhatsApp Web thi mokli shako cho.");
+                window.open(`https://wa.me/?text=${encodeURIComponent('Jay Mahadev Dai - Invoice is attached.')}`, '_blank');
             }
         } catch(e) { alert("Error in PDF generation: " + e.message); }
     }
@@ -1487,7 +1484,8 @@
         let totalQty = 0, invBody = document.getElementById('invItemsBody'); invBody.innerHTML = '';
         
         getSafeArray(data.deliveries).forEach((d, i) => {
-            invBody.innerHTML += `<tr><td>${i+1}</td><td style="text-align: center;">${d.date}</td><td style="text-align:right;">${d.nang}</td></tr>`; 
+            // 🔥 REMOVED "DAI" WORD AND SET TO BLACK 🔥
+            invBody.innerHTML += `<tr><td>${i+1}</td><td style="text-align: center;">${d.date}</td><td style="text-align:right; font-weight:800; color:#0f172a !important;">${d.nang}</td></tr>`; 
             totalQty += d.nang;
         });
         
@@ -1568,8 +1566,9 @@
         let invBody = document.getElementById('invItemsBody'); invBody.innerHTML = ''; let totalQty = 0;
         
         getSafeArray(h.deliveries).forEach((d, i) => { 
+            // 🔥 REMOVED "DAI" WORD AND SET TO BLACK 🔥
             invBody.innerHTML += `<tr><td>${i+1}</td><td style="text-align: center;">${d.date}</td><td style="text-align:right;">
-                <span onclick="viewOldChitthi(${hIndex}, ${i}, 'deliveries')" style="color:var(--secondary); text-decoration:underline; cursor:pointer;">${d.nang} Dai</span>
+                <span onclick="viewOldChitthi(${hIndex}, ${i}, 'deliveries')" style="color:#0f172a !important; font-weight:800; cursor:pointer;">${d.nang}</span>
             </td></tr>`; 
             totalQty += d.nang; 
         }
