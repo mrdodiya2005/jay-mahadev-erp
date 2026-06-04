@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -11,6 +12,8 @@
         <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
         <script
             src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
         <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -58,7 +61,6 @@
         .login-card p { color: #94a3b8; font-size: 13px; font-weight: 500; letter-spacing: 1px; margin-bottom: 30px; text-transform: uppercase;}
         .login-card label { color: #cbd5e1; font-size: 12px; font-weight: 600; margin-bottom: 6px; display: block; text-align: left;}
         
-        /* 🔥 PERMANENT FIX FOR ALL INPUTS & PLACEHOLDERS 🔥 */
         input, select { 
             width: 100%; padding: 14px 16px; border: 1px solid var(--border-color); border-radius: 10px; 
             box-sizing: border-box; font-size: 16px !important; font-family: 'Inter', sans-serif; 
@@ -214,6 +216,20 @@
         .inv-total .label { color: #0f172a !important; } .inv-total .value { color: #3b82f6 !important; }
         .auth-sign { text-align: right; margin-top: 40px; }
         .auth-sign h4 { color: #0f172a !important; margin-bottom: 2px; } .auth-sign p { color: #64748b !important; margin-top:0; font-size: 11px;}
+
+        @media (max-width: 600px) {
+            .invoice-wrapper { padding: 15px !important; border-top: 4px solid #0f172a !important; }
+            .inv-header { flex-direction: column; align-items: flex-start; gap: 10px; padding-bottom: 15px; margin-bottom: 15px;}
+            .inv-meta { text-align: left; }
+            .inv-party-section { flex-direction: column; gap: 15px; align-items: flex-start;}
+            .inv-party { width: 100%; box-sizing: border-box; }
+            .inv-rate { text-align: left; margin-top: 5px;}
+            .inv-footer-section { flex-direction: column; gap: 20px;}
+            .inv-summary { width: 100%; box-sizing: border-box; }
+            .inv-table { font-size: 11px; }
+            .inv-table thead th { padding: 10px; }
+            .inv-table tbody td { padding: 10px; }
+        }
 
         @media print {
             body { background: #ffffff !important; }
@@ -451,11 +467,14 @@
 
                 <div id="partyDetailScreen" class="screen">
                     <div class="detail-header">
-                        <h2 id="pdName" style="margin:0 0 8px 0;">Party Name</h2>
+                        <h2 id="pdName" style="margin:0 0 4px 0;">Party Name</h2>
                         <p style="color: var(--text-sub); margin: 0; font-size:
-                            14px; font-weight: 500;">Prev. Balance: <span
-                                id="pdOldBal" style="font-weight:800;
-                                color:var(--danger);">₹ 0</span></p>
+                            15px; font-weight: 500;">Live Balance: <span
+                                id="pdLiveBal" style="font-weight:800;
+                                font-size:18px;">₹ 0</span></p>
+                        <p style="color: var(--text-sub); margin: 4px 0 0 0;
+                            font-size: 11px;">Prev. Cycle Balance: <span
+                                id="pdOldBal">₹ 0</span></p>
                     </div>
 
                     <div class="nav-buttons" style="margin-bottom: 12px;">
@@ -1320,7 +1339,22 @@
     function renderPartyDOM(party) {
         let data = appData[party] || { balance:0, deliveries:[], payments:[], returns:[], materials:[] };
         document.getElementById('pdName').innerText = party; 
+        
+        // 🔥 CALC AND SHOW LIVE BALANCE 🔥
+        let liveBalance = data.balance || 0;
+        let tQty = 0, tRet = 0, tPay = 0, tMat = 0;
+        getSafeArray(data.deliveries).forEach(d => tQty += d.nang);
+        getSafeArray(data.returns).forEach(r => tRet += r.nang);
+        getSafeArray(data.payments).forEach(p => tPay += p.amount);
+        getSafeArray(data.materials).forEach(m => tMat += m.amount);
+        
+        liveBalance = liveBalance + Math.round(tQty * RATE) - Math.round(tRet * RATE) - tMat - tPay;
+        
+        let liveColor = liveBalance > 0 ? 'var(--danger)' : (liveBalance < 0 ? 'var(--success)' : 'var(--text-main)');
+        document.getElementById('pdLiveBal').innerText = "₹ " + liveBalance;
+        document.getElementById('pdLiveBal').style.color = liveColor;
         document.getElementById('pdOldBal').innerText = "₹ " + (data.balance || 0);
+
         let currBody = document.getElementById('currentRecordBody'); 
         currBody.innerHTML = '';
         
@@ -1412,10 +1446,22 @@
         let partyName = document.getElementById('chitthiPartyName').innerText || "Party";
         let fileName = partyName.replace(/ /g, "_") + "_Delivery_Slip.pdf";
         
-        var opt = { margin: 0.5, filename: fileName, image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2 }, jsPDF: { unit: 'in', format: 'a5', orientation: 'portrait' } };
+        // 🔥 FORCED DESKTOP WIDTH FOR PERFECT PDF SHARE 🔥
+        let originalCss = printArea.style.cssText;
+        printArea.style.width = '500px';
+        printArea.style.maxWidth = '500px';
+        printArea.style.padding = '30px';
+        printArea.style.margin = '0';
+        
+        var opt = { 
+            margin: 0.5, filename: fileName, image: { type: 'jpeg', quality: 0.98 }, 
+            html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'in', format: 'a5', orientation: 'portrait' } 
+        };
 
         try {
             const pdfBlob = await html2pdf().set(opt).from(printArea).output('blob');
+            printArea.style.cssText = originalCss; // Restore view
+
             const file = new File([pdfBlob], fileName, { type: "application/pdf" });
 
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -1425,7 +1471,10 @@
                 alert("Mobile ma aap direct share kari shako cho. PC ma aani PDF download thai gai che, tame WhatsApp Web thi mokli shako cho.");
                 window.open(`https://wa.me/?text=${encodeURIComponent('Jay Mahadev Dai - Delivery Slip is attached.')}`, '_blank');
             }
-        } catch(e) { alert("Error: " + e.message); }
+        } catch(e) { 
+            printArea.style.cssText = originalCss;
+            alert("Error: " + e.message); 
+        }
     }
 
     function viewChitthi(index, type = 'deliveries') {
@@ -1473,16 +1522,25 @@
         let partyName = document.getElementById('invPartyName').innerText || "Cash_Customer";
         let fileName = partyName.replace(/ /g, "_") + "_bill_Invoice.pdf";
         
+        // 🔥 FORCED DESKTOP WIDTH FOR PERFECT A4 PDF SHARE 🔥
+        let originalCss = printArea.style.cssText;
+        printArea.style.width = '800px';
+        printArea.style.maxWidth = '800px';
+        printArea.style.padding = '40px';
+        printArea.style.margin = '0';
+        
         var opt = { 
             margin: 0.3, 
             filename: fileName, 
             image: { type: 'jpeg', quality: 1.0 }, 
-            html2canvas: { scale: 2, windowWidth: 800 }, 
+            html2canvas: { scale: 2, useCORS: true }, 
             jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' } 
         };
 
         try {
             const pdfBlob = await html2pdf().set(opt).from(printArea).output('blob');
+            printArea.style.cssText = originalCss; // Restore immediately
+
             const file = new File([pdfBlob], fileName, { type: "application/pdf" });
 
             if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -1492,7 +1550,10 @@
                 alert("Mobile ma aap direct share kari shako cho. PC ma aani PDF download thai gai che, tame WhatsApp Web thi mokli shako cho.");
                 window.open(`https://wa.me/?text=${encodeURIComponent('Jay Mahadev Dai - Invoice is attached.')}`, '_blank');
             }
-        } catch(e) { alert("Error in PDF generation: " + e.message); }
+        } catch(e) { 
+            printArea.style.cssText = originalCss; // Restore view on fail
+            alert("Error in PDF generation: " + e.message); 
+        }
     }
 
     function showInvoice() {
@@ -1536,9 +1597,18 @@
 
     function closeBook() {
         if(confirm("Close cycle? This will save the full table to history.")) {
+            // 🔥 ASK FOR CYCLE MONTH/NAME 🔥
+            let d = new Date();
+            let monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            let defaultMonth = monthNames[d.getMonth()] + " " + d.getFullYear();
+            
+            let cycleName = prompt("Billing cycle no Mahino nakho (e.g., Jun 2026):", defaultMonth);
+            if(!cycleName) return; // Cancelled
+
             let data = appData[activeParty], finalDue = parseInt(document.getElementById('invFinalDue').innerText);
             let histEntry = { 
-                date: getFormattedToday(), 
+                date: getFormattedToday(),
+                cycleMonth: cycleName, // Saving custom month name
                 deliveries: getSafeArray(data.deliveries), 
                 returns: getSafeArray(data.returns),
                 materials: getSafeArray(data.materials),
@@ -1551,8 +1621,7 @@
             data.deliveries = []; data.returns = []; data.materials = []; data.payments = [];
             saveDB().then(() => {
                 window.location.hash = 'dashboardScreen';
-            }
-          );
+            });
         }
     }
 
@@ -1562,10 +1631,13 @@
         getSafeArray(data.history).forEach((h, idx) => {
             let div = document.createElement('div'); div.className = 'history-item';
             div.style.cssText = "padding: 15px; border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 10px; cursor: pointer; background: var(--card-bg); color: var(--text-main);";
-            div.innerHTML = `<b>📅 Billing Snapshot: ${h.date}</b><br><span style="color:var(--text-sub);">Closing Balance:</span> <b style="font-size:15px; color:var(--primary);">₹ ${h.finalDue}</b>`;
+            
+            // 🔥 DISPLAY CYCLE MONTH INSTEAD OF JUST DATE 🔥
+            let cycleTitle = h.cycleMonth || h.date;
+            
+            div.innerHTML = `<b>📅 ${cycleTitle}</b><br><span style="color:var(--text-sub);">Closed on: ${h.date} | Bal: </span> <b style="font-size:15px; color:var(--primary);">₹ ${h.finalDue}</b>`;
             div.onclick = () => showOldInvoice(h, idx); cont.appendChild(div);
-        }
-      );
+        });
     }
 
     function showOldInvoice(h, hIndex) {
