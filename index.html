@@ -1618,7 +1618,6 @@
         
         window.location.hash = 'invoiceScreen';
     }
-
     function closeBook() {
         if(confirm("Close cycle? This will save the full table to history.")) {
             let d = new Date();
@@ -1647,7 +1646,6 @@
             });
         }
     }
-
     function renderHistoryDOM() {
         let data = appData[activeParty], cont = document.getElementById('historyListContainer');
         document.getElementById('histPartyName').innerText = activeParty; cont.innerHTML = '';
@@ -1661,7 +1659,6 @@
             div.onclick = () => showOldInvoice(h, idx); cont.appendChild(div);
         });
     }
-
     function showOldInvoice(h, hIndex) {
         let invBody = document.getElementById('invItemsBody'); invBody.innerHTML = ''; let totalQty = 0;
         
@@ -1672,8 +1669,7 @@
             totalQty += d.nang; 
         }
         );
-        
-        let curAmt = Math.round(totalQty * RATE);
+         let curAmt = Math.round(totalQty * RATE);
         
         let totalReturnQty = 0; getSafeArray(h.returns).forEach(r => totalReturnQty += r.nang);
         let returnCredit = Math.round(totalReturnQty * RATE);
