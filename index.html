@@ -151,22 +151,15 @@
         .btn-outline:hover { background: #f8fafc; border-color: #cbd5e1; }
         [data-theme="dark"] .btn-outline:hover { background: #334155; border-color: #475569; }
 
-        /* 🔥 Scrollbar and Sticky Table Header fix applied here 🔥 */
         .history-box { 
-            background: var(--card-bg); border-radius: var(--radius); padding: 20px; 
-            margin-top: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); 
-            overflow-y: auto; overflow-x: auto; max-height: 450px; 
+            background: var(--card-bg); border-radius: var(--radius); padding: 20px; margin-top: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); overflow-x: auto;
+            max-height: 60vh; overflow-y: auto; 
         }
         table { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 13px; }
-        th { 
-            padding: 12px 10px; font-weight: 600; color: var(--text-sub); font-size: 12px; 
-            border-bottom: 2px solid var(--border-color); text-align: left; text-transform: uppercase; 
-            letter-spacing: 0.5px; white-space: nowrap; 
-            position: sticky; top: -20px; background-color: var(--card-bg); z-index: 10;
-        }
-        
+        th { padding: 12px 10px; font-weight: 600; color: var(--text-sub); font-size: 12px; border-bottom: 2px solid var(--border-color); text-align: left; text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; position: sticky; top: 0; background: var(--card-bg); z-index: 10;}
         td { padding: 14px 10px; border-bottom: 1px solid var(--border-color); font-weight: 500; white-space: nowrap;}
         tr:last-child td { border-bottom: none; }
+        
         .badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 700; letter-spacing: 0.3px;}
         .badge-in { background: rgba(16, 185, 129, 0.1); color: var(--success); }
         .badge-out { background: rgba(37, 99, 235, 0.1); color: var(--secondary); }
@@ -190,7 +183,6 @@
         .screen { display: none; }
         .active-screen { display: block !important; }
 
-        /* Original Invoice & Slip Base CSS */
         .invoice-wrapper { background: #ffffff !important; padding: 40px; border-radius: 8px; color: #0f172a !important; margin: 0 auto; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border-top: 6px solid #0f172a !important; box-sizing: border-box;}
         .inv-header { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 25px; margin-bottom: 25px; }
         .inv-brand h1 { margin: 0; color: #0f172a !important; font-size: 22px; font-weight: 800; text-transform: uppercase; }
@@ -214,7 +206,6 @@
         
         .inv-footer-section { display: flex; justify-content: space-between; gap: 40px; margin-top: 10px; }
         .inv-terms { flex: 1.2; }
-        
         .inv-terms h4 { margin: 0 0 10px 0; font-size: 11px; font-weight: 900; color: #000000 !important; text-transform: uppercase; }
         .inv-terms p { margin: 0; font-size: 11px; color: #000000 !important; font-weight: 800; line-height: 1.6; }
         
@@ -224,7 +215,6 @@
         .inv-summary td.text-right { text-align: right; font-weight: 600; color: #0f172a !important;}
         .inv-summary tr:not(:last-child) td { border-bottom: 1px dashed #cbd5e1 !important; }
         .inv-total { margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0 !important; display: flex; justify-content: space-between; font-weight: 800;}
-        
         .inv-total .label { color: #000000 !important; } .inv-total .value { color: #000000 !important; }
         
         .auth-sign { text-align: right; margin-top: 40px; }
@@ -515,8 +505,7 @@
                             overflow-y: auto; border: 1px solid
                             var(--border-color); padding: 12px; border-radius:
                             10px; margin-bottom: 16px; background:
-                            var(--bg-main);">
-                        </div>
+                            var(--bg-main);"></div>
 
                         <div id="descGroup" style="display:none;"
                             class="input-group">
@@ -534,7 +523,7 @@
                             margin-top: 8px;" onclick="saveData()">Save Entry</button>
                         <button class="btn btn-outline" style="width: 100%;
                             margin-top: 12px; border: none; box-shadow: none;"
-                            onclick="document.getElementById('entryForm').style.display='none'">Cancel</button>
+                            onclick="closeEntryForm()">Cancel</button>
                     </div>
 
                     <div class="history-box" style="margin-top: 0;">
@@ -691,6 +680,7 @@
     let appData = {}, stockInventory = {}, expenseData = {}, stockLogsData = {}, directSalesData = {};
     let activeParty = null, entryMode = ''; 
     let databaseInitialized = false;
+    let editModeState = null; 
 
     window.addEventListener('hashchange', handleHashChange);
 
@@ -877,7 +867,6 @@
         input.value = newVal === 0 ? '' : newVal;
     }
 
-    // 🔥 Added activeParty = name trick to fix redirect bug 🔥
     function saveDirectInvoice() {
         let name = document.getElementById('diName').value.trim();
         let dateInput = document.getElementById('diDate').value;
@@ -901,6 +890,7 @@
         }
         if(totalNangToSave === 0) return alert("Koy quantity nakhi nathi!");
         
+        let dateKeyStr = date.replace(/\//g, '-');
         let displayStr = sizesDeducted.map(s => `${s.size}: ${s.val}`).join(', ');
 
         sizesDeducted.forEach(item => {
@@ -932,10 +922,8 @@
         document.getElementById('invFinalDue').innerText = curAmt;
         document.getElementById('closeCycleBtn').style.display = 'none'; 
         document.getElementById('diName').value = '';
-        
-        // This is the fix to bypass the hash check
         activeParty = name;
-        window.location.hash = 'invoiceScreen';
+        window.location.replace('#invoiceScreen');
     }
 
     function renderSalesBook() {
@@ -1129,7 +1117,13 @@
         window.location.hash = 'partyDetailScreen';
     }
 
+    function closeEntryForm() {
+        document.getElementById('entryForm').style.display = 'none';
+        editModeState = null;
+    }
+
     function openEntryModal(mode) {
+        editModeState = null; 
         entryMode = mode;
         document.getElementById('entryForm').style.display = 'block';
         document.getElementById('entryDate').valueAsDate = new Date();
@@ -1150,7 +1144,7 @@
                         <p style="font-size:11px; color:var(--success); font-weight:700; margin:0 0 10px 0;">📦 ${currentStock}</p>
                         <div style="display:flex; justify-content:center; gap:6px;">
                             <button type="button" style="background:rgba(239, 68, 68, 0.1); border:none; border-radius:6px; color:var(--danger); width:32px; height:32px; font-size:18px; font-weight:bold; cursor:pointer; transition:background 0.2s;" onclick="adjustSellQty(${s}, -500)">-</button>
-                            <input type="number" id="sell_size_${s}" placeholder="0" min="0" max="${currentStock}" style="padding:0; font-size:15px; font-weight:700; text-align:center; width:50px; border:2px solid var(--border-color); border-radius:6px; box-sizing:border-box; box-shadow:none;">
+                            <input type="number" id="sell_size_${s}" placeholder="0" min="0" style="padding:0; font-size:15px; font-weight:700; text-align:center; width:50px; border:2px solid var(--border-color); border-radius:6px; box-sizing:border-box; box-shadow:none;">
                             <button type="button" style="background:rgba(16, 185, 129, 0.1); border:none; border-radius:6px; color:var(--success); width:32px; height:32px; font-size:18px; font-weight:bold; cursor:pointer; transition:background 0.2s;" onclick="adjustSellQty(${s}, 500)">+</button>
                         </div>
                     </div>
@@ -1199,9 +1193,49 @@
         if (newVal < 0) newVal = 0;
         if (!isReturn) {
             let maxStock = stockInventory[size] || 0;
+            if (editModeState && editModeState.type === 'deliveries') {
+                let oldSz = editModeState.originalEntry.sizes ? editModeState.originalEntry.sizes.find(x => x.size === size) : null;
+                if (oldSz) maxStock += oldSz.val;
+            }
             if (newVal > maxStock) return alert(`⚠️ Error: Dai No. ${size} no stock purto nathi! (Available: ${maxStock})`);
         }
         input.value = newVal === 0 ? '' : newVal;
+    }
+
+    function editEntry(index, type) {
+        let entry = appData[activeParty][type][index];
+        
+        if ((type === 'deliveries' || type === 'returns') && !entry.sizes) {
+            alert("Aa juni entry che jema 'Size' ni mahiti nathi. Aa entry direct edit nahi thay, aane delete kari ne navi nakho.");
+            return;
+        }
+
+        editModeState = { index: index, type: type, originalEntry: JSON.parse(JSON.stringify(entry)) };
+
+        let mappedMode = '';
+        if (type === 'deliveries') mappedMode = 'qty';
+        else if (type === 'returns') mappedMode = 'return_dai';
+        else if (type === 'materials') mappedMode = 'kacho_mal';
+        else if (type === 'payments') mappedMode = 'jama';
+
+        openEntryModal(mappedMode);
+        document.getElementById('entryFormTitle').innerText += " (EDIT MODE ✏️)";
+
+        let parts = entry.date.split('/');
+        document.getElementById('entryDate').value = `${parts[2]}-${parts[1]}-${parts[0]}`;
+
+        if (type === 'deliveries' || type === 'returns') {
+            entry.sizes.forEach(sz => {
+                let input = document.getElementById(`sell_size_${sz.size}`);
+                if(input) input.value = sz.val;
+            });
+        } else if (type === 'materials') {
+            document.getElementById('entryValue').value = entry.amount;
+            document.getElementById('entryDesc').value = entry.desc || '';
+        } else if (type === 'payments') {
+            document.getElementById('entryValue').value = entry.amount;
+        }
+        window.scrollTo(0, document.getElementById('entryForm').offsetTop);
     }
 
     function saveData() {
@@ -1209,89 +1243,144 @@
         if(!dateInput) return alert("⚠️ Error: Proper Date nakho!");
         let date = dateInput.split('-').reverse().join('/');
         let targetParty = activeParty;
-        if (!appData[targetParty]) appData[targetParty] = { balance: 0, deliveries: [], payments: [], history: [] };
+        if (!appData[targetParty]) appData[targetParty] = { balance: 0, deliveries: [], payments: [], history: [], returns: [], materials: [] };
         
+        let isEdit = (editModeState !== null);
+        let editType = isEdit ? editModeState.type : null;
+        let oldEntry = isEdit ? editModeState.originalEntry : null;
+        let editIndex = isEdit ? editModeState.index : null;
+
+        let totalNangToSave = 0, sizesDeducted = [], val = 0, desc = '';
+        let isReturn = (entryMode === 'return_dai');
+        
+        // --- DATA GATHERING & VALIDATION ---
         if(entryMode === 'qty' || entryMode === 'return_dai') {
-            let totalNangToSave = 0;
-            let sizesDeducted = [];
-            let isReturn = (entryMode === 'return_dai');
-            
             for(let s=10; s<=25; s++) {
                 let el = document.getElementById(`sell_size_${s}`);
                 if(el && el.value) {
-                    let val = parseInt(el.value);
-                    if(val > 0) {
+                    let szVal = parseInt(el.value);
+                    if(szVal > 0) {
                         let curStock = stockInventory[s] || 0;
-                        if(!isReturn && curStock < val) return alert(`⚠️ Error: Dai No. ${s} no stock o6o che! (Available: ${curStock} Dai)`);
-                        sizesDeducted.push({size: s, val: val});
-                        totalNangToSave += val;
+                        if (!isReturn) {
+                            let diffToCheck = szVal;
+                            if (isEdit && editType === 'deliveries' && oldEntry && oldEntry.sizes) {
+                                let oldSz = oldEntry.sizes.find(x => x.size === s);
+                                if (oldSz) diffToCheck = szVal - oldSz.val;
+                            }
+                            if (diffToCheck > 0 && curStock < diffToCheck) {
+                                return alert(`⚠️ Error: Dai No. ${s} no stock o6o che! (Available to add: ${curStock} Dai)`);
+                            }
+                        }
+                        sizesDeducted.push({size: s, val: szVal});
+                        totalNangToSave += szVal;
                     }
                 }
             }
-            
             if(totalNangToSave === 0) return alert("Koy quantity nakhi nathi!");
-            
-            let displayStr = sizesDeducted.map(s => `${s.size}: ${s.val}`).join(', ');
-
-            sizesDeducted.forEach(item => {
-                let currStock = stockInventory[item.size] || 0;
-                db.ref(`stock_inventory/${item.size}`).set(isReturn ? currStock + item.val : currStock - item.val);
-            });
-            
-            db.ref('stock_logs').push({
-                date: date, 
-                type: isReturn ? 'IN' : 'OUT', 
-                detail: isReturn ? `Return by ${targetParty}` : `Sold to ${targetParty}`, 
-                sizes: sizesDeducted, displayStr: displayStr, totalQty: totalNangToSave
-            });
-            
-            if(isReturn) {
-                let targetReturns = getSafeArray(appData[targetParty].returns);
-                targetReturns.push({date: date, nang: totalNangToSave, sizes: sizesDeducted});
-                appData[targetParty].returns = targetReturns;
-                logActivity(`Received return ${totalNangToSave} Dai from ${targetParty}.`);
-            } else {
-                let targetDeliveries = getSafeArray(appData[targetParty].deliveries);
-                let existingEntry = targetDeliveries.find(d => d.date === date);
-                if(existingEntry) {
-                    existingEntry.nang += totalNangToSave;
-                    if(!existingEntry.sizes) existingEntry.sizes = [];
-                    sizesDeducted.forEach(newItem => {
-                        let foundSize = existingEntry.sizes.find(sz => sz.size === newItem.size);
-                        if(foundSize) foundSize.val += newItem.val;
-                        else existingEntry.sizes.push(newItem);
-                    });
-                } else {
-                    targetDeliveries.push({date: date, nang: totalNangToSave, sizes: sizesDeducted});
-                }
-                appData[targetParty].deliveries = targetDeliveries;
-                logActivity(`Sold total ${totalNangToSave} Dai to ${targetParty}.`);
-            }
-            
         } else if(entryMode === 'kacho_mal') {
-            let val = parseFloat(document.getElementById('entryValue').value);
-            let desc = document.getElementById('entryDesc').value.trim();
+            val = parseFloat(document.getElementById('entryValue').value);
+            desc = document.getElementById('entryDesc').value.trim();
             if(!val || val <= 0) return alert("Amount nakho!");
-            
-            let targetMaterials = getSafeArray(appData[targetParty].materials);
-            targetMaterials.push({date: date, amount: val, desc: desc});
-            appData[targetParty].materials = targetMaterials;
-            logActivity(`Added Bhangar ₹${val} for ${targetParty}.`);
-            
         } else {
-            let val = parseFloat(document.getElementById('entryValue').value);
+            val = parseFloat(document.getElementById('entryValue').value);
             if(!val || val <= 0) return alert("Amount nakho!");
+        }
+
+        // --- APPLY EDIT OR NEW ---
+        if (isEdit) {
+            let targetArray = getSafeArray(appData[targetParty][editType]);
+            let entryToUpdate = targetArray[editIndex];
             
-            let targetPayments = getSafeArray(appData[targetParty].payments);
-            let existingEntry = targetPayments.find(p => p.date === date);
-            if(existingEntry) existingEntry.amount += val;
-            else targetPayments.push({date: date, amount: val});
-            
-            appData[targetParty].payments = targetPayments;
-            logActivity(`Received ₹${val} Payment from ${targetParty}.`);
+            entryToUpdate.date = date; // Update the date!
+
+            if (entryMode === 'qty' || entryMode === 'return_dai') {
+                let oldSizes = {};
+                if (oldEntry && oldEntry.sizes) {
+                    oldEntry.sizes.forEach(sz => oldSizes[sz.size] = sz.val);
+                }
+                
+                // Calculate difference and update stock only if quantity changed
+                for(let s=10; s<=25; s++) {
+                    let oldVal = oldSizes[s] || 0;
+                    let newVal = sizesDeducted.find(x => x.size === s)?.val || 0;
+                    let diff = newVal - oldVal;
+                    
+                    if (diff !== 0) {
+                        let currStock = stockInventory[s] || 0;
+                        let newStk = (editType === 'returns') ? currStock + diff : currStock - diff;
+                        stockInventory[s] = newStk;
+                        db.ref(`stock_inventory/${s}`).set(newStk);
+                    }
+                }
+                
+                entryToUpdate.nang = totalNangToSave;
+                entryToUpdate.sizes = sizesDeducted;
+                logActivity(`Edited ${editType} for ${targetParty} (Date/Qty changed).`);
+            } else if (entryMode === 'kacho_mal') {
+                entryToUpdate.amount = val;
+                entryToUpdate.desc = desc;
+                logActivity(`Edited Bhangar for ${targetParty}.`);
+            } else {
+                entryToUpdate.amount = val;
+                logActivity(`Edited Payment for ${targetParty}.`);
+            }
+            appData[targetParty][editType] = targetArray;
+
+        } else {
+            // --- NEW ENTRY LOGIC ---
+            if(entryMode === 'qty' || entryMode === 'return_dai') {
+                let displayStr = sizesDeducted.map(s => `${s.size}: ${s.val}`).join(', ');
+                sizesDeducted.forEach(item => {
+                    let currStock = stockInventory[item.size] || 0;
+                    let newStk = isReturn ? currStock + item.val : currStock - item.val;
+                    stockInventory[item.size] = newStk; 
+                    db.ref(`stock_inventory/${item.size}`).set(newStk); 
+                });
+                
+                db.ref('stock_logs').push({
+                    date: date, type: isReturn ? 'IN' : 'OUT', 
+                    detail: isReturn ? `Return by ${targetParty}` : `Sold to ${targetParty}`, 
+                    sizes: sizesDeducted, displayStr: displayStr, totalQty: totalNangToSave
+                });
+                
+                if(isReturn) {
+                    let targetReturns = getSafeArray(appData[targetParty].returns);
+                    targetReturns.push({date: date, nang: totalNangToSave, sizes: sizesDeducted});
+                    appData[targetParty].returns = targetReturns;
+                    logActivity(`Received return ${totalNangToSave} Dai from ${targetParty}.`);
+                } else {
+                    let targetDeliveries = getSafeArray(appData[targetParty].deliveries);
+                    let existingEntry = targetDeliveries.find(d => d.date === date);
+                    if(existingEntry) {
+                        existingEntry.nang += totalNangToSave;
+                        if(!existingEntry.sizes) existingEntry.sizes = [];
+                        sizesDeducted.forEach(newItem => {
+                            let foundSize = existingEntry.sizes.find(sz => sz.size === newItem.size);
+                            if(foundSize) foundSize.val += newItem.val;
+                            else existingEntry.sizes.push(newItem);
+                        });
+                    } else {
+                        targetDeliveries.push({date: date, nang: totalNangToSave, sizes: sizesDeducted});
+                    }
+                    appData[targetParty].deliveries = targetDeliveries;
+                    logActivity(`Sold total ${totalNangToSave} Dai to ${targetParty}.`);
+                }
+            } else if(entryMode === 'kacho_mal') {
+                let targetMaterials = getSafeArray(appData[targetParty].materials);
+                targetMaterials.push({date: date, amount: val, desc: desc});
+                appData[targetParty].materials = targetMaterials;
+                logActivity(`Added Bhangar ₹${val} for ${targetParty}.`);
+            } else {
+                let targetPayments = getSafeArray(appData[targetParty].payments);
+                let existingEntry = targetPayments.find(p => p.date === date);
+                if(existingEntry) existingEntry.amount += val;
+                else targetPayments.push({date: date, amount: val});
+                appData[targetParty].payments = targetPayments;
+                logActivity(`Received ₹${val} Payment from ${targetParty}.`);
+            }
         }
         
-        document.getElementById('entryForm').style.display = 'none'; 
+        closeEntryForm();
         if(document.getElementById('entryValue')) document.getElementById('entryValue').value = '';
         db.ref('erp_data/' + targetParty).set(appData[targetParty]);
     }
@@ -1324,6 +1413,7 @@
                 <td><span class="badge badge-out">Delivery</span></td>
                 <td style="text-align:right; font-weight:700;">
                     <span onclick="viewChitthi(${index}, 'deliveries')" style="color:var(--secondary); text-decoration:underline; font-size:14px; margin-right:8px; display:inline-block; padding-bottom:2px; cursor:pointer; transition:all 0.2s;">${dispStr}</span>
+                    <button onclick="editEntry(${index}, 'deliveries')" style="background:none; border:none; color:var(--secondary); margin-left:4px; cursor:pointer; font-size:16px; transition:color 0.2s;" onmouseover="this.style.color='var(--secondary-hover)'" onmouseout="this.style.color='var(--secondary)'">✏️</button>
                     <button onclick="deleteEntry(${index}, 'deliveries')" style="background:none; border:none; color:var(--text-sub); margin-left:4px; cursor:pointer; font-size:16px; transition:color 0.2s;" onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--text-sub)'">🗑</button>
                 </td>
             </tr>`;
@@ -1336,6 +1426,7 @@
                 <td><span class="badge" style="background:rgba(245, 158, 11, 0.1); color:#f59e0b;">Return</span></td>
                 <td style="text-align:right; font-weight:700;">
                     <span onclick="viewChitthi(${index}, 'returns')" style="color:#f59e0b; text-decoration:underline; font-size:14px; margin-right:8px; display:inline-block; padding-bottom:2px; cursor:pointer; transition:all 0.2s;">${dispStr}</span>
+                    <button onclick="editEntry(${index}, 'returns')" style="background:none; border:none; color:#f59e0b; margin-left:4px; cursor:pointer; font-size:16px; transition:color 0.2s;" onmouseover="this.style.color='#d97706'" onmouseout="this.style.color='#f59e0b'">✏️</button>
                     <button onclick="deleteEntry(${index}, 'returns')" style="background:none; border:none; color:var(--text-sub); margin-left:4px; cursor:pointer; font-size:16px; transition:color 0.2s;" onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--text-sub)'">🗑</button>
                 </td>
             </tr>`;
@@ -1346,6 +1437,7 @@
                 <td>${p.date}</td>
                 <td><span class="badge badge-in">Payment</span></td>
                 <td style="text-align:right; font-weight:700; color:var(--success); font-size:15px;">₹ ${p.amount} 
+                    <button onclick="editEntry(${index}, 'payments')" style="background:none; border:none; color:var(--success); margin-left:8px; cursor:pointer; font-size:16px; transition:color 0.2s;" onmouseover="this.style.color='#059669'" onmouseout="this.style.color='var(--success)'">✏️</button>
                     <button onclick="deleteEntry(${index}, 'payments')" style="background:none; border:none; color:var(--text-sub); margin-left:4px; cursor:pointer; font-size:16px; transition:color 0.2s;" onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--text-sub)'">🗑</button>
                 </td>
             </tr>`; 
@@ -1357,6 +1449,7 @@
                 <td>${m.date}</td>
                 <td><span class="badge" style="background:rgba(139, 92, 246, 0.1); color:#8b5cf6;">${label}</span></td>
                 <td style="text-align:right; font-weight:700; color:#8b5cf6; font-size:15px;">₹ ${m.amount} 
+                    <button onclick="editEntry(${index}, 'materials')" style="background:none; border:none; color:#8b5cf6; margin-left:8px; cursor:pointer; font-size:16px; transition:color 0.2s;" onmouseover="this.style.color='#7c3aed'" onmouseout="this.style.color='#8b5cf6'">✏️</button>
                     <button onclick="deleteEntry(${index}, 'materials')" style="background:none; border:none; color:var(--text-sub); margin-left:4px; cursor:pointer; font-size:16px; transition:color 0.2s;" onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--text-sub)'">🗑</button>
                 </td>
             </tr>`; 
@@ -1391,8 +1484,7 @@
                 db.ref('stock_logs').push({
                     date: getFormattedToday(), type: 'OUT', detail: `Return Deleted (${activeParty})`,
                     sizes: deletedItem.sizes, displayStr: deletedItem.sizes.map(s => `${s.size}: ${s.val}`).join(', '), totalQty: deletedItem.nang
-                }
-                );
+                });
             }
         }
         
@@ -1607,7 +1699,6 @@
         
         window.location.hash = 'invoiceScreen';
     }
-
     </script>
     </body>
 </html>
