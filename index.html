@@ -21,7 +21,7 @@
                     .catch(error => console.log('ServiceWorker registration failed:', error));
             });
         }
-    </script>
+        </script>
         <link
             href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
             rel="stylesheet">
@@ -151,6 +151,7 @@
         .btn-outline:hover { background: #f8fafc; border-color: #cbd5e1; }
         [data-theme="dark"] .btn-outline:hover { background: #334155; border-color: #475569; }
 
+        /* SCROLLBAR AND STICKY HEADER SETTINGS */
         .history-box { 
             background: var(--card-bg); border-radius: var(--radius); padding: 20px; margin-top: 24px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); overflow-x: auto;
             max-height: 60vh; overflow-y: auto; 
@@ -228,7 +229,7 @@
             .inv-table thead th { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             .inv-party { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         }
-    </style>
+        </style>
     </head>
     <body>
 
@@ -1253,7 +1254,6 @@
         let totalNangToSave = 0, sizesDeducted = [], val = 0, desc = '';
         let isReturn = (entryMode === 'return_dai');
         
-        // --- DATA GATHERING & VALIDATION ---
         if(entryMode === 'qty' || entryMode === 'return_dai') {
             for(let s=10; s<=25; s++) {
                 let el = document.getElementById(`sell_size_${s}`);
@@ -1286,12 +1286,11 @@
             if(!val || val <= 0) return alert("Amount nakho!");
         }
 
-        // --- APPLY EDIT OR NEW ---
         if (isEdit) {
             let targetArray = getSafeArray(appData[targetParty][editType]);
             let entryToUpdate = targetArray[editIndex];
             
-            entryToUpdate.date = date; // Update the date!
+            entryToUpdate.date = date; 
 
             if (entryMode === 'qty' || entryMode === 'return_dai') {
                 let oldSizes = {};
@@ -1299,7 +1298,6 @@
                     oldEntry.sizes.forEach(sz => oldSizes[sz.size] = sz.val);
                 }
                 
-                // Calculate difference and update stock only if quantity changed
                 for(let s=10; s<=25; s++) {
                     let oldVal = oldSizes[s] || 0;
                     let newVal = sizesDeducted.find(x => x.size === s)?.val || 0;
@@ -1327,7 +1325,6 @@
             appData[targetParty][editType] = targetArray;
 
         } else {
-            // --- NEW ENTRY LOGIC ---
             if(entryMode === 'qty' || entryMode === 'return_dai') {
                 let displayStr = sizesDeducted.map(s => `${s.size}: ${s.val}`).join(', ');
                 sizesDeducted.forEach(item => {
@@ -1618,6 +1615,7 @@
         
         window.location.hash = 'invoiceScreen';
     }
+
     function closeBook() {
         if(confirm("Close cycle? This will save the full table to history.")) {
             let d = new Date();
@@ -1646,6 +1644,7 @@
             });
         }
     }
+
     function renderHistoryDOM() {
         let data = appData[activeParty], cont = document.getElementById('historyListContainer');
         document.getElementById('histPartyName').innerText = activeParty; cont.innerHTML = '';
@@ -1659,6 +1658,7 @@
             div.onclick = () => showOldInvoice(h, idx); cont.appendChild(div);
         });
     }
+
     function showOldInvoice(h, hIndex) {
         let invBody = document.getElementById('invItemsBody'); invBody.innerHTML = ''; let totalQty = 0;
         
@@ -1669,7 +1669,8 @@
             totalQty += d.nang; 
         }
         );
-         let curAmt = Math.round(totalQty * RATE);
+        
+        let curAmt = Math.round(totalQty * RATE);
         
         let totalReturnQty = 0; getSafeArray(h.returns).forEach(r => totalReturnQty += r.nang);
         let returnCredit = Math.round(totalReturnQty * RATE);
@@ -1695,6 +1696,7 @@
         
         window.location.hash = 'invoiceScreen';
     }
+
     </script>
     </body>
 </html>
